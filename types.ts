@@ -21,6 +21,7 @@ export interface Transaction {
     margin: number;
     wallet: string; // Changed from WalletId enum to string
     isPiutang: boolean;
+    marginType?: 'dalam' | 'luar';
 }
 
 export type Page = 'dashboard' | 'wallets' | 'categories' | 'customers' | 'reports' | 'settings';

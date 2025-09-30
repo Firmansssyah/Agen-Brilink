@@ -1,12 +1,18 @@
 
-import React, { useMemo, useState } from 'react';
+
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Transaction, Wallet, SortKey, SortDirection, TransactionType } from '../types';
 import WalletsSummaryCard from '../components/WalletsSummaryCard';
 import AccountsReceivableCard from '../components/AccountsReceivableCard';
 import TransactionTable from '../components/TransactionTable';
-import TransactionHeatmap from '../components/TransactionHeatmap';
+import WeeklyTransactionSummary from '../components/WeeklyTransactionSummary';
 import TransactionModal from '../components/TransactionModal';
 import AddFeeModal from '../components/AddFeeModal';
+import TransactionFilterControls from '../components/TransactionFilterControls';
+import { PlusIcon } from '../components/icons/Icons';
+import TransferModal from '../components/TransferModal';
+import DailyTransactionsModal from '../components/DailyTransactionsModal';
+
 
 interface DashboardPageProps {
     wallets: Wallet[];
@@ -35,10 +41,17 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
 }) => {
     const [transactionTablePage, setTransactionTablePage] = useState(1);
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+    const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
     const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
     const [sortKey, setSortKey] = useState<SortKey>('date');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
+    const [dailyModalDate, setDailyModalDate] = useState<string | null>(null);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState<'all' | TransactionType>('all');
+    const [filterStartDate, setFilterStartDate] = useState('');
+    const [filterEndDate, setFilterEndDate] = useState('');
+    
     const itemsPerPage = 10;
 
     const currentMonthMargin = useMemo(() => {
@@ -54,8 +67,37 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             .reduce((acc, curr) => acc + curr.margin, 0);
     }, [transactions]);
 
-    const sortedTransactions = useMemo(() => {
-        const items = [...transactions];
+    const filteredAndSortedTransactions = useMemo(() => {
+        let items = [...transactions];
+
+        // 1. Apply search filter
+        if (searchTerm.trim()) {
+            const lowercasedFilter = searchTerm.toLowerCase();
+            items = items.filter(t =>
+                t.description.toLowerCase().includes(lowercasedFilter) ||
+                t.customer.toLowerCase().includes(lowercasedFilter) ||
+                t.amount.toString().includes(lowercasedFilter) ||
+                formatRupiah(t.amount).includes(lowercasedFilter)
+            );
+        }
+
+        // 2. Apply type filter
+        if (filterType !== 'all') {
+            items = items.filter(t => t.type === filterType);
+        }
+
+        // 3. Apply date range filter
+        if (filterStartDate) {
+            const startDate = new Date(filterStartDate);
+            startDate.setHours(0, 0, 0, 0);
+            items = items.filter(t => new Date(t.date) >= startDate);
+        }
+        if (filterEndDate) {
+            const endDate = new Date(filterEndDate);
+            endDate.setHours(23, 59, 59, 999);
+            items = items.filter(t => new Date(t.date) <= endDate);
+        }
+        
         items.sort((a, b) => {
             const valA = a[sortKey];
             const valB = b[sortKey];
@@ -72,24 +114,45 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             return sortDirection === 'asc' ? comparison : -comparison;
         });
         return items;
-    }, [transactions, sortKey, sortDirection]);
+    }, [transactions, searchTerm, filterType, filterStartDate, filterEndDate, sortKey, sortDirection, formatRupiah]);
     
-    const totalPages = Math.ceil(sortedTransactions.length / itemsPerPage) || 1;
+    const totalPages = Math.ceil(filteredAndSortedTransactions.length / itemsPerPage) || 1;
 
     const paginatedTransactions = useMemo(() => {
         const startIndex = (transactionTablePage - 1) * itemsPerPage;
-        return sortedTransactions.slice(startIndex, startIndex + itemsPerPage);
-    }, [sortedTransactions, transactionTablePage]);
+        return filteredAndSortedTransactions.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredAndSortedTransactions, transactionTablePage]);
     
-    const handleOpenAddModal = () => {
+    const handleOpenAddModal = useCallback(() => {
         setTransactionToEdit(null);
         setIsTransactionModalOpen(true);
-    };
+    }, []);
 
     const handleOpenEditModal = (transaction: Transaction) => {
         setTransactionToEdit(transaction);
         setIsTransactionModalOpen(true);
     };
+    
+    const handleDayClick = useCallback((date: string) => {
+        setDailyModalDate(date);
+    }, []);
+
+    const dailyTransactions = useMemo(() => {
+        if (!dailyModalDate) return [];
+        // Adjust for timezone when creating the date object
+        const [year, month, day] = dailyModalDate.split('-').map(Number);
+        const targetDateStart = new Date(year, month - 1, day);
+        targetDateStart.setHours(0, 0, 0, 0);
+        
+        const targetDateEnd = new Date(year, month - 1, day);
+        targetDateEnd.setHours(23, 59, 59, 999);
+
+        return transactions.filter(t => {
+            const tDate = new Date(t.date);
+            return tDate >= targetDateStart && tDate <= targetDateEnd;
+        }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [dailyModalDate, transactions]);
+
 
     const handleCloseModal = () => {
         setIsTransactionModalOpen(false);
@@ -112,7 +175,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
 
     const handleSaveFee = (amount: number) => {
         const feeTransaction: Omit<Transaction, 'id' | 'date'> = {
-            description: 'Fee Bagi Hasil BRILink',
+            description: 'Fee Brilink',
             customer: 'BRILink',
             type: TransactionType.IN,
             amount: 0,
@@ -124,8 +187,75 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsFeeModalOpen(false);
     };
 
+    const handleSaveTransfer = useCallback((transferData: { fromWallet: string; toWallet: string; amount: number; }) => {
+        const { fromWallet, toWallet, amount } = transferData;
+        const fromWalletName = wallets.find(w => w.id === fromWallet)?.name;
+        const toWalletName = wallets.find(w => w.id === toWallet)?.name;
+    
+        if (!fromWalletName || !toWalletName) return;
+    
+        const outTransaction: Omit<Transaction, 'id' | 'date'> = {
+            description: `Pindah Saldo ke ${toWalletName}`,
+            customer: 'Internal',
+            type: TransactionType.OUT,
+            amount,
+            margin: 0,
+            wallet: fromWallet,
+            isPiutang: false,
+        };
+        onSaveTransaction(outTransaction);
+    
+        const inTransaction: Omit<Transaction, 'id' | 'date'> = {
+            description: `Pindah Saldo dari ${fromWalletName}`,
+            customer: 'Internal',
+            type: TransactionType.IN,
+            amount,
+            margin: 0,
+            wallet: toWallet,
+            isPiutang: false,
+        };
+        onSaveTransaction(inTransaction);
+        setIsTransferModalOpen(false);
+    }, [wallets, onSaveTransaction]);
+
+    const resetPage = (callback: (...args: any[]) => void) => (...args: any[]) => {
+        callback(...args);
+        setTransactionTablePage(1);
+    };
+
+    const handleClearFilters = useCallback(() => {
+        setSearchTerm('');
+        setFilterType('all');
+        setFilterStartDate('');
+        setFilterEndDate('');
+        setTransactionTablePage(1);
+    }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement;
+            const isTyping = ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+
+            if (event.key === '/' && !isTyping) {
+                event.preventDefault();
+                handleOpenAddModal();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleOpenAddModal]);
+
     return (
         <>
+            <TransferModal
+                isOpen={isTransferModalOpen}
+                onClose={() => setIsTransferModalOpen(false)}
+                onSave={handleSaveTransfer}
+                wallets={wallets}
+            />
             <TransactionModal
                 isOpen={isTransactionModalOpen}
                 onClose={handleCloseModal}
@@ -134,7 +264,17 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 transactionToEdit={transactionToEdit}
                 wallets={wallets}
                 categories={categories}
+                customers={customers}
                 formatRupiah={formatRupiah}
+            />
+            <DailyTransactionsModal
+                isOpen={!!dailyModalDate}
+                onClose={() => setDailyModalDate(null)}
+                date={dailyModalDate}
+                transactions={dailyTransactions}
+                wallets={wallets}
+                formatRupiah={formatRupiah}
+                onEditTransaction={handleOpenEditModal}
             />
             <AddFeeModal 
                 isOpen={isFeeModalOpen}
@@ -148,7 +288,41 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Main Content Area */}
                             <div className="lg:col-span-2 space-y-6">
-                                <section>
+                                <div className="bg-white dark:bg-[#2A282F] p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+                                    <div className="flex justify-between items-center mb-4 px-2">
+                                        <h3 className="text-lg font-medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
+                                        <div className="flex items-center space-x-2">
+                                            <div className="grid grid-flow-col gap-2">
+                                                <button 
+                                                    onClick={() => setIsFeeModalOpen(true)}
+                                                    className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-400/10 dark:hover:bg-indigo-400/20 dark:text-indigo-200 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
+                                                    aria-label="Tambah Fee Brilink"
+                                                >
+                                                    <PlusIcon className="h-4 w-4" />
+                                                    <span>Fee Brilink</span>
+                                                </button>
+                                                <button 
+                                                    onClick={handleOpenAddModal}
+                                                    className="bg-indigo-500 hover:bg-indigo-600 text-white dark:bg-indigo-400 dark:hover:bg-indigo-500 dark:text-slate-900 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    <PlusIcon className="h-4 w-4" />
+                                                    <span>Tambah Transaksi</span>
+                                                    <kbd className="hidden sm:inline-block ml-2 bg-slate-100/30 dark:bg-slate-700/80 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-0.5 text-xs font-mono text-white dark:text-slate-300">/</kbd>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <TransactionFilterControls 
+                                        searchTerm={searchTerm}
+                                        onSearchChange={resetPage(setSearchTerm)}
+                                        filterType={filterType}
+                                        onFilterTypeChange={resetPage(setFilterType)}
+                                        startDate={filterStartDate}
+                                        onStartDateChange={resetPage(setFilterStartDate)}
+                                        endDate={filterEndDate}
+                                        onEndDateChange={resetPage(setFilterEndDate)}
+                                        onClearFilters={handleClearFilters}
+                                    />
                                     <TransactionTable 
                                         wallets={wallets}
                                         transactions={paginatedTransactions} 
@@ -156,13 +330,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         currentPage={transactionTablePage}
                                         totalPages={totalPages}
                                         setCurrentPage={setTransactionTablePage}
-                                        onAddTransaction={handleOpenAddModal}
                                         onEditTransaction={handleOpenEditModal}
                                         sortKey={sortKey}
                                         sortDirection={sortDirection}
                                         onSort={handleSort}
                                     />
-                                </section>
+                                </div>
                             </div>
 
                             {/* Right Summary Sidebar */}
@@ -172,21 +345,21 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         wallets={wallets}
                                         totalMargin={currentMonthMargin}
                                         formatRupiah={formatRupiah}
-                                        onAddFee={() => setIsFeeModalOpen(true)}
+                                        onOpenTransferModal={() => setIsTransferModalOpen(true)}
                                     />
                                 </section>
+                                <section>
+                                    <WeeklyTransactionSummary 
+                                        transactions={transactions}
+                                        onDayClick={handleDayClick}
+                                    />
+                                </section>                                
                                 <section>
                                     <AccountsReceivableCard 
                                         receivableTransactions={accountsReceivable} 
                                         totalPiutang={totalPiutang}
                                         formatRupiah={formatRupiah} 
                                         onSettleReceivable={onSettleReceivable}
-                                    />
-                                </section>
-                                <section>
-                                    <TransactionHeatmap 
-                                        transactions={transactions}
-                                        formatRupiah={formatRupiah}
                                     />
                                 </section>
                             </div>

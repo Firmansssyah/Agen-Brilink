@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Transaction, Wallet, TransactionType, Page } from './types';
 import { INITIAL_WALLETS, MOCK_TRANSACTIONS, INITIAL_CATEGORIES } from './constants';
 import Header from './components/Header';
@@ -10,6 +10,8 @@ import TransactionCategoryPage from './pages/TransactionCategoryPage';
 import CustomerManagementPage from './pages/CustomerManagementPage';
 import ReportsPage from './pages/ReportsPage';
 
+type Theme = 'light' | 'dark';
+
 const App: React.FC = () => {
     // FIX: Corrected typo from INITIAL_WALLELETS to INITIAL_WALLETS.
     const [wallets, setWallets] = useState<Wallet[]>(INITIAL_WALLETS);
@@ -18,6 +20,20 @@ const App: React.FC = () => {
     
     // Fix: Add state for current page to enable navigation.
     const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+    const [theme, setTheme] = useState<Theme>(
+        (localStorage.getItem('theme') as Theme) ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    );
+
+    useEffect(() => {
+        const root = window.document.documentElement;
+        if (theme === 'dark') {
+            root.classList.add('dark');
+        } else {
+            root.classList.remove('dark');
+        }
+        localStorage.setItem('theme', theme);
+    }, [theme]);
 
     const formatRupiah = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -52,7 +68,7 @@ const App: React.FC = () => {
         action: 'create' | 'settle' | 'revert_settle' | 'delete'
     ) => {
         setWallets(prevWallets => {
-            const { wallet: primaryWalletId, amount, margin, type, description } = transaction;
+            const { wallet: primaryWalletId, amount, margin, type, description, marginType } = transaction;
             const cashWalletId = 'CASH';
             
             if (!primaryWalletId) return prevWallets;
@@ -61,62 +77,60 @@ const App: React.FC = () => {
             let cashWalletChange = 0;
 
             if (action === 'create') {
-                if (description === 'Fee Bagi Hasil BRILink') {
-                    // This fee is pure margin deposited directly into the BRILink wallet. No cash movement.
+                if (description.startsWith('Pindah Saldo')) {
+                    primaryWalletChange = (type === TransactionType.IN) ? amount : -amount;
+                } else if (description === 'Fee Brilink') {
                     primaryWalletChange = margin;
-                    cashWalletChange = 0;
-                } else {
-                    // Standard customer transactions
-                    if (type === TransactionType.IN) { // e.g., Tarik Tunai
+                } else if (description === 'Tarik Tunai') {
+                    if (marginType === 'luar') { // Admin Luar: margin goes to cash
+                        primaryWalletChange = amount;
+                        if (!transaction.isPiutang) {
+                            cashWalletChange = -amount + margin;
+                        } else {
+                            cashWalletChange = -amount;
+                        }
+                    } else { // Admin Dalam (default): margin goes to wallet
                         primaryWalletChange = amount + margin;
-                    } else { // e.g., Transfer
-                        primaryWalletChange = -amount;
+                        cashWalletChange = -amount;
                     }
-
-                    if (!transaction.isPiutang) {
-                        if (description === 'Tarik Tunai') {
-                            cashWalletChange = -amount; // Cash given to customer
-                        } else {
-                            cashWalletChange = amount + margin; // Cash received from customer
-                        }
-                    } else { // Is Piutang (credit)
-                        if (description === 'Tarik Tunai') {
-                            cashWalletChange = -amount; // Cash still given out
-                        } else {
-                            cashWalletChange = 0; // No cash moves yet for other piutang
-                        }
+                } else { // All other standard transactions
+                    if (type === TransactionType.IN) {
+                        primaryWalletChange = amount + margin;
+                        if (!transaction.isPiutang) cashWalletChange = -amount;
+                    } else { // OUT (Transfer, Listrik, etc.)
+                        primaryWalletChange = -amount;
+                        if (!transaction.isPiutang) cashWalletChange = amount + margin;
                     }
                 }
             } else if (action === 'settle') {
-                // Settling a piutang means receiving cash
                 cashWalletChange = amount + margin;
             } else if (action === 'revert_settle') {
-                // Reverting a settlement means cash is "returned"
                 cashWalletChange = -(amount + margin);
             } else if (action === 'delete') {
                 // This logic is the inverse of the 'create' action
-                if (description === 'Fee Bagi Hasil BRILink') {
+                if (description.startsWith('Pindah Saldo')) {
+                    primaryWalletChange = (type === TransactionType.IN) ? -amount : amount;
+                } else if (description === 'Fee Brilink') {
                     primaryWalletChange = -margin;
-                    cashWalletChange = 0;
-                } else {
+                } else if (description === 'Tarik Tunai') {
+                     if (marginType === 'luar') {
+                        primaryWalletChange = -amount;
+                        if (!transaction.isPiutang) {
+                            cashWalletChange = amount - margin;
+                        } else {
+                             cashWalletChange = amount;
+                        }
+                    } else { // Admin Dalam
+                        primaryWalletChange = -(amount + margin);
+                        cashWalletChange = amount;
+                    }
+                } else { // All other standard transactions
                     if (type === TransactionType.IN) {
                         primaryWalletChange = -(amount + margin);
-                    } else {
+                        if (!transaction.isPiutang) cashWalletChange = amount;
+                    } else { // OUT
                         primaryWalletChange = amount;
-                    }
-
-                    if (!transaction.isPiutang) {
-                        if (description === 'Tarik Tunai') {
-                            cashWalletChange = amount;
-                        } else {
-                            cashWalletChange = -(amount + margin);
-                        }
-                    } else {
-                        if (description === 'Tarik Tunai') {
-                            cashWalletChange = amount;
-                        } else {
-                            cashWalletChange = 0;
-                        }
+                        if (!transaction.isPiutang) cashWalletChange = -(amount + margin);
                     }
                 }
             }
@@ -152,6 +166,7 @@ const App: React.FC = () => {
                 ...data,
                 id: `T${Date.now()}`,
                 date: new Date().toISOString(),
+                marginType: data.description === 'Tarik Tunai' ? (data as any).marginType : undefined
             };
             setTransactions(prev => [newTransaction, ...prev]);
             handleWalletBalanceUpdate(newTransaction, 'create');
@@ -199,7 +214,15 @@ const App: React.FC = () => {
             case 'customers':
                 return <CustomerManagementPage transactions={transactions} formatRupiah={formatRupiah} />;
             case 'reports':
-                return <ReportsPage transactions={transactions} formatRupiah={formatRupiah} />;
+                return <ReportsPage 
+                    transactions={transactions} 
+                    formatRupiah={formatRupiah}
+                    wallets={wallets}
+                    onSaveTransaction={handleSaveTransaction}
+                    onDeleteTransaction={handleDeleteTransaction}
+                    categories={categories}
+                    customers={customers}
+                />;
             case 'settings':
                 return <div className="p-8 mx-auto max-w-7xl"><h1 className="text-2xl">Pengaturan</h1><p>Halaman ini sedang dalam pengembangan.</p></div>;
             default:
@@ -220,8 +243,13 @@ const App: React.FC = () => {
     
     return (
         // Fix: Update layout to include Sidebar and render the current page.
-        <div className="bg-[#1C1B1F] min-h-screen text-[#E6E1E5]">
-            <Header currentPage={currentPage} setCurrentPage={setCurrentPage} />
+        <div className="bg-slate-50 dark:bg-[#1C1B1F] min-h-screen text-slate-800 dark:text-[#E6E1E5]">
+            <Header 
+                currentPage={currentPage} 
+                setCurrentPage={setCurrentPage}
+                theme={theme}
+                setTheme={setTheme}
+            />
             {renderPage()}
         </div>
     );

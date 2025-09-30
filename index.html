@@ -6,12 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BRILink Finance Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Mona Sans', 'sans-serif'],
+            },
+          }
+        }
+      }
+    </script>
     <link rel="stylesheet" href="https://rsms.me/mona-sans/mona-sans.css">
     <style>
-      body {
-        font-family: 'Mona Sans', sans-serif;
-        background-color: #1C1B1F;
-      }
       .tooltip {
         visibility: hidden;
         opacity: 0;
@@ -35,17 +43,27 @@
         animation: fadeIn 0.4s ease-out forwards;
       }
     </style>
+  <script>
+    // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+  </script>
   <script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1",
+    "react-dom/client": "https://aistudiocdn.com/react-dom@^19.1.1/client",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
     "react/": "https://aistudiocdn.com/react@^19.1.1/"
   }
 }
 </script>
 </head>
-  <body>
+  <body class="bg-slate-50 dark:bg-[#1C1B1F] font-sans">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

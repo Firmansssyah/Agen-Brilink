@@ -11,10 +11,10 @@ export const INITIAL_WALLETS: Wallet[] = [
 
 export const INITIAL_CATEGORIES: string[] = [
     'Tarik Tunai',
-    'Transfer Bank',
-    'Bayar Listrik',
-    'Top Up E-Wallet',
-    'Bayar Cicilan',
+    'Transfer',
+    'Pulsa',
+    'Listrik',
+    'E-wallet',
     'Lainnya'
 ];
 
@@ -29,11 +29,12 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
         margin: 5000,
         wallet: 'BRILINK',
         isPiutang: false,
+        marginType: 'dalam',
     },
     {
         id: 'TXN1002',
         date: new Date(new Date().setDate(new Date().getDate() - 2)).toISOString(),
-        description: 'Transfer Bank',
+        description: 'Transfer',
         customer: 'Siti Aminah',
         type: TransactionType.OUT,
         amount: 1000000,
@@ -44,7 +45,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     {
         id: 'TXN1003',
         date: new Date(new Date().setDate(new Date().getDate() - 3)).toISOString(),
-        description: 'Bayar Listrik',
+        description: 'Listrik',
         customer: 'Ahmad Yani',
         type: TransactionType.OUT,
         amount: 250000,
@@ -55,7 +56,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     {
         id: 'TXN1004',
         date: new Date(new Date().setDate(new Date().getDate() - 4)).toISOString(),
-        description: 'Top Up E-Wallet',
+        description: 'E-wallet',
         customer: 'Dewi Lestari',
         type: TransactionType.OUT,
         amount: 150000,
@@ -73,11 +74,12 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
         margin: 3000,
         wallet: 'BRILINK',
         isPiutang: false,
+        marginType: 'luar',
     },
     {
         id: 'TXN1006',
         date: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(),
-        description: 'Bayar Cicilan',
+        description: 'Lainnya',
         customer: 'Budi Santoso',
         type: TransactionType.OUT,
         amount: 750000,
@@ -88,7 +90,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     {
         id: 'TXN1007',
         date: new Date(new Date().setDate(new Date().getDate() - 6)).toISOString(),
-        description: 'Transfer Bank',
+        description: 'Transfer',
         customer: 'Pelanggan',
         type: TransactionType.OUT,
         amount: 300000,
@@ -99,7 +101,7 @@ export const MOCK_TRANSACTIONS: Transaction[] = [
     {
         id: 'TXN1008',
         date: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString(),
-        description: 'Top Up E-Wallet',
+        description: 'E-wallet',
         customer: 'Siti Aminah',
         type: TransactionType.OUT,
         amount: 50000,

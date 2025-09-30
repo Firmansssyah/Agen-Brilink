@@ -1,5 +1,4 @@
 import React from 'react';
-// Fix: Import WalletIcon to be used as a fallback.
 import { WalletIcon } from './icons/Icons';
 
 // --- SVG Icon Components defined directly in the file ---
@@ -73,7 +72,7 @@ const WalletIconComponent: React.FC<WalletIconComponentProps> = ({ walletId, ico
     }
     
     // Fallback for custom wallets without image URLs
-    return <WalletIcon />;
+    return <WalletIcon className={className} />;
 };
 
 export default WalletIconComponent;

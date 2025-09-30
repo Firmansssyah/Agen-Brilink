@@ -2,7 +2,7 @@
 import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 import WalletIconComponent from './WalletIconComponent';
-import { PlusIcon, ChevronDownIcon, ChevronUpIcon } from './icons/Icons';
+import { ChevronDownIcon, ChevronUpIcon } from './icons/Icons';
 
 interface TransactionTableProps {
     transactions: Transaction[];
@@ -11,7 +11,6 @@ interface TransactionTableProps {
     currentPage: number;
     totalPages: number;
     setCurrentPage: (page: number) => void;
-    onAddTransaction: () => void;
     onEditTransaction: (transaction: Transaction) => void;
     sortKey: SortKey;
     sortDirection: SortDirection;
@@ -29,11 +28,11 @@ const SortableHeader: React.FC<{
     const isActive = sortKey === columnKey;
     
     return (
-        <th className={`p-3 text-xs font-medium uppercase text-[#958F99] tracking-wider ${className}`}>
+        <th className={`p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider ${className}`}>
             <button onClick={() => onSort(columnKey)} className="flex items-center space-x-1.5 group focus:outline-none">
-                <span className={isActive ? "text-white" : ""}>{title}</span>
+                <span className={isActive ? "text-slate-800 dark:text-white" : ""}>{title}</span>
                 {isActive && (
-                    sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4 text-white" /> : <ChevronDownIcon className="h-4 w-4 text-white" />
+                    sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4 text-slate-800 dark:text-white" /> : <ChevronDownIcon className="h-4 w-4 text-slate-800 dark:text-white" />
                 )}
             </button>
         </th>
@@ -48,7 +47,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     currentPage, 
     totalPages, 
     setCurrentPage,
-    onAddTransaction,
     onEditTransaction,
     sortKey,
     sortDirection,
@@ -56,20 +54,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 }) => {
 
     return (
-        <div className="bg-[#2A282F] p-4 rounded-3xl flex flex-col">
-            <div className="flex justify-between items-center mb-4 px-2">
-                <h3 className="text-lg font-medium text-white">Riwayat Transaksi</h3>
-                 <button 
-                    onClick={onAddTransaction}
-                    className="bg-indigo-400 hover:bg-indigo-500 text-slate-900 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <PlusIcon className="h-4 w-4" />
-                    <span>Tambah Transaksi</span>
-                </button>
-            </div>
-            <div className="overflow-x-auto flex-grow">
+        <>
+             {/* Desktop Table View */}
+            <div className="overflow-x-auto flex-grow hidden md:block">
                 <table className="w-full text-left">
-                    <thead className="border-b border-white/10">
+                    <thead className="border-b border-slate-200 dark:border-white/10">
                         <tr>
                             <SortableHeader columnKey="date" title="Tanggal" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                             <SortableHeader columnKey="description" title="Deskripsi" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
@@ -84,14 +73,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                 <tr 
                                     key={transaction.id} 
                                     onClick={() => onEditTransaction(transaction)}
-                                    className={`border-b border-white/10 transition-colors duration-200 cursor-pointer ${
-                                        transaction.isPiutang ? 'bg-yellow-400/10 hover:bg-yellow-400/20' : 'hover:bg-white/5'
+                                    className={`border-b border-slate-200 dark:border-white/10 transition-colors duration-200 cursor-pointer ${
+                                        transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                     }`}
                                 >
-                                    <td className="p-3 text-sm text-slate-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
-                                    <td className="p-3 text-sm text-white">{transaction.description}</td>
-                                    <td className="p-3 text-sm text-slate-300">{transaction.customer}</td>
-                                    <td className={`p-3 text-sm font-medium ${transaction.type === TransactionType.IN ? 'text-emerald-400' : 'text-red-400'}`}>
+                                    <td className="p-3 text-sm text-slate-500 dark:text-slate-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
+                                    <td className="p-3 text-sm text-slate-800 dark:text-white">{transaction.description}</td>
+                                    <td className="p-3 text-sm text-slate-600 dark:text-slate-300">{transaction.customer}</td>
+                                    <td className={`p-3 text-sm font-medium ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                                         <div className="flex items-center space-x-3">
                                             {(() => {
                                                 const wallet = wallets.find(w => w.id === transaction.wallet);
@@ -99,7 +88,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                     <WalletIconComponent 
                                                         walletId={wallet.id} 
                                                         iconUrl={wallet.icon} 
-                                                        className="h-5 w-5 object-contain brightness-0 invert"
+                                                        className="h-6 w-6 object-contain dark:brightness-0 dark:invert"
                                                         altText={wallet.name}
                                                     />
                                                 );
@@ -107,41 +96,95 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             <span>{`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}</span>
                                         </div>
                                     </td>
-                                    <td className="p-3 text-sm text-sky-300">{formatRupiah(transaction.margin)}</td>
+                                    <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
                                 </tr>
                             ))
                          ) : (
                             <tr>
-                                <td colSpan={5} className="text-center py-20 text-slate-500">
-                                    Tidak ada riwayat transaksi.
+                                <td colSpan={5} className="text-center py-20 text-slate-400 dark:text-slate-500">
+                                    Tidak ada transaksi yang cocok.
                                 </td>
                             </tr>
                         )}
                     </tbody>
                 </table>
             </div>
+
+            {/* Mobile Card View */}
+            <div className="flex-grow md:hidden space-y-3">
+                 {transactions.length > 0 ? (
+                    transactions.map(transaction => {
+                        const wallet = wallets.find(w => w.id === transaction.wallet);
+                        return (
+                            <div 
+                                key={transaction.id} 
+                                onClick={() => onEditTransaction(transaction)}
+                                className={`p-4 rounded-2xl border transition-colors duration-200 cursor-pointer ${
+                                    transaction.isPiutang 
+                                        ? 'bg-yellow-100 border-yellow-200 dark:bg-yellow-400/10 dark:border-yellow-400/20 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' 
+                                        : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10'
+                                }`}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-base font-semibold text-slate-800 dark:text-white truncate">{transaction.description}</p>
+                                        <p className="text-sm text-slate-600 dark:text-slate-300 truncate">{transaction.customer || 'Pelanggan'}</p>
+                                    </div>
+                                    {transaction.isPiutang && (
+                                        <div className="ml-2 flex-shrink-0 text-xs font-bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">Piutang</div>
+                                    )}
+                                </div>
+                                <div className="mt-3 flex justify-between items-end">
+                                    <div className="flex items-center space-x-3">
+                                        {wallet && (
+                                            <WalletIconComponent 
+                                                walletId={wallet.id} 
+                                                iconUrl={wallet.icon} 
+                                                className="h-7 w-7 object-contain dark:brightness-0 dark:invert"
+                                                altText={wallet.name}
+                                            />
+                                        )}
+                                        <div>
+                                            <p className={`text-lg font-bold ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                {`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}
+                                            </p>
+                                            <p className="text-xs text-sky-600 dark:text-sky-300">Margin: {formatRupiah(transaction.margin)}</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
+                                </div>
+                            </div>
+                        )
+                    })
+                ) : (
+                    <div className="text-center py-20 text-slate-400 dark:text-slate-500">
+                        Tidak ada transaksi yang cocok.
+                    </div>
+                )}
+            </div>
+
             {totalPages > 1 && (
                  <div className="flex justify-between items-center pt-4 mt-2">
                     <button
                         onClick={() => setCurrentPage(currentPage - 1)}
                         disabled={currentPage <= 1}
-                        className="px-4 py-2 text-sm font-medium text-white border border-white/20 rounded-full disabled:opacity-50 hover:enabled:bg-white/10 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-white border border-slate-300 dark:border-white/20 rounded-full disabled:opacity-50 hover:enabled:bg-slate-100 dark:hover:enabled:bg-white/10 transition-colors"
                     >
                         Sebelumnya
                     </button>
-                    <span className="text-sm text-slate-400">
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
                         Halaman {currentPage} dari {totalPages}
                     </span>
                     <button
                         onClick={() => setCurrentPage(currentPage + 1)}
                         disabled={currentPage >= totalPages}
-                        className="px-4 py-2 text-sm font-medium text-white border border-white/20 rounded-full disabled:opacity-50 hover:enabled:bg-white/10 transition-colors"
+                        className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-white border border-slate-300 dark:border-white/20 rounded-full disabled:opacity-50 hover:enabled:bg-slate-100 dark:hover:enabled:bg-white/10 transition-colors"
                     >
                         Berikutnya
                     </button>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 

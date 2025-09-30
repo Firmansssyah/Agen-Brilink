@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import { Transaction } from '../types';
 
@@ -59,33 +60,33 @@ const MonthlyFinancialSummary: React.FC<MonthlyFinancialSummaryProps> = ({ trans
 
 
     return (
-        <div className="bg-[#2A282F] p-4 rounded-3xl">
-            <h3 className="text-lg font-medium text-white mb-4 px-2">Ringkasan Keuangan Bulanan</h3>
+        <div className="bg-white dark:bg-[#2A282F] p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+            <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4 px-2">Ringkasan Keuangan Bulanan</h3>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
-                    <thead className="border-b border-white/10">
+                    <thead className="border-b border-slate-200 dark:border-white/10">
                         <tr>
-                            <th className="p-3 text-xs font-medium uppercase text-[#958F99] tracking-wider">Periode</th>
-                            <th className="p-3 text-xs font-medium uppercase text-[#958F99] tracking-wider">Total Omzet</th>
-                            <th className="p-3 text-xs font-medium uppercase text-[#958F99] tracking-wider">Total Margin</th>
-                            <th className="p-3 text-xs font-medium uppercase text-[#958F99] tracking-wider text-center">Jml. Transaksi</th>
-                            <th className="p-3 text-xs font-medium uppercase text-[#958F99] tracking-wider">Piutang Baru</th>
+                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Periode</th>
+                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Omzet</th>
+                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Margin</th>
+                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Jml. Transaksi</th>
+                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Piutang Baru</th>
                         </tr>
                     </thead>
                     <tbody>
                         {monthlyData.length > 0 ? monthlyData.map(summary => (
-                            <tr key={`${summary.year}-${summary.month}`} className="border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors duration-200">
-                                <td className="p-3 text-sm text-white font-medium">{summary.month} {summary.year}</td>
-                                <td className="p-3 text-sm text-slate-300">{formatRupiah(summary.totalOmzet)}</td>
-                                <td className="p-3 text-sm font-medium text-emerald-400">{formatRupiah(summary.totalMargin)}</td>
-                                <td className="p-3 text-sm text-slate-300 text-center">{summary.transactionCount}</td>
-                                <td className={`p-3 text-sm font-medium ${summary.newReceivables > 0 ? 'text-yellow-400' : 'text-slate-400'}`}>
+                            <tr key={`${summary.year}-${summary.month}`} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200">
+                                <td className="p-3 text-sm text-slate-800 dark:text-white font-medium">{summary.month} {summary.year}</td>
+                                <td className="p-3 text-sm text-slate-600 dark:text-slate-300">{formatRupiah(summary.totalOmzet)}</td>
+                                <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.totalMargin)}</td>
+                                <td className="p-3 text-sm text-slate-600 dark:text-slate-300 text-center">{summary.transactionCount}</td>
+                                <td className={`p-3 text-sm font-medium ${summary.newReceivables > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-slate-400'}`}>
                                     {formatRupiah(summary.newReceivables)}
                                 </td>
                             </tr>
                         )) : (
                             <tr>
-                                <td colSpan={5} className="text-center py-8 text-slate-500">Tidak ada data transaksi.</td>
+                                <td colSpan={5} className="text-center py-8 text-slate-400 dark:text-slate-500">Tidak ada data transaksi.</td>
                             </tr>
                         )}
                     </tbody>
