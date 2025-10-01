@@ -105,7 +105,7 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                             </div>
                         </div>
                         <div className="overflow-x-auto">
-                            <div className="rounded-xl overflow-hidden">
+                            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
                                 <table className="w-full text-left">
                                     <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                                         <tr>

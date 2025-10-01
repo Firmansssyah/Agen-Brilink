@@ -127,20 +127,22 @@ const BrilinkFeeDetailModal: React.FC<BrilinkFeeDetailModalProps> = ({
                                         
                                         {isMonthOpen && (
                                             <div id={`fee-details-${key}`} className="bg-slate-50 dark:bg-black/20 p-3 animate-fade-in">
-                                                <table className="w-full text-sm">
-                                                    <tbody>
-                                                        {transactions.map(t => (
-                                                             <tr key={t.id} className="border-b border-slate-200/50 dark:border-white/5 last:border-b-0">
-                                                                <td className="py-1.5 pr-2 text-slate-600 dark:text-slate-300">
-                                                                    {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                                                </td>
-                                                                <td className="py-1.5 pl-2 text-right font-medium text-emerald-600 dark:text-emerald-400">
-                                                                    {formatRupiah(t.margin)}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                                                <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-white/10">
+                                                    <table className="w-full text-sm bg-white dark:bg-slate-700/50">
+                                                        <tbody>
+                                                            {transactions.map(t => (
+                                                                 <tr key={t.id} className="border-b border-slate-200/50 dark:border-white/5 last:border-b-0">
+                                                                    <td className="py-1.5 px-3 pr-2 text-slate-600 dark:text-slate-300">
+                                                                        {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                                                    </td>
+                                                                    <td className="py-1.5 px-3 pl-2 text-right font-medium text-emerald-600 dark:text-emerald-400">
+                                                                        {formatRupiah(t.margin)}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
                                         )}
                                     </div>

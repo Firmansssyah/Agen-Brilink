@@ -1,5 +1,6 @@
 
 
+
 import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 import WalletIconComponent from './WalletIconComponent';
@@ -58,7 +59,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         <>
              {/* Desktop Table View */}
             <div className="overflow-x-auto flex-grow hidden md:block">
-                <div className="rounded-xl overflow-hidden">
+                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
                     <table className="w-full text-left">
                         <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                             <tr>

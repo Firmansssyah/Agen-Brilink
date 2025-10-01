@@ -62,7 +62,7 @@ const MonthlyFinancialSummary: React.FC<MonthlyFinancialSummaryProps> = ({ trans
         <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
             <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4 px-2">Ringkasan Keuangan Bulanan</h3>
             <div className="overflow-x-auto">
-                <div className="rounded-xl overflow-hidden">
+                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
                     <table className="w-full text-left">
                         <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                             <tr>
