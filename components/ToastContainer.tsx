@@ -40,7 +40,7 @@ const Toast: React.FC<{ toast: ToastMessage, onDismiss: (id: number) => void }> 
     };
 
     return (
-        <div className="w-full max-w-sm rounded-full shadow-lg bg-white/80 dark:bg-[#322F3B]/80 backdrop-blur-sm border border-slate-200 dark:border-white/10 animate-toast-in">
+        <div className="w-full max-w-sm rounded-full shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-white/10 animate-toast-in">
             <div className="flex items-center px-4 py-3">
                 <div className="flex-shrink-0">
                     {iconMap[type]}

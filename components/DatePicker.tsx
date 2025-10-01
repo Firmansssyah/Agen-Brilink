@@ -122,7 +122,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
             <div
                 ref={calendarRef}
                 style={{ position: 'absolute', top: `${position.top + 8}px`, left: `${position.left}px` }}
-                className="z-[100] bg-white dark:bg-[#2F2D35] border border-slate-300 dark:border-slate-600 rounded-xl shadow-lg p-4 w-72 animate-fade-in"
+                className="z-[100] bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl shadow-lg p-4 w-72 animate-fade-in"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Kalender"
@@ -187,7 +187,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
                     value={formatDisplayDate(value)}
                     onClick={() => setIsOpen(!isOpen)}
                     placeholder={placeholder}
-                    className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-10 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-10 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                     aria-haspopup="dialog"
                     aria-expanded={isOpen}
                 />

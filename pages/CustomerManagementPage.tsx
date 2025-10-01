@@ -82,14 +82,14 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         <>
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-4xl">
-                    <div className="bg-white dark:bg-[#3A3241] p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-2 gap-4">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Analisis Pelanggan</h3>
                             <div className="w-full sm:w-auto relative">
                                 <select 
                                     value={selectedPeriod} 
                                     onChange={(e) => setSelectedPeriod(e.target.value)}
-                                    className="w-full sm:w-56 bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none appearance-none"
+                                    className="w-full sm:w-56 bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none appearance-none"
                                 >
                                     <option value="all-time">Semua Waktu</option>
                                     {availableMonths.map(monthStr => {

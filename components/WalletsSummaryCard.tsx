@@ -27,7 +27,7 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, totalM
     }, [wallets, totalPiutang]);
 
     return (
-        <div className="bg-white dark:bg-[#2A282F] rounded-3xl p-4 flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
             {/* Header for Totals and Actions */}
             <div className="px-1 pb-3 mb-3 border-b border-slate-200 dark:border-white/10">
                 <div className="grid grid-cols-2 gap-4">

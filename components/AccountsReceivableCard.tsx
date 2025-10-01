@@ -32,7 +32,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
     };
 
     return (
-        <div className="bg-white dark:bg-[#2A282F] rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-slate-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
             {/* Header */}
             <div className="p-4">
                 <div className="flex items-center justify-between">

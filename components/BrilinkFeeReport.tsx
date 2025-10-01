@@ -58,7 +58,7 @@ const BrilinkFeeReport: React.FC<BrilinkFeeReportProps> = ({ feeTransactions, fo
 
     return (
         <div
-            className="bg-white dark:bg-[#2A282F] p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none h-full flex flex-col text-left w-full"
+            className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none h-full flex flex-col text-left w-full"
         >
             {/* Header */}
             <div className="flex justify-between items-start mb-4 px-2">

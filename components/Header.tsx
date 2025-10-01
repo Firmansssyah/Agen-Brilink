@@ -8,7 +8,7 @@ const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; }> = ({ theme,
     return (
         <button
             onClick={onToggle}
-            className="w-14 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-[#2A282F] focus:ring-blue-400"
+            className="w-14 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-900 focus:ring-blue-400"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
             <span className={`w-6 h-6 rounded-full bg-white dark:bg-slate-800 shadow-md transform transition-transform duration-300 relative ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0'}`}>
@@ -101,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
 
     return (
         <>
-            <header className="bg-white/80 dark:bg-[#2A282F]/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-200 dark:border-white/10">
+            <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-200 dark:border-white/10">
                 <div className="px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         {/* Left Section: Logo/Title */}
@@ -145,7 +145,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
             </header>
             
             {/* Mobile Menu Overlay */}
-            <div className={`fixed inset-0 z-50 bg-slate-50/95 dark:bg-[#1C1B1F]/95 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} role="dialog" aria-modal="true">
+            <div className={`fixed inset-0 z-50 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} role="dialog" aria-modal="true">
                 <div className={`transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-4'}`}>
                     <div className="flex justify-end p-4">
                         <button

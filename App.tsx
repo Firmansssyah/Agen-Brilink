@@ -508,7 +508,7 @@ const MainApp: React.FC = () => {
     }
 
     return (
-        <div className="bg-slate-50 dark:bg-[#1C1B1F] min-h-screen text-slate-800 dark:text-[#E6E1E5]">
+        <div className="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-[#E6E1E5]">
             <Header 
                 currentPage={currentPage} 
                 setCurrentPage={setCurrentPage}

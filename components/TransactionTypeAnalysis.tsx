@@ -56,10 +56,10 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
     );
 
     return (
-        <div className="bg-white dark:bg-[#2A282F] p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-slate-800 dark:text-white">Transaksi Terpopuler</h3>
-                <div className="flex items-center space-x-2 bg-slate-100 dark:bg-[#1C1B1F] p-1 rounded-full">
+                <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-full">
                     <TabButton active={period === 'monthly'} onClick={() => setPeriod('monthly')}>
                         Bulan Ini
                     </TabButton>

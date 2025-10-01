@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
 import WalletIconComponent from './WalletIconComponent';
@@ -66,7 +67,7 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
             aria-labelledby="daily-transactions-title"
         >
             <div
-                className={`bg-white dark:bg-[#2F2D35] rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10">
@@ -124,7 +125,7 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
                     )}
                 </div>
                 <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10">
-                    <button type="button" onClick={handleClose} className="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-200 dark:hover:bg-indigo-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Tutup</button>
+                    <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Tutup</button>
                 </div>
             </div>
         </div>

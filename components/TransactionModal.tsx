@@ -200,7 +200,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     
     if (!isOpen) return null;
 
-    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
     const formSelectClass = `${formInputClass} appearance-none`;
     const formLabelClass = "block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2 px-2";
 
@@ -212,7 +212,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                 onClick={handleClose}
             >
                 <div 
-                    className={`bg-white dark:bg-[#2F2D35] rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                    className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                      <div className="p-6 border-b border-slate-200 dark:border-white/10">
@@ -248,7 +248,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         autoComplete="off"
                                     />
                                     {showSuggestions && suggestions.length > 0 && (
-                                        <ul className="absolute z-10 w-full bg-white dark:bg-[#4A4750] border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
+                                        <ul className="absolute z-10 w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
                                             {suggestions.map((suggestion) => (
                                                 <li
                                                     key={suggestion}
@@ -304,7 +304,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         className={formInputClass}
                                     />
                                     {showMarginSuggestions && (
-                                        <ul className="absolute z-10 w-full bg-white dark:bg-[#4A4750] border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
+                                        <ul className="absolute z-10 w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
                                             {marginSuggestions.map((suggestion) => (
                                                 <li
                                                     key={suggestion}

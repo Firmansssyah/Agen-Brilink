@@ -262,7 +262,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Main Content Area */}
                             <div className="lg:col-span-2 space-y-6">
-                                <div className="bg-white dark:bg-[#2A282F] p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+                                <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
                                     <div className="flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font-medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
                                         <div className="flex items-center space-x-2">

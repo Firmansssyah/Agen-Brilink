@@ -105,7 +105,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
             <div className="mx-auto max-w-7xl">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Wallet Management Section */}
-                    <div className="bg-white dark:bg-[#2A282F] p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex justify-between items-center mb-4 px-2">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Daftar Dompet</h3>
                             <button 
@@ -146,7 +146,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     </div>
 
                     {/* Category Management Section */}
-                    <div className="bg-white dark:bg-[#2A282F] p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex justify-between items-center mb-4 px-2">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Jenis Transaksi</h3>
                             <button 
