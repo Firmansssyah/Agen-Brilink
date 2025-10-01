@@ -8,14 +8,14 @@ const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; }> = ({ theme,
     return (
         <button
             onClick={onToggle}
-            className="w-14 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-slate-900 focus:ring-blue-400"
+            className="w-14 h-8 rounded-full bg-slate-200 dark:bg-neutral-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-[#191919] focus:ring-blue-400"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
-            <span className={`w-6 h-6 rounded-full bg-white dark:bg-slate-800 shadow-md transform transition-transform duration-300 relative ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0'}`}>
+            <span className={`w-6 h-6 rounded-full bg-white dark:bg-neutral-800 shadow-md transform transition-transform duration-300 relative ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0'}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 text-yellow-500 ${theme === 'light' ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 text-slate-300 ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                 <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 text-neutral-300 ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
             </span>
@@ -37,7 +37,7 @@ const NavLink: React.FC<NavLinkProps> = ({ page, text, active, onClick, isMobile
     if (isMobile) {
         const mobileBase = "block text-center py-4 text-lg font-medium";
         const mobileActive = "text-blue-500 dark:text-blue-300";
-        const mobileInactive = "text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white";
+        const mobileInactive = "text-slate-700 dark:text-neutral-200 hover:text-slate-900 dark:hover:text-white";
         return (
             <a onClick={() => onClick(page)} className={`${baseClasses} ${mobileBase} ${active ? mobileActive : mobileInactive}`}>
                 {text}
@@ -47,7 +47,7 @@ const NavLink: React.FC<NavLinkProps> = ({ page, text, active, onClick, isMobile
     
     const desktopBase = "px-4 py-2 rounded-full text-sm font-medium";
     const desktopActive = "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200";
-    const desktopInactive = "text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-slate-100";
+    const desktopInactive = "text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-neutral-100";
     
     return (
         <a onClick={() => onClick(page)} className={`${baseClasses} ${desktopBase} ${active ? desktopActive : desktopInactive}`}>
@@ -101,7 +101,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
 
     return (
         <>
-            <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-200 dark:border-white/10">
+            <header className="bg-white/80 dark:bg-[#191919]/80 backdrop-blur-sm sticky top-0 z-40 border-b border-slate-200 dark:border-white/10">
                 <div className="px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         {/* Left Section: Logo/Title */}
@@ -126,13 +126,13 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
                         <div className="flex-1 flex justify-end items-center space-x-4">
                             <div className="text-right hidden sm:block">
                                 <p className="text-base font-medium text-slate-800 dark:text-white tracking-wider">{formattedTime}</p>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">{formattedDate}</p>
+                                <p className="text-xs text-slate-500 dark:text-neutral-400">{formattedDate}</p>
                             </div>
                             <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
                             <div className="md:hidden">
                                 <button
                                     onClick={() => setIsMobileMenuOpen(true)}
-                                    className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white"
+                                    className="p-2 rounded-full text-slate-600 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white"
                                     aria-label="Buka menu"
                                     aria-expanded={isMobileMenuOpen}
                                 >
@@ -145,12 +145,12 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
             </header>
             
             {/* Mobile Menu Overlay */}
-            <div className={`fixed inset-0 z-50 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} role="dialog" aria-modal="true">
+            <div className={`fixed inset-0 z-50 bg-slate-50/95 dark:bg-[#191919]/95 backdrop-blur-sm md:hidden transition-opacity duration-300 ease-in-out ${isMobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`} role="dialog" aria-modal="true">
                 <div className={`transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-y-0' : '-translate-y-4'}`}>
                     <div className="flex justify-end p-4">
                         <button
                             onClick={() => setIsMobileMenuOpen(false)}
-                            className="p-2 rounded-full text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white"
+                            className="p-2 rounded-full text-slate-600 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white"
                             aria-label="Tutup menu"
                         >
                             <CloseIcon className="h-6 w-6" />

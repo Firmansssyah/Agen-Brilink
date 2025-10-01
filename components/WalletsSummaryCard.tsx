@@ -27,7 +27,7 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, totalM
     }, [wallets, totalPiutang]);
 
     return (
-        <div className="bg-white dark:bg-slate-800 rounded-3xl p-4 flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 rounded-3xl p-4 flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
             {/* Header for Totals and Actions */}
             <div className="px-1 pb-3 mb-3 border-b border-slate-200 dark:border-white/10">
                 <div className="grid grid-cols-2 gap-4">
@@ -35,7 +35,7 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, totalM
                         <div className="flex items-center space-x-1.5 has-tooltip relative">
                             <p className="text-xs text-slate-500 dark:text-[#CAC4D0]">Total Aset</p>
                             <InfoIcon className="h-3.5 w-3.5 text-slate-400" />
-                            <div className="tooltip absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-700 dark:bg-slate-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none w-52 text-center shadow-lg">
+                            <div className="tooltip absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-700 dark:bg-neutral-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none w-52 text-center shadow-lg">
                                 Saldo dompet (BRI & BRILink dikurangi Rp50rb) + Total Piutang
                             </div>
                         </div>

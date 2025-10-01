@@ -51,14 +51,14 @@ const MarginTrendChart: React.FC<ChartComponentProps> = ({ chartData, formatRupi
     }, [yMaxMargin]);
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
             <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4">Tren Margin (12 Bulan)</h3>
             <div className="w-full overflow-x-auto">
                 <svg viewBox={`0 0 ${width} ${height}`} className="min-w-[600px]">
                     <g transform={`translate(${margin.left}, ${margin.top})`}>
                         {yAxisTicksMargin.map(tickValue => (
                             <line key={`grid-${tickValue}`} x1={0} x2={innerWidth} y1={yScaleMargin(tickValue)} y2={yScaleMargin(tickValue)}
-                                stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" className="text-slate-200 dark:text-slate-700" />
+                                stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" className="text-slate-200 dark:text-neutral-700" />
                         ))}
                         {yAxisTicksMargin.map(tickValue => (
                             <text key={`margin-label-${tickValue}`} x={-10} y={yScaleMargin(tickValue)} textAnchor="end"
@@ -68,7 +68,7 @@ const MarginTrendChart: React.FC<ChartComponentProps> = ({ chartData, formatRupi
                         ))}
                         {chartData.map((d, i) => (
                             <text key={d.month} x={xScale(i)} y={innerHeight + 20} textAnchor="middle"
-                                fontSize="10" fill="currentColor" className="text-slate-500 dark:text-slate-400 font-medium">
+                                fontSize="10" fill="currentColor" className="text-slate-500 dark:text-neutral-400 font-medium">
                                 {d.month}
                             </text>
                         ))}
@@ -91,9 +91,9 @@ const MarginTrendChart: React.FC<ChartComponentProps> = ({ chartData, formatRupi
                             return (
                                 <g>
                                     <line x1={x} y1={0} x2={x} y2={innerHeight} stroke="#958F99" strokeWidth="1" strokeDasharray="3,3" />
-                                    <circle cx={x} cy={yScaleMargin(d.totalMargin)} r="4" fill="#4ade80" stroke="currentColor" strokeWidth="2" className="stroke-white dark:stroke-slate-900" />
+                                    <circle cx={x} cy={yScaleMargin(d.totalMargin)} r="4" fill="#4ade80" stroke="currentColor" strokeWidth="2" className="stroke-white dark:stroke-neutral-900" />
                                     <g transform={`translate(${tooltipX}, ${margin.top})`}>
-                                        <rect width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-white dark:fill-slate-900 stroke-slate-200 dark:stroke-[#4A4458]" strokeWidth="1" />
+                                        <rect width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-white dark:fill-neutral-900 stroke-slate-200 dark:stroke-[#4A4458]" strokeWidth="1" />
                                         <text x="10" y="20" fontSize="12" fontWeight="bold" className="fill-slate-800 dark:fill-[#E6E1E5]">{d.month} {d.year}</text>
                                         <text x="10" y="38" fontSize="11" className="fill-slate-600 dark:fill-[#CAC4D0]">
                                             <tspan className="fill-emerald-600 dark:fill-emerald-400">Margin:</tspan> {formatRupiah(d.totalMargin)}
@@ -139,14 +139,14 @@ const TransactionCountChart: React.FC<Pick<ChartComponentProps, 'chartData'>> = 
     }, [yMaxCount]);
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
             <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4">Tren Jumlah Transaksi (12 Bulan)</h3>
             <div className="w-full overflow-x-auto">
                  <svg viewBox={`0 0 ${width} ${height}`} className="min-w-[600px]">
                     <g transform={`translate(${margin.left}, ${margin.top})`}>
                         {yAxisTicksCount.map(tickValue => (
                             <line key={`grid-${tickValue}`} x1={0} x2={innerWidth} y1={yScaleCount(tickValue)} y2={yScaleCount(tickValue)}
-                                stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" className="text-slate-200 dark:text-slate-700" />
+                                stroke="currentColor" strokeWidth="0.5" strokeDasharray="3,3" className="text-slate-200 dark:text-neutral-700" />
                         ))}
                         {yAxisTicksCount.map(tickValue => (
                             <text key={`count-label-${tickValue}`} x={-10} y={yScaleCount(tickValue)} textAnchor="end"
@@ -156,7 +156,7 @@ const TransactionCountChart: React.FC<Pick<ChartComponentProps, 'chartData'>> = 
                         ))}
                         {chartData.map((d, i) => (
                             <text key={d.month} x={xScale(i) + bandWidth / 2} y={innerHeight + 20} textAnchor="middle"
-                                fontSize="10" fill="currentColor" className="text-slate-500 dark:text-slate-400 font-medium">
+                                fontSize="10" fill="currentColor" className="text-slate-500 dark:text-neutral-400 font-medium">
                                 {d.month}
                             </text>
                         ))}
@@ -183,7 +183,7 @@ const TransactionCountChart: React.FC<Pick<ChartComponentProps, 'chartData'>> = 
                                 <g>
                                      <line x1={x} y1={0} x2={x} y2={innerHeight} stroke="#958F99" strokeWidth="1" strokeDasharray="3,3" />
                                     <g transform={`translate(${tooltipX}, ${margin.top})`}>
-                                        <rect width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-white dark:fill-slate-900 stroke-slate-200 dark:stroke-[#4A4458]" strokeWidth="1" />
+                                        <rect width={tooltipWidth} height={tooltipHeight} rx="8" className="fill-white dark:fill-neutral-900 stroke-slate-200 dark:stroke-[#4A4458]" strokeWidth="1" />
                                         <text x="10" y="20" fontSize="12" fontWeight="bold" className="fill-slate-800 dark:fill-[#E6E1E5]">{d.month} {d.year}</text>
                                         <text x="10" y="38" fontSize="11" className="fill-slate-600 dark:fill-[#CAC4D0]">
                                             <tspan className="fill-blue-500 dark:fill-blue-400">Jml. Transaksi:</tspan> {d.transactionCount}

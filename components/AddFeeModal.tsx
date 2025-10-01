@@ -57,7 +57,7 @@ const AddFeeModal: React.FC<AddFeeModalProps> = ({ isOpen, onClose, onSave }) =>
             aria-labelledby="add-fee-modal-title"
         >
             <div 
-                className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-sm transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-sm transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
@@ -65,7 +65,7 @@ const AddFeeModal: React.FC<AddFeeModalProps> = ({ isOpen, onClose, onSave }) =>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="p-6">
-                        <label htmlFor="amount" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Jumlah Fee</label>
+                        <label htmlFor="amount" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Jumlah Fee</label>
                         <input 
                             type="text" 
                             name="amount" 
@@ -73,7 +73,7 @@ const AddFeeModal: React.FC<AddFeeModalProps> = ({ isOpen, onClose, onSave }) =>
                             inputMode="numeric"
                             value={formatInputValue(amount)} 
                             onChange={handleChange} 
-                            className="w-full bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500" 
+                            className="w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500" 
                             required 
                             autoFocus 
                             placeholder="cth: 150.000"

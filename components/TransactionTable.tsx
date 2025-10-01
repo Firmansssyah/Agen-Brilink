@@ -80,9 +80,9 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                         }`}
                                     >
-                                        <td className="p-3 text-sm text-slate-500 dark:text-slate-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
+                                        <td className="p-3 text-sm text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
                                         <td className="p-3 text-sm text-slate-800 dark:text-white">{transaction.description}</td>
-                                        <td className="p-3 text-sm text-slate-600 dark:text-slate-300">{transaction.customer}</td>
+                                        <td className="p-3 text-sm text-slate-600 dark:text-neutral-300">{transaction.customer}</td>
                                         <td className={`p-3 text-sm font-medium ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                                             <div className="flex items-center space-x-3">
                                                 {(() => {
@@ -104,7 +104,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                 ))
                              ) : (
                                 <tr>
-                                    <td colSpan={5} className="text-center py-20 text-slate-400 dark:text-slate-500">
+                                    <td colSpan={5} className="text-center py-20 text-slate-400 dark:text-neutral-500">
                                         Tidak ada transaksi yang cocok.
                                     </td>
                                 </tr>
@@ -132,7 +132,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                 <div className="flex justify-between items-start">
                                     <div className="flex-1 min-w-0">
                                         <p className="text-base font-semibold text-slate-800 dark:text-white truncate">{transaction.description}</p>
-                                        <p className="text-sm text-slate-600 dark:text-slate-300 truncate">{transaction.customer || 'Pelanggan'}</p>
+                                        <p className="text-sm text-slate-600 dark:text-neutral-300 truncate">{transaction.customer || 'Pelanggan'}</p>
                                     </div>
                                     {transaction.isPiutang && (
                                         <div className="ml-2 flex-shrink-0 text-xs font-bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">Piutang</div>
@@ -155,13 +155,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             <p className="text-xs text-sky-600 dark:text-sky-300">Margin: {formatRupiah(transaction.margin)}</p>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
+                                    <p className="text-xs text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
                                 </div>
                             </div>
                         )
                     })
                 ) : (
-                    <div className="text-center py-20 text-slate-400 dark:text-slate-500">
+                    <div className="text-center py-20 text-slate-400 dark:text-neutral-500">
                         Tidak ada transaksi yang cocok.
                     </div>
                 )}
@@ -176,7 +176,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                     >
                         Sebelumnya
                     </button>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                    <span className="text-sm text-slate-500 dark:text-neutral-400">
                         Halaman {currentPage} dari {totalPages}
                     </span>
                     <button

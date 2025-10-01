@@ -67,15 +67,15 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
             aria-labelledby="daily-transactions-title"
         >
             <div
-                className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10">
                     <div>
                         <h2 id="daily-transactions-title" className="text-xl font-medium text-slate-800 dark:text-white">Detail Transaksi</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">{formattedDate}</p>
+                        <p className="text-sm text-slate-500 dark:text-neutral-400">{formattedDate}</p>
                     </div>
-                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-slate-300 transition-colors" aria-label="Tutup">
+                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-neutral-300 transition-colors" aria-label="Tutup">
                         <CloseIcon />
                     </button>
                 </div>
@@ -100,7 +100,7 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
                                             )}
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{t.description}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{t.customer || 'Pelanggan'}</p>
+                                                <p className="text-xs text-slate-500 dark:text-neutral-400 truncate">{t.customer || 'Pelanggan'}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center space-x-4 ml-4">
@@ -121,7 +121,7 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
                             })}
                         </ul>
                     ) : (
-                        <p className="text-center py-10 text-slate-400 dark:text-slate-500">Tidak ada transaksi pada tanggal ini.</p>
+                        <p className="text-center py-10 text-slate-400 dark:text-neutral-500">Tidak ada transaksi pada tanggal ini.</p>
                     )}
                 </div>
                 <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10">

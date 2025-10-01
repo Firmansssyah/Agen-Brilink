@@ -499,8 +499,8 @@ const MainApp: React.FC = () => {
             return (
                 <div className="flex flex-col justify-center items-center h-[calc(100vh-4rem)] text-center p-4">
                     <h2 className="text-xl font-semibold text-red-500 mb-2">Terjadi Kesalahan</h2>
-                    <p className="text-slate-600 dark:text-slate-400 max-w-md">{error}</p>
-                    <p className="text-sm text-slate-500 mt-4">Pastikan `json-server` sedang berjalan pada port 3001.</p>
+                    <p className="text-slate-600 dark:text-neutral-400 max-w-md">{error}</p>
+                    <p className="text-sm text-neutral-500 mt-4">Pastikan `json-server` sedang berjalan pada port 3001.</p>
                 </div>
             );
         }
@@ -508,7 +508,7 @@ const MainApp: React.FC = () => {
     }
 
     return (
-        <div className="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-800 dark:text-[#E6E1E5]">
+        <div className="bg-slate-50 dark:bg-[#191919] min-h-screen text-slate-800 dark:text-[#E6E1E5]">
             <Header 
                 currentPage={currentPage} 
                 setCurrentPage={setCurrentPage}

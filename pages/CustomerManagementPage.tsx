@@ -82,14 +82,14 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         <>
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-4xl">
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-2 gap-4">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Analisis Pelanggan</h3>
                             <div className="w-full sm:w-auto relative">
                                 <select 
                                     value={selectedPeriod} 
                                     onChange={(e) => setSelectedPeriod(e.target.value)}
-                                    className="w-full sm:w-56 bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none appearance-none"
+                                    className="w-full sm:w-56 bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none appearance-none"
                                 >
                                     <option value="all-time">Semua Waktu</option>
                                     {availableMonths.map(monthStr => {
@@ -99,7 +99,7 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                         return <option key={monthStr} value={monthStr}>{displayMonth}</option>
                                     })}
                                 </select>
-                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400">
                                     <ChevronDownIcon className="h-5 w-5" />
                                 </div>
                             </div>
@@ -123,17 +123,17 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                                 onClick={() => handleRowClick(customer.name)}
                                             >
                                                 <td className="p-3 text-sm text-slate-800 dark:text-white font-medium">{customer.name}</td>
-                                                <td className="p-3 text-sm text-slate-600 dark:text-slate-300 text-center">{customer.transactionCount}</td>
+                                                <td className="p-3 text-sm text-slate-600 dark:text-neutral-300 text-center">{customer.transactionCount}</td>
                                                 <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                                                     {formatRupiah(customer.totalMargin)}
                                                 </td>
-                                                <td className={`p-3 text-sm font-medium ${customer.totalPiutang > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                <td className={`p-3 text-sm font-medium ${customer.totalPiutang > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
                                                     {formatRupiah(customer.totalPiutang)}
                                                 </td>
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan={4} className="text-center py-10 text-slate-400 dark:text-slate-500">
+                                                <td colSpan={4} className="text-center py-10 text-slate-400 dark:text-neutral-500">
                                                     Tidak ada data pelanggan untuk periode ini.
                                                 </td>
                                             </tr>

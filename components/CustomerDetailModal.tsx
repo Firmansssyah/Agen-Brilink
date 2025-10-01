@@ -82,15 +82,15 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             aria-labelledby="customer-detail-title"
         >
             <div
-                className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-3xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-3xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10">
                     <div>
                         <h2 id="customer-detail-title" className="text-xl font-medium text-slate-800 dark:text-white">{customerName}</h2>
-                        <p className="text-sm text-slate-500 dark:text-slate-400">Detail Pelanggan</p>
+                        <p className="text-sm text-slate-500 dark:text-neutral-400">Detail Pelanggan</p>
                     </div>
-                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-slate-300 transition-colors" aria-label="Tutup">
+                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-neutral-300 transition-colors" aria-label="Tutup">
                         <CloseIcon />
                     </button>
                 </div>
@@ -101,22 +101,22 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                         {/* Summary */}
                         <div className="bg-slate-100 dark:bg-black/20 p-4 rounded-xl">
                             <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm text-slate-600 dark:text-slate-300">Total Transaksi</span>
+                                <span className="text-sm text-slate-600 dark:text-neutral-300">Total Transaksi</span>
                                 <span className="text-lg font-bold text-slate-800 dark:text-white">{summary.totalTransactions}</span>
                             </div>
                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-slate-600 dark:text-slate-300">Total Margin</span>
+                                <span className="text-sm text-slate-600 dark:text-neutral-300">Total Margin</span>
                                 <span className="text-lg font-bold text-emerald-500 dark:text-emerald-400">{formatRupiah(summary.totalMargin)}</span>
                             </div>
                         </div>
 
                         {/* Monthly Margin */}
                         <div>
-                            <h3 className="text-md font-semibold text-slate-700 dark:text-slate-200 mb-2">Margin per Bulan</h3>
+                            <h3 className="text-md font-semibold text-slate-700 dark:text-neutral-200 mb-2">Margin per Bulan</h3>
                             <div className="space-y-2">
                                 {monthlyMarginData.map(month => (
                                     <div key={month.key} className="flex justify-between items-center text-sm p-2 rounded-lg bg-slate-50 dark:bg-white/5">
-                                        <span className="text-slate-600 dark:text-slate-300">{month.monthName}</span>
+                                        <span className="text-slate-600 dark:text-neutral-300">{month.monthName}</span>
                                         <span className="font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(month.totalMargin)}</span>
                                     </div>
                                 ))}
@@ -126,23 +126,23 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
 
                     {/* Right Column: Transaction History */}
                     <div className="md:col-span-2">
-                         <h3 className="text-md font-semibold text-slate-700 dark:text-slate-200 mb-2">Riwayat Transaksi</h3>
+                         <h3 className="text-md font-semibold text-slate-700 dark:text-neutral-200 mb-2">Riwayat Transaksi</h3>
                         {transactions.length > 0 ? (
                             <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden">
                                 <div className="max-h-[50vh] overflow-y-auto">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-50 dark:bg-white/5 sticky top-0">
                                         <tr>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-slate-400">Tanggal</th>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-slate-400">Deskripsi</th>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-slate-400 text-right">Jumlah</th>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-slate-400 text-right">Margin</th>
+                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400">Tanggal</th>
+                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400">Deskripsi</th>
+                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400 text-right">Jumlah</th>
+                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400 text-right">Margin</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {transactions.map(t => (
                                             <tr key={t.id} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100/50 dark:hover:bg-white/5 transition-colors duration-200">
-                                                <td className="p-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                                                <td className="p-3 text-slate-600 dark:text-neutral-300 whitespace-nowrap">
                                                     {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
                                                 </td>
                                                 <td className="p-3 text-slate-800 dark:text-white">{t.description}</td>
@@ -157,7 +157,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                                 </div>
                             </div>
                         ) : (
-                            <p className="text-center py-10 text-slate-400 dark:text-slate-500">Tidak ada transaksi.</p>
+                            <p className="text-center py-10 text-slate-400 dark:text-neutral-500">Tidak ada transaksi.</p>
                         )}
                     </div>
                 </div>

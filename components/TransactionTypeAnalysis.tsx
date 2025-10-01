@@ -48,7 +48,7 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
         <button
             onClick={onClick}
             className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors duration-200 ${
-                active ? 'bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-white/10'
+                active ? 'bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200' : 'text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10'
             }`}
         >
             {children}
@@ -56,10 +56,10 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
     );
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 p-4 sm:p-6 rounded-3xl animate-fade-in shadow-lg shadow-slate-200/50 dark:shadow-none">
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-medium text-slate-800 dark:text-white">Transaksi Terpopuler</h3>
-                <div className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-900 p-1 rounded-full">
+                <div className="flex items-center space-x-2 bg-slate-100 dark:bg-neutral-900 p-1 rounded-full">
                     <TabButton active={period === 'monthly'} onClick={() => setPeriod('monthly')}>
                         Bulan Ini
                     </TabButton>
@@ -74,10 +74,10 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
                     analysisData.map(({ description, count }) => (
                         <div key={description}>
                             <div className="flex justify-between items-center mb-1 text-sm">
-                                <span className="font-medium text-slate-700 dark:text-slate-200">{description}</span>
+                                <span className="font-medium text-slate-700 dark:text-neutral-200">{description}</span>
                                 <span className="font-semibold text-slate-800 dark:text-white">{count}x</span>
                             </div>
-                            <div className="w-full bg-slate-200 dark:bg-slate-700/50 rounded-full h-2.5">
+                            <div className="w-full bg-slate-200 dark:bg-neutral-700/50 rounded-full h-2.5">
                                 <div
                                     className="bg-blue-400 h-2.5 rounded-full"
                                     style={{ width: `${maxCount > 0 ? (count / maxCount) * 100 : 0}%` }}
@@ -87,7 +87,7 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
                     ))
                 ) : (
                     <div className="text-center py-8">
-                        <p className="text-slate-400 dark:text-slate-500 text-sm">Tidak ada data untuk periode ini.</p>
+                        <p className="text-slate-400 dark:text-neutral-500 text-sm">Tidak ada data untuk periode ini.</p>
                     </div>
                 )}
             </div>

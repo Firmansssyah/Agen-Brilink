@@ -92,12 +92,12 @@ const BrilinkFeeDetailModal: React.FC<BrilinkFeeDetailModalProps> = ({
             aria-labelledby="brilink-fee-detail-title"
         >
             <div
-                className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10">
                     <h2 id="brilink-fee-detail-title" className="text-xl font-medium text-slate-800 dark:text-white">Detail Fee Brilink</h2>
-                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-slate-300 transition-colors" aria-label="Tutup">
+                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-neutral-300 transition-colors" aria-label="Tutup">
                         <CloseIcon />
                     </button>
                 </div>
@@ -117,22 +117,22 @@ const BrilinkFeeDetailModal: React.FC<BrilinkFeeDetailModalProps> = ({
                                         >
                                             <div>
                                                 <p className="font-semibold text-slate-800 dark:text-white">{monthName}</p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">{count} transaksi</p>
+                                                <p className="text-xs text-slate-500 dark:text-neutral-400">{count} transaksi</p>
                                             </div>
                                             <div className="flex items-center space-x-4">
                                                 <span className="font-bold text-emerald-500 dark:text-emerald-400">{formatRupiah(totalFee)}</span>
-                                                <ChevronDownIcon className={`h-5 w-5 text-slate-400 transition-transform duration-300 ${isMonthOpen ? 'rotate-180' : ''}`} />
+                                                <ChevronDownIcon className={`h-5 w-5 text-neutral-400 transition-transform duration-300 ${isMonthOpen ? 'rotate-180' : ''}`} />
                                             </div>
                                         </button>
                                         
                                         {isMonthOpen && (
                                             <div id={`fee-details-${key}`} className="bg-slate-50 dark:bg-black/20 p-3 animate-fade-in">
                                                 <div className="rounded-lg overflow-hidden border border-slate-200 dark:border-white/10">
-                                                    <table className="w-full text-sm bg-white dark:bg-slate-700/50">
+                                                    <table className="w-full text-sm bg-white dark:bg-neutral-700/50">
                                                         <tbody>
                                                             {transactions.map(t => (
                                                                  <tr key={t.id} className="border-b border-slate-200/50 dark:border-white/5 last:border-b-0">
-                                                                    <td className="py-1.5 px-3 pr-2 text-slate-600 dark:text-slate-300">
+                                                                    <td className="py-1.5 px-3 pr-2 text-slate-600 dark:text-neutral-300">
                                                                         {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                                     </td>
                                                                     <td className="py-1.5 px-3 pl-2 text-right font-medium text-emerald-600 dark:text-emerald-400">
@@ -150,7 +150,7 @@ const BrilinkFeeDetailModal: React.FC<BrilinkFeeDetailModalProps> = ({
                             })}
                         </div>
                     ) : (
-                        <p className="text-center py-10 text-slate-400 dark:text-slate-500">Tidak ada data fee untuk ditampilkan.</p>
+                        <p className="text-center py-10 text-slate-400 dark:text-neutral-500">Tidak ada data fee untuk ditampilkan.</p>
                     )}
                 </div>
                 <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10">

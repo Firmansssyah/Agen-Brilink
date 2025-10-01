@@ -200,9 +200,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     
     if (!isOpen) return null;
 
-    const formInputClass = "w-full bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500";
     const formSelectClass = `${formInputClass} appearance-none`;
-    const formLabelClass = "block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2 px-2";
+    const formLabelClass = "block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2 px-2";
 
     return (
         <>
@@ -212,7 +212,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                 onClick={handleClose}
             >
                 <div 
-                    className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                    className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                      <div className="p-6 border-b border-slate-200 dark:border-white/10">
@@ -227,7 +227,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                     <select id="description" name="description" value={formData.description} onChange={handleChange} className={formSelectClass} required>
                                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400">
                                         <ChevronDownIcon />
                                     </div>
                                 </div>
@@ -248,7 +248,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         autoComplete="off"
                                     />
                                     {showSuggestions && suggestions.length > 0 && (
-                                        <ul className="absolute z-10 w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
+                                        <ul className="absolute z-10 w-full bg-white dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 rounded-2xl mt-2 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
                                             {suggestions.map((suggestion) => (
                                                 <li
                                                     key={suggestion}
@@ -304,7 +304,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         className={formInputClass}
                                     />
                                     {showMarginSuggestions && (
-                                        <ul className="absolute z-10 w-full bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
+                                        <ul className="absolute z-10 w-full bg-white dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
                                             {marginSuggestions.map((suggestion) => (
                                                 <li
                                                     key={suggestion}
@@ -330,11 +330,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             className={`px-3 py-2 text-sm font-semibold rounded-full border-2 transition-colors duration-200 text-center ${
                                                 (formData as Transaction).marginType === 'dalam' || !(formData as Transaction).marginType
                                                     ? 'bg-blue-100 text-blue-700 border-blue-400 dark:bg-blue-400/20 dark:text-blue-200 dark:border-blue-400'
-                                                    : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:border-slate-500'
+                                                    : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-neutral-700/50 dark:text-neutral-300 dark:hover:border-neutral-500'
                                             }`}
                                         >
                                             Admin Dalam
-                                            <p className="text-xs font-normal text-slate-500 dark:text-slate-400">(Margin ke Dompet)</p>
+                                            <p className="text-xs font-normal text-slate-500 dark:text-neutral-400">(Margin ke Dompet)</p>
                                         </button>
                                         <button
                                             type="button"
@@ -342,11 +342,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             className={`px-3 py-2 text-sm font-semibold rounded-full border-2 transition-colors duration-200 text-center ${
                                                 (formData as Transaction).marginType === 'luar'
                                                     ? 'bg-blue-100 text-blue-700 border-blue-400 dark:bg-blue-400/20 dark:text-blue-200 dark:border-blue-400'
-                                                    : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:border-slate-500'
+                                                    : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-neutral-700/50 dark:text-neutral-300 dark:hover:border-neutral-500'
                                             }`}
                                         >
                                             Admin Luar
-                                            <p className="text-xs font-normal text-slate-500 dark:text-slate-400">(Margin ke Kas)</p>
+                                            <p className="text-xs font-normal text-slate-500 dark:text-neutral-400">(Margin ke Kas)</p>
                                         </button>
                                     </div>
                                 </div>
@@ -361,7 +361,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             key={wallet.id}
                                             type="button"
                                             onClick={() => handleWalletChange(wallet.id)}
-                                            className={`relative flex items-center justify-center p-3 rounded-xl transition-all duration-200 bg-white dark:bg-slate-800/30 aspect-square has-tooltip ${
+                                            className={`relative flex items-center justify-center p-3 rounded-xl transition-all duration-200 bg-white dark:bg-neutral-800/30 aspect-square has-tooltip ${
                                                 formData.wallet === wallet.id
                                                     ? 'ring-2 ring-blue-400 shadow-lg'
                                                     : 'hover:ring-2 hover:ring-blue-300'
@@ -379,7 +379,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                                     <CheckIcon className="h-3 w-3 text-white" />
                                                 </div>
                                             )}
-                                            <div className="tooltip absolute -top-8 bg-slate-700 dark:bg-slate-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none">
+                                            <div className="tooltip absolute -top-8 bg-slate-700 dark:bg-neutral-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none">
                                                 {wallet.name}
                                             </div>
                                         </button>
@@ -387,7 +387,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-center gap-2 text-center text-xs text-slate-500 dark:text-slate-400 px-2">
+                            <div className="flex items-center justify-center gap-2 text-center text-xs text-slate-500 dark:text-neutral-400 px-2">
                                 <InfoIcon className="h-4 w-4 flex-shrink-0" />
                                 <span>{cashFlowInfo}</span>
                             </div>
@@ -401,10 +401,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                 </div>
 
                                 <label htmlFor="isPiutang" className="flex items-center cursor-pointer">
-                                    <span className="mr-3 text-sm text-slate-600 dark:text-slate-300">Piutang</span>
+                                    <span className="mr-3 text-sm text-slate-600 dark:text-neutral-300">Piutang</span>
                                     <div className="relative">
                                         <input type="checkbox" id="isPiutang" name="isPiutang" className="sr-only peer" checked={formData.isPiutang} onChange={handleChange} />
-                                        <div className="block bg-slate-300 dark:bg-slate-600 w-12 h-7 rounded-full transition"></div>
+                                        <div className="block bg-slate-300 dark:bg-neutral-600 w-12 h-7 rounded-full transition"></div>
                                         <div className="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform peer-checked:translate-x-full peer-checked:bg-blue-300"></div>
                                     </div>
                                 </label>

@@ -40,20 +40,20 @@ const Toast: React.FC<{ toast: ToastMessage, onDismiss: (id: number) => void }> 
     };
 
     return (
-        <div className="w-full max-w-sm rounded-full shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200 dark:border-white/10 animate-toast-in">
+        <div className="w-full max-w-sm rounded-full shadow-lg bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border border-slate-200 dark:border-white/10 animate-toast-in">
             <div className="flex items-center px-4 py-3">
                 <div className="flex-shrink-0">
                     {iconMap[type]}
                 </div>
                 <div className="ml-3 w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">{message}</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-neutral-100 truncate">{message}</p>
                 </div>
                 <div className="ml-4 flex-shrink-0 flex items-center space-x-2">
                     {undoHandler && (
                         <>
                             <div className="relative w-6 h-6">
                                 <svg className="absolute inset-0" viewBox="0 0 24 24">
-                                    <circle className="text-slate-200 dark:text-slate-600" strokeWidth="2" stroke="currentColor" fill="transparent" r="10" cx="12" cy="12" />
+                                    <circle className="text-slate-200 dark:text-neutral-600" strokeWidth="2" stroke="currentColor" fill="transparent" r="10" cx="12" cy="12" />
                                     <circle
                                         className="text-blue-500 dark:text-blue-400 animate-countdown-circle"
                                         style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
@@ -67,7 +67,7 @@ const Toast: React.FC<{ toast: ToastMessage, onDismiss: (id: number) => void }> 
                                         cy="12"
                                     />
                                 </svg>
-                                <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-slate-200">
+                                <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-700 dark:text-neutral-200">
                                     {countdown}
                                 </div>
                             </div>
@@ -81,7 +81,7 @@ const Toast: React.FC<{ toast: ToastMessage, onDismiss: (id: number) => void }> 
                     )}
                     <button
                         onClick={() => onDismiss(id)}
-                        className="inline-flex rounded-full p-1 transition-colors text-slate-500 dark:text-slate-400 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none"
+                        className="inline-flex rounded-full p-1 transition-colors text-slate-500 dark:text-neutral-400 hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none"
                     >
                         <span className="sr-only">Close</span>
                         <CloseIcon className="h-5 w-5" />

@@ -35,7 +35,7 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
         setShowFilters(false);
     }
 
-    const inputClass = "w-full bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const inputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500";
 
     return (
         <div className="px-2 pb-4 space-y-3">
@@ -43,7 +43,7 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
                 {/* Search Bar */}
                 <div className="relative flex-grow w-full">
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                        <SearchIcon className="h-5 w-5 text-slate-400" />
+                        <SearchIcon className="h-5 w-5 text-neutral-400" />
                     </div>
                     <input
                         type="text"
@@ -54,7 +54,7 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
                     />
                      {searchTerm && (
                         <button onClick={() => onSearchChange('')} className="absolute inset-y-0 right-0 flex items-center pr-4" aria-label="Clear search">
-                            <CloseIcon className="h-5 w-5 text-slate-400 hover:text-slate-600 dark:hover:text-white" />
+                            <CloseIcon className="h-5 w-5 text-neutral-400 hover:text-neutral-600 dark:hover:text-white" />
                         </button>
                     )}
                 </div>
@@ -63,7 +63,7 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                     <button
                         onClick={() => setShowFilters(!showFilters)}
-                        className={`flex flex-grow sm:flex-grow-0 justify-center items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full transition-colors ${showFilters || hasActiveFilters ? 'bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'}`}
+                        className={`flex flex-grow sm:flex-grow-0 justify-center items-center gap-2 px-4 py-2 text-sm font-semibold rounded-full transition-colors ${showFilters || hasActiveFilters ? 'bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200' : 'bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-600'}`}
                         aria-expanded={showFilters}
                     >
                         <FilterIcon className="h-4 w-4"/>
@@ -73,7 +73,7 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
                     {(hasActiveFilters || searchTerm) && (
                         <button
                             onClick={handleClear}
-                            className="px-4 py-2 text-sm font-semibold rounded-full bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            className="px-4 py-2 text-sm font-semibold rounded-full bg-slate-100 text-slate-600 dark:bg-neutral-700 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-600 transition-colors"
                         >
                             Reset
                         </button>
@@ -85,7 +85,7 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
             {showFilters && (
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-slate-100/50 dark:bg-black/20 rounded-xl animate-fade-in">
                     <div>
-                        <label id="filterTypeLabel" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipe Transaksi</label>
+                        <label id="filterTypeLabel" className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1">Tipe Transaksi</label>
                         <div className="relative">
                             <select
                                 aria-labelledby="filterTypeLabel"
@@ -97,13 +97,13 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
                                 <option value={TransactionType.IN}>Masuk</option>
                                 <option value={TransactionType.OUT}>Keluar</option>
                             </select>
-                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                             <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400">
                                 <ChevronDownIcon className="h-5 w-5" />
                             </div>
                         </div>
                     </div>
                     <div>
-                        <label id="startDateLabel" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tanggal Mulai</label>
+                        <label id="startDateLabel" className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1">Tanggal Mulai</label>
                          <DatePicker
                             value={startDate}
                             onChange={onStartDateChange}
@@ -111,7 +111,7 @@ const TransactionFilterControls: React.FC<TransactionFilterControlsProps> = ({
                         />
                     </div>
                      <div>
-                        <label id="endDateLabel" className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tanggal Akhir</label>
+                        <label id="endDateLabel" className="block text-xs font-medium text-slate-500 dark:text-neutral-400 mb-1">Tanggal Akhir</label>
                          <DatePicker
                             value={endDate}
                             onChange={onEndDateChange}

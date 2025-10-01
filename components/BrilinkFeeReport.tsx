@@ -58,7 +58,7 @@ const BrilinkFeeReport: React.FC<BrilinkFeeReportProps> = ({ feeTransactions, fo
 
     return (
         <div
-            className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none h-full flex flex-col text-left w-full"
+            className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none h-full flex flex-col text-left w-full"
         >
             {/* Header */}
             <div className="flex justify-between items-start mb-4 px-2">
@@ -81,7 +81,7 @@ const BrilinkFeeReport: React.FC<BrilinkFeeReportProps> = ({ feeTransactions, fo
                     return (
                         <div key={index} className="flex flex-col items-center justify-end h-full w-full relative has-tooltip">
                             {/* Tooltip */}
-                            <div className="tooltip absolute -top-8 bg-slate-700 dark:bg-slate-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none whitespace-nowrap">
+                            <div className="tooltip absolute -top-8 bg-slate-700 dark:bg-neutral-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none whitespace-nowrap">
                                 {formatRupiah(data.totalFee)}
                             </div>
                             
@@ -92,7 +92,7 @@ const BrilinkFeeReport: React.FC<BrilinkFeeReportProps> = ({ feeTransactions, fo
                             />
                             
                             {/* Label */}
-                            <span className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2">{data.month}</span>
+                            <span className="text-xs font-medium text-slate-500 dark:text-neutral-400 mt-2">{data.month}</span>
                         </div>
                     );
                 })}

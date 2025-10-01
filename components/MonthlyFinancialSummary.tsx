@@ -59,7 +59,7 @@ const MonthlyFinancialSummary: React.FC<MonthlyFinancialSummaryProps> = ({ trans
 
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
             <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4 px-2">Ringkasan Keuangan Bulanan</h3>
             <div className="overflow-x-auto">
                 <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
@@ -77,16 +77,16 @@ const MonthlyFinancialSummary: React.FC<MonthlyFinancialSummaryProps> = ({ trans
                             {monthlyData.length > 0 ? monthlyData.map(summary => (
                                 <tr key={`${summary.year}-${summary.month}`} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200">
                                     <td className="p-3 text-sm text-slate-800 dark:text-white font-medium">{summary.month} {summary.year}</td>
-                                    <td className="p-3 text-sm text-slate-600 dark:text-slate-300">{formatRupiah(summary.totalOmzet)}</td>
+                                    <td className="p-3 text-sm text-slate-600 dark:text-neutral-300">{formatRupiah(summary.totalOmzet)}</td>
                                     <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.totalMargin)}</td>
-                                    <td className="p-3 text-sm text-slate-600 dark:text-slate-300 text-center">{summary.transactionCount}</td>
-                                    <td className={`p-3 text-sm font-medium ${summary.newReceivables > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-slate-400'}`}>
+                                    <td className="p-3 text-sm text-slate-600 dark:text-neutral-300 text-center">{summary.transactionCount}</td>
+                                    <td className={`p-3 text-sm font-medium ${summary.newReceivables > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
                                         {formatRupiah(summary.newReceivables)}
                                     </td>
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan={5} className="text-center py-8 text-slate-400 dark:text-slate-500">Tidak ada data transaksi.</td>
+                                    <td colSpan={5} className="text-center py-8 text-slate-400 dark:text-neutral-500">Tidak ada data transaksi.</td>
                                 </tr>
                             )}
                         </tbody>

@@ -122,23 +122,23 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
             <div
                 ref={calendarRef}
                 style={{ position: 'absolute', top: `${position.top + 8}px`, left: `${position.left}px` }}
-                className="z-[100] bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-xl shadow-lg p-4 w-72 animate-fade-in"
+                className="z-[100] bg-white dark:bg-neutral-800 border border-slate-300 dark:border-neutral-600 rounded-xl shadow-lg p-4 w-72 animate-fade-in"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Kalender"
             >
                 <div className="flex justify-between items-center mb-4">
-                    <button type="button" onClick={() => handleMonthChange(-1)} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300" aria-label="Bulan sebelumnya">
+                    <button type="button" onClick={() => handleMonthChange(-1)} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-neutral-300" aria-label="Bulan sebelumnya">
                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
                     <span className="font-semibold text-slate-800 dark:text-white" aria-live="polite">
                         {viewDate.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}
                     </span>
-                    <button type="button" onClick={() => handleMonthChange(1)} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300" aria-label="Bulan berikutnya">
+                    <button type="button" onClick={() => handleMonthChange(1)} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-neutral-300" aria-label="Bulan berikutnya">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
-                <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-500 dark:text-slate-400 mb-2" aria-hidden="true">
+                <div className="grid grid-cols-7 gap-1 text-center text-xs text-slate-500 dark:text-neutral-400 mb-2" aria-hidden="true">
                     {daysOfWeek.map(day => <div key={day}>{day}</div>)}
                 </div>
                 <div className="grid grid-cols-7 gap-1" role="grid">
@@ -154,7 +154,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
                         } else if (isToday) {
                             dayClasses += "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200";
                         } else {
-                            dayClasses += "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10";
+                            dayClasses += "text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/10";
                         }
                         
                         return (
@@ -187,11 +187,11 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
                     value={formatDisplayDate(value)}
                     onClick={() => setIsOpen(!isOpen)}
                     placeholder={placeholder}
-                    className="w-full bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-10 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-10 placeholder:text-slate-400 dark:placeholder:text-neutral-500"
                     aria-haspopup="dialog"
                     aria-expanded={isOpen}
                 />
-                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-neutral-400">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
             </div>

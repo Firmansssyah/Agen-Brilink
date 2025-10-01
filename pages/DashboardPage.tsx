@@ -262,7 +262,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Main Content Area */}
                             <div className="lg:col-span-2 space-y-6">
-                                <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+                                <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
                                     <div className="flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font-medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
                                         <div className="flex items-center space-x-2">
@@ -289,7 +289,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                                 >
                                                     <PlusIcon className="h-4 w-4" />
                                                     <span>Tambah Transaksi</span>
-                                                    <kbd className="hidden sm:inline-block ml-2 bg-slate-100/30 dark:bg-slate-700/80 border border-slate-300 dark:border-slate-600 rounded px-1.5 py-0.5 text-xs font-mono text-white dark:text-slate-300">/</kbd>
+                                                    <kbd className="hidden sm:inline-block ml-2 bg-slate-100/30 dark:bg-neutral-700/80 border border-slate-300 dark:border-neutral-600 rounded px-1.5 py-0.5 text-xs font-mono text-white dark:text-neutral-300">/</kbd>
                                                 </button>
                                             </div>
                                         </div>

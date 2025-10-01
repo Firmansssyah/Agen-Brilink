@@ -105,7 +105,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
             <div className="mx-auto max-w-7xl">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Wallet Management Section */}
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex justify-between items-center mb-4 px-2">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Daftar Dompet</h3>
                             <button 
@@ -133,7 +133,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                                 <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(wallet.balance)}</td>
                                                 <td className="p-3 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
-                                                        <button onClick={() => handleOpenEditWalletModal(wallet)} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit dompet ${wallet.name}`}><EditIcon /></button>
+                                                        <button onClick={() => handleOpenEditWalletModal(wallet)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit dompet ${wallet.name}`}><EditIcon /></button>
                                                         <button onClick={() => handleOpenDeleteWalletModal(wallet)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus dompet ${wallet.name}`}><DeleteIcon /></button>
                                                     </div>
                                                 </td>
@@ -146,7 +146,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     </div>
 
                     {/* Category Management Section */}
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                    <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex justify-between items-center mb-4 px-2">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Jenis Transaksi</h3>
                             <button 
@@ -172,7 +172,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                                 <td className="p-3 text-sm text-slate-800 dark:text-white">{category}</td>
                                                 <td className="p-3 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
-                                                        <button onClick={() => handleOpenEditCategoryModal(category, index)} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit kategori ${category}`}><EditIcon /></button>
+                                                        <button onClick={() => handleOpenEditCategoryModal(category, index)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit kategori ${category}`}><EditIcon /></button>
                                                         <button onClick={() => handleOpenDeleteCategoryModal(category, index)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus kategori ${category}`}><DeleteIcon /></button>
                                                     </div>
                                                 </td>

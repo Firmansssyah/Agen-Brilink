@@ -9,7 +9,7 @@ interface AddEditWalletModalProps {
 }
 
 const AddEditWalletModal: React.FC<AddEditWalletModalProps> = ({ isOpen, onClose, onSave, walletToEdit }) => {
-    const formInputClass = "w-full bg-slate-100 dark:bg-slate-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500";
     
     const formatInputValue = (value: number) => {
         if (value === 0) return '';
@@ -76,7 +76,7 @@ const AddEditWalletModal: React.FC<AddEditWalletModalProps> = ({ isOpen, onClose
             onClick={handleClose}
         >
             <div 
-                className={`bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-md transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
@@ -85,11 +85,11 @@ const AddEditWalletModal: React.FC<AddEditWalletModalProps> = ({ isOpen, onClose
                 <form onSubmit={handleSubmit}>
                     <div className="p-6 space-y-6">
                         <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Nama Dompet</label>
+                            <label htmlFor="name" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Nama Dompet</label>
                             <input type="text" name="name" value={formData.name} onChange={handleChange} className={formInputClass} required />
                         </div>
                         <div>
-                            <label htmlFor="balance" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Saldo Awal</label>
+                            <label htmlFor="balance" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Saldo Awal</label>
                             <input 
                                 type="text"
                                 inputMode="numeric"
@@ -102,7 +102,7 @@ const AddEditWalletModal: React.FC<AddEditWalletModalProps> = ({ isOpen, onClose
                             />
                         </div>
                         <div>
-                            <label htmlFor="icon" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">URL Ikon (Opsional)</label>
+                            <label htmlFor="icon" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">URL Ikon (Opsional)</label>
                             <input type="text" name="icon" value={formData.icon} onChange={handleChange} className={formInputClass} />
                         </div>
                     </div>

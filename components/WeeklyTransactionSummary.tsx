@@ -81,7 +81,7 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
     const weekDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
     return (
-        <div className="bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
             <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4">Aktivitas 7 Hari Terakhir</h3>
             <div className="flex justify-around items-end gap-2 h-40">
                 {weeklyData.map((dayData, index) => {
@@ -108,8 +108,8 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
                             </DayComponent>
                             
                             {/* Labels */}
-                            <span className="text-xs text-slate-500 dark:text-slate-400 mt-2">{weekDays[dayData.date.getDay()]}</span>
-                            <span className={`text-sm font-semibold ${isToday ? 'text-slate-800 dark:text-white' : 'text-slate-600 dark:text-slate-300'}`}>{dayData.date.getDate()}</span>
+                            <span className="text-xs text-slate-500 dark:text-neutral-400 mt-2">{weekDays[dayData.date.getDay()]}</span>
+                            <span className={`text-sm font-semibold ${isToday ? 'text-slate-800 dark:text-white' : 'text-slate-600 dark:text-neutral-300'}`}>{dayData.date.getDate()}</span>
                         </div>
                     );
                 })}
