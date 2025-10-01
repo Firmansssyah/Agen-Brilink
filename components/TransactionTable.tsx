@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 import WalletIconComponent from './WalletIconComponent';
@@ -57,57 +58,59 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         <>
              {/* Desktop Table View */}
             <div className="overflow-x-auto flex-grow hidden md:block">
-                <table className="w-full text-left">
-                    <thead className="border-b border-slate-200 dark:border-white/10">
-                        <tr>
-                            <SortableHeader columnKey="date" title="Tanggal" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                            <SortableHeader columnKey="description" title="Deskripsi" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                            <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                            <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                            <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.length > 0 ? (
-                            transactions.map(transaction => (
-                                <tr 
-                                    key={transaction.id} 
-                                    onClick={() => onEditTransaction(transaction)}
-                                    className={`border-b border-slate-200 dark:border-white/10 transition-colors duration-200 cursor-pointer ${
-                                        transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
-                                    }`}
-                                >
-                                    <td className="p-3 text-sm text-slate-500 dark:text-slate-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
-                                    <td className="p-3 text-sm text-slate-800 dark:text-white">{transaction.description}</td>
-                                    <td className="p-3 text-sm text-slate-600 dark:text-slate-300">{transaction.customer}</td>
-                                    <td className={`p-3 text-sm font-medium ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                        <div className="flex items-center space-x-3">
-                                            {(() => {
-                                                const wallet = wallets.find(w => w.id === transaction.wallet);
-                                                return wallet && (
-                                                    <WalletIconComponent 
-                                                        walletId={wallet.id} 
-                                                        iconUrl={wallet.icon} 
-                                                        className="h-6 w-6 object-contain dark:brightness-0 dark:invert"
-                                                        altText={wallet.name}
-                                                    />
-                                                );
-                                            })()}
-                                            <span>{`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}</span>
-                                        </div>
-                                    </td>
-                                    <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
-                                </tr>
-                            ))
-                         ) : (
+                <div className="rounded-xl overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                             <tr>
-                                <td colSpan={5} className="text-center py-20 text-slate-400 dark:text-slate-500">
-                                    Tidak ada transaksi yang cocok.
-                                </td>
+                                <SortableHeader columnKey="date" title="Tanggal" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                <SortableHeader columnKey="description" title="Deskripsi" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {transactions.length > 0 ? (
+                                transactions.map(transaction => (
+                                    <tr 
+                                        key={transaction.id} 
+                                        onClick={() => onEditTransaction(transaction)}
+                                        className={`border-b border-slate-200 dark:border-white/10 last:border-b-0 transition-colors duration-200 cursor-pointer ${
+                                            transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
+                                        }`}
+                                    >
+                                        <td className="p-3 text-sm text-slate-500 dark:text-slate-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
+                                        <td className="p-3 text-sm text-slate-800 dark:text-white">{transaction.description}</td>
+                                        <td className="p-3 text-sm text-slate-600 dark:text-slate-300">{transaction.customer}</td>
+                                        <td className={`p-3 text-sm font-medium ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                                            <div className="flex items-center space-x-3">
+                                                {(() => {
+                                                    const wallet = wallets.find(w => w.id === transaction.wallet);
+                                                    return wallet && (
+                                                        <WalletIconComponent 
+                                                            walletId={wallet.id} 
+                                                            iconUrl={wallet.icon} 
+                                                            className="h-6 w-6 object-contain dark:brightness-0 dark:invert"
+                                                            altText={wallet.name}
+                                                        />
+                                                    );
+                                                })()}
+                                                <span>{`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}</span>
+                                            </div>
+                                        </td>
+                                        <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
+                                    </tr>
+                                ))
+                             ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-20 text-slate-400 dark:text-slate-500">
+                                        Tidak ada transaksi yang cocok.
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             {/* Mobile Card View */}

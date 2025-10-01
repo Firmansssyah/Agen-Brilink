@@ -22,8 +22,10 @@ export interface Transaction {
     wallet: string; // Changed from WalletId enum to string
     isPiutang: boolean;
     marginType?: 'dalam' | 'luar';
+    isInternalTransfer?: boolean;
+    isDeleting?: boolean;
 }
 
-export type Page = 'dashboard' | 'wallets' | 'categories' | 'customers' | 'reports' | 'settings';
+export type Page = 'dashboard' | 'management' | 'customers' | 'reports' | 'settings';
 export type SortKey = 'date' | 'description' | 'customer' | 'amount' | 'margin';
 export type SortDirection = 'asc' | 'desc';

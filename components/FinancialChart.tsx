@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react';
 import { Transaction } from '../types';
 
@@ -233,9 +232,12 @@ const FinancialChart: React.FC<FinancialChartProps> = ({ transactions, formatRup
                 
                 if (summaryMap.has(key)) {
                     const entry = summaryMap.get(key)!;
-                    entry.totalMargin += t.margin;
-                    entry.transactionCount++;
-                    summaryMap.set(key, entry);
+                    // Create a new object to ensure immutability, which triggers re-render
+                    const newEntry = {
+                        totalMargin: entry.totalMargin + t.margin,
+                        transactionCount: entry.transactionCount + 1,
+                    };
+                    summaryMap.set(key, newEntry);
                 }
             }
         });

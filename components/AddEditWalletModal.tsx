@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Wallet } from '../types';
 
@@ -10,7 +9,7 @@ interface AddEditWalletModalProps {
 }
 
 const AddEditWalletModal: React.FC<AddEditWalletModalProps> = ({ isOpen, onClose, onSave, walletToEdit }) => {
-    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-lg p-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
     
     const formatInputValue = (value: number) => {
         if (value === 0) return '';

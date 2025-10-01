@@ -1,4 +1,5 @@
 
+
 import React, { useMemo } from 'react';
 import { Transaction } from '../types';
 
@@ -30,27 +31,40 @@ const formatCompactRupiah = (amount: number): string => {
 const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ transactions, onDayClick }) => {
     
     const weeklyData = useMemo<DailySummary[]>(() => {
-        const data: DailySummary[] = [];
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
+        // Helper to format a Date object into a 'YYYY-MM-DD' string based on the user's local timezone.
+        // This avoids timezone mismatches when comparing dates.
+        const getLocalDateString = (date: Date): string => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
 
-        // Create a map for quick lookup
+        // Group transactions by their local date string.
         const transactionMap = new Map<string, { count: number; totalMargin: number }>();
-        transactions.forEach(t => {
-            const dateStr = new Date(t.date).toISOString().split('T')[0];
-            const entry = transactionMap.get(dateStr) || { count: 0, totalMargin: 0 };
-            entry.count++;
-            entry.totalMargin += t.margin;
-            transactionMap.set(dateStr, entry);
-        });
+        transactions
+            .filter(t => !t.isInternalTransfer && t.description !== 'Fee Brilink') // Exclude internal transfers & fee transactions
+            .forEach(t => {
+                // Parses ISO string into a date object in the browser's local timezone
+                const transactionDate = new Date(t.date); 
+                const dateStr = getLocalDateString(transactionDate);
+                
+                const entry = transactionMap.get(dateStr) || { count: 0, totalMargin: 0 };
+                entry.count++;
+                entry.totalMargin += t.margin;
+                transactionMap.set(dateStr, entry);
+            });
 
-        // Generate data for the last 7 days
+        const data: DailySummary[] = [];
+        const today = new Date(); // Today, in local time
+
+        // Generate data for the last 7 days, including today.
         for (let i = 6; i >= 0; i--) {
-            const day = new Date(today);
-            day.setDate(today.getDate() - i);
-            day.setHours(0,0,0,0);
+            // Create a new date object for each day to avoid mutation issues
+            const day = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i);
             
-            const dateStr = day.toISOString().split('T')[0];
+            // Use the same local date string format for lookup.
+            const dateStr = getLocalDateString(day);
             const summary = transactionMap.get(dateStr) || { count: 0, totalMargin: 0 };
 
             data.push({
@@ -74,27 +88,25 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
             <div className="flex justify-around items-end gap-2 h-40">
                 {weeklyData.map((dayData, index) => {
                     const barHeight = dayData.count > 0 ? (dayData.count / maxCount) * 100 : 0;
-                    const dateStr = dayData.date.toISOString().split('T')[0];
+                    const dateStr = `${dayData.date.getFullYear()}-${String(dayData.date.getMonth() + 1).padStart(2, '0')}-${String(dayData.date.getDate()).padStart(2, '0')}`;
                     const isToday = new Date().toDateString() === dayData.date.toDateString();
                     const isClickable = dayData.count > 0;
                     const DayComponent = isClickable ? 'button' : 'div';
 
                     return (
-                        <div key={index} className="flex-1 h-full flex flex-col items-center justify-end text-center group relative has-tooltip">
-                            {/* Tooltip */}
-                            <div className="tooltip absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-800 dark:bg-slate-900 text-white text-xs px-3 py-1.5 rounded-lg pointer-events-none whitespace-nowrap shadow-lg">
-                                <div>{dayData.date.toLocaleDateString('id-ID', {day: 'numeric', month: 'long'})}</div>
-                                <div className="font-semibold">{dayData.count} Transaksi</div>
-                                <div className="text-emerald-300">{formatCompactRupiah(dayData.totalMargin)} Margin</div>
-                            </div>
-                            
+                        <div key={index} className="flex-1 h-full flex flex-col items-center justify-end text-center">
                             {/* Bar */}
                             <DayComponent
                                 onClick={isClickable ? () => onDayClick(dateStr) : undefined}
-                                className={`w-full rounded-md transition-all duration-300 ${isClickable ? 'cursor-pointer hover:bg-indigo-400' : ''} ${isToday ? 'bg-indigo-500' : 'bg-indigo-400 dark:bg-indigo-500/50'}`}
+                                className={`relative w-full rounded-md transition-all duration-300 flex items-center justify-center ${isClickable ? 'cursor-pointer hover:bg-indigo-400' : ''} ${isToday ? 'bg-indigo-500' : 'bg-indigo-400 dark:bg-indigo-500/50'}`}
                                 style={{ height: `${barHeight}%` }}
                                 aria-label={isClickable ? `Lihat transaksi untuk ${dayData.date.toLocaleDateString('id-ID')}` : `Tidak ada transaksi pada ${dayData.date.toLocaleDateString('id-ID')}`}
                             >
+                               {dayData.count > 0 && (
+                                    <span className="text-md font-bold text-white drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+                                        {dayData.count}
+                                    </span>
+                                )}
                             </DayComponent>
                             
                             {/* Labels */}

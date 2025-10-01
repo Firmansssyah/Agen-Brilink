@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BRILink Finance Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -41,6 +45,30 @@
       }
       .animate-fade-in {
         animation: fadeIn 0.4s ease-out forwards;
+      }
+      @keyframes toastIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-toast-in {
+        animation: toastIn 0.3s ease-out forwards;
+      }
+      @keyframes countdown-circle {
+        from {
+          stroke-dashoffset: 0;
+        }
+        to {
+          stroke-dashoffset: 63; /* ~2 * PI * 10 */
+        }
+      }
+      .animate-countdown-circle {
+        animation: countdown-circle 5s linear forwards;
       }
     </style>
   <script>

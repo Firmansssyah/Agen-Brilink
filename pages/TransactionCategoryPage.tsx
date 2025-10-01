@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { EditIcon, DeleteIcon, PlusIcon } from '../components/icons/Icons';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
@@ -6,10 +7,10 @@ import ConfirmationModal from '../components/ConfirmationModal';
 
 interface TransactionCategoryPageProps {
     categories: string[];
-    setCategories: React.Dispatch<React.SetStateAction<string[]>>;
+    onSaveCategories: (newCategories: string[]) => Promise<void>;
 }
 
-const TransactionCategoryPage: React.FC<TransactionCategoryPageProps> = ({ categories, setCategories }) => {
+const TransactionCategoryPage: React.FC<TransactionCategoryPageProps> = ({ categories, onSaveCategories }) => {
     const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<{name: string, index: number} | null>(null);
@@ -30,20 +31,23 @@ const TransactionCategoryPage: React.FC<TransactionCategoryPageProps> = ({ categ
         setIsDeleteModalOpen(true);
     };
 
-    const handleSaveCategory = (categoryName: string) => {
+    const handleSaveCategory = async (categoryName: string) => {
+        let newCategories;
         if (selectedCategory) {
             // Editing
-            setCategories(prev => prev.map((cat, i) => i === selectedCategory.index ? categoryName : cat));
+            newCategories = categories.map((cat, i) => i === selectedCategory.index ? categoryName : cat);
         } else {
             // Adding
-            setCategories(prev => [...prev, categoryName]);
+            newCategories = [...categories, categoryName];
         }
+        await onSaveCategories(newCategories);
         setIsAddEditModalOpen(false);
     };
 
-    const handleDeleteCategory = () => {
+    const handleDeleteCategory = async () => {
         if (categoryToDelete) {
-            setCategories(prev => prev.filter((_, i) => i !== categoryToDelete.index));
+            const newCategories = categories.filter((_, i) => i !== categoryToDelete.index);
+            await onSaveCategories(newCategories);
             setIsDeleteModalOpen(false);
             setCategoryToDelete(null);
         }

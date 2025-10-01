@@ -85,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
     const formattedTime = new Intl.DateTimeFormat('id-ID', {
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false,
+        hour12: true,
     }).format(currentDateTime).replace('.', ':');
 
     const formattedDate = new Intl.DateTimeFormat('id-ID', {
@@ -116,9 +116,8 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
                         <nav className="hidden md:flex flex-shrink-0">
                             <ul className="flex items-center space-x-2">
                                  <li><NavLink page="dashboard" text="Dashboard" active={currentPage === 'dashboard'} onClick={handleNavClick} /></li>
-                                 <li><NavLink page="wallets" text="Dompet" active={currentPage === 'wallets'} onClick={handleNavClick} /></li>
-                                 <li><NavLink page="categories" text="Jenis Transaksi" active={currentPage === 'categories'} onClick={handleNavClick} /></li>
-                                 <li><NavLink page="customers" text="Pelanggan" active={currentPage === 'customers'} onClick={handleNavClick} /></li>
+                                 <li><NavLink page="customers" text="Pelanggan" active={currentPage === 'customers'} onClick={handleNavClick} /></li>                                 
+                                 <li><NavLink page="management" text="Manajemen" active={currentPage === 'management'} onClick={handleNavClick} /></li>
                                  <li><NavLink page="reports" text="Laporan" active={currentPage === 'reports'} onClick={handleNavClick} /></li>
                                  <li><NavLink page="settings" text="Pengaturan" active={currentPage === 'settings'} onClick={handleNavClick} /></li>
                             </ul>
@@ -161,9 +160,8 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
                     <nav className="mt-8">
                         <ul className="flex flex-col items-center space-y-4">
                              <li><NavLink page="dashboard" text="Dashboard" active={currentPage === 'dashboard'} onClick={handleNavClick} isMobile /></li>
-                             <li><NavLink page="wallets" text="Dompet" active={currentPage === 'wallets'} onClick={handleNavClick} isMobile /></li>
-                             <li><NavLink page="categories" text="Jenis Transaksi" active={currentPage === 'categories'} onClick={handleNavClick} isMobile /></li>
                              <li><NavLink page="customers" text="Pelanggan" active={currentPage === 'customers'} onClick={handleNavClick} isMobile /></li>
+                             <li><NavLink page="management" text="Manajemen" active={currentPage === 'management'} onClick={handleNavClick} isMobile /></li>
                              <li><NavLink page="reports" text="Laporan" active={currentPage === 'reports'} onClick={handleNavClick} isMobile /></li>
                              <li><NavLink page="settings" text="Pengaturan" active={currentPage === 'settings'} onClick={handleNavClick} isMobile /></li>
                         </ul>

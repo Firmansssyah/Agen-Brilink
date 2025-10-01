@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -10,14 +9,15 @@ interface DatePickerProps {
 
 const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder }) => {
     const [isOpen, setIsOpen] = useState(false);
-    // Initialize with a valid date, fallback to now if value is empty/invalid
-    const initialDate = value && !isNaN(new Date(value).getTime()) ? new Date(value) : new Date();
+    // FIX: Parse date string as local time to avoid timezone issues (e.g., '2023-01-01' being parsed as UTC midnight).
+    const initialDate = value && !isNaN(new Date(value + 'T00:00:00').getTime()) ? new Date(value + 'T00:00:00') : new Date();
     const [viewDate, setViewDate] = useState(initialDate);
     const containerRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        const newDate = value && !isNaN(new Date(value).getTime()) ? new Date(value) : new Date();
+        // FIX: Parse date string as local time to avoid timezone issues.
+        const newDate = value && !isNaN(new Date(value + 'T00:00:00').getTime()) ? new Date(value + 'T00:00:00') : new Date();
         setViewDate(newDate);
     }, [value]);
 
@@ -103,7 +103,8 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
         };
 
         const calendarDays = generateCalendarDays();
-        const selectedDate = value && !isNaN(new Date(value).getTime()) ? new Date(value) : null;
+        // FIX: Parse date string as local time to avoid timezone issues.
+        const selectedDate = value && !isNaN(new Date(value + 'T00:00:00').getTime()) ? new Date(value + 'T00:00:00') : null;
         if (selectedDate) selectedDate.setHours(0, 0, 0, 0);
         
         const today = new Date();
@@ -186,11 +187,11 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
                     value={formatDisplayDate(value)}
                     onClick={() => setIsOpen(!isOpen)}
                     placeholder={placeholder}
-                    className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-lg p-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-8 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-10 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                     aria-haspopup="dialog"
                     aria-expanded={isOpen}
                 />
-                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
             </div>

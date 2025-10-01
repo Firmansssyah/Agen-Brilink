@@ -3,7 +3,7 @@ import React from 'react';
 import { DashboardIcon, ReportIcon, SettingsIcon, PlusIcon, WalletIcon, CategoryIcon, CustomersIcon } from './icons/Icons';
 
 // Fix: Define and export the Page type here to resolve the import error.
-export type Page = 'dashboard' | 'wallets' | 'categories' | 'customers' | 'reports' | 'settings';
+export type Page = 'dashboard' | 'management' | 'customers' | 'reports' | 'settings';
 
 interface NavLinkProps {
     page: Page;
@@ -52,8 +52,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage }) => {
                     <div className="pt-6">
                         <h2 className="px-4 text-sm font-semibold text-slate-400 tracking-wide">Manajemen</h2>
                         <div className="mt-2 space-y-2">
-                            <NavLink page="wallets" icon={<WalletIcon />} text="Dompet" active={currentPage === 'wallets'} onClick={setCurrentPage} />
-                            <NavLink page="categories" icon={<CategoryIcon />} text="Jenis Transaksi" active={currentPage === 'categories'} onClick={setCurrentPage} />
+                            <NavLink page="management" icon={<WalletIcon />} text="Dompet & Kategori" active={currentPage === 'management'} onClick={setCurrentPage} />
                             <NavLink page="customers" icon={<CustomersIcon />} text="Pelanggan" active={currentPage === 'customers'} onClick={setCurrentPage} />
                         </div>
                     </div>

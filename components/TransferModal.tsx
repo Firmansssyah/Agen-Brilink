@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { Wallet } from '../types';
 import { ChevronDownIcon, TransferIcon } from './icons/Icons';
@@ -7,18 +5,19 @@ import { ChevronDownIcon, TransferIcon } from './icons/Icons';
 interface TransferModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (data: { fromWallet: string; toWallet: string; amount: number; }) => void;
+    onSave: (data: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => void;
     wallets: Wallet[];
 }
 
 const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, wallets }) => {
-    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-lg p-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
     const formSelectClass = `${formInputClass} appearance-none`;
 
     const getInitialData = () => ({
         fromWallet: wallets[0]?.id || '',
         toWallet: wallets[1]?.id || '',
         amount: 0,
+        fee: 0,
     });
 
     const [formData, setFormData] = useState(getInitialData());
@@ -53,7 +52,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
         const { name, value } = e.target;
         let processedValue: string | number = value;
 
-        if (name === 'amount') {
+        if (name === 'amount' || name === 'fee') {
             processedValue = parseInputValue(value);
         }
         
@@ -83,7 +82,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
             return;
         }
         const sourceWallet = wallets.find(w => w.id === formData.fromWallet);
-        if (sourceWallet && sourceWallet.balance < formData.amount) {
+        if (sourceWallet && sourceWallet.balance < (formData.amount + formData.fee)) {
             setError("Saldo dompet sumber tidak mencukupi.");
             return;
         }
@@ -122,7 +121,7 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
                                     <select name="fromWallet" id="fromWallet" value={formData.fromWallet} onChange={handleChange} className={formSelectClass}>
                                         {wallets.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
                                     </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
                                         <ChevronDownIcon />
                                     </div>
                                 </div>
@@ -139,26 +138,41 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
                                     <select name="toWallet" id="toWallet" value={formData.toWallet} onChange={handleChange} className={formSelectClass}>
                                         {toWallets.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
                                     </select>
-                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
                                         <ChevronDownIcon />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div>
-                            <label htmlFor="amount" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Jumlah Transfer</label>
-                             <input 
-                                type="text"
-                                inputMode="numeric"
-                                id="amount"
-                                name="amount"
-                                placeholder="cth: 500.000"
-                                value={formatInputValue(formData.amount)}
-                                onChange={handleChange}
-                                className={formInputClass}
-                                required
-                            />
+                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label htmlFor="amount" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Jumlah Transfer</label>
+                                <input 
+                                    type="text"
+                                    inputMode="numeric"
+                                    id="amount"
+                                    name="amount"
+                                    placeholder="cth: 500.000"
+                                    value={formatInputValue(formData.amount)}
+                                    onChange={handleChange}
+                                    className={formInputClass}
+                                    required
+                                />
+                            </div>
+                             <div>
+                                <label htmlFor="fee" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Biaya Tambahan</label>
+                                <input 
+                                    type="text"
+                                    inputMode="numeric"
+                                    id="fee"
+                                    name="fee"
+                                    placeholder="(Opsional)"
+                                    value={formatInputValue(formData.fee)}
+                                    onChange={handleChange}
+                                    className={formInputClass}
+                                />
+                            </div>
                         </div>
 
                         {error && <p className="text-sm text-red-500 dark:text-red-400 text-center">{error}</p>}

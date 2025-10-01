@@ -1,9 +1,9 @@
-
 import React, { useState, useMemo } from 'react';
 import { Transaction } from '../types';
 
 interface TransactionTypeAnalysisProps {
     transactions: Transaction[];
+    categories: string[];
 }
 
 interface TypeCount {
@@ -11,7 +11,7 @@ interface TypeCount {
     count: number;
 }
 
-const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ transactions }) => {
+const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ transactions, categories }) => {
     const [period, setPeriod] = useState<'monthly' | 'overall'>('monthly');
 
     const analysisData = useMemo<TypeCount[]>(() => {
@@ -27,18 +27,20 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
             });
         }
 
-        // FIX: Use a Map for more robust type safety when counting transactions.
-        const counts = filteredTransactions.reduce((acc, t) => {
-            acc.set(t.description, (acc.get(t.description) || 0) + 1);
-            return acc;
-        }, new Map<string, number>());
+        // Initialize counts for all categories with 0.
+        const counts = new Map<string, number>(
+            categories.map(cat => [cat, 0])
+        );
+
+        filteredTransactions.forEach(t => {
+            counts.set(t.description, (counts.get(t.description) || 0) + 1);
+        });
 
         return Array.from(counts.entries())
             .map(([description, count]) => ({ description, count }))
-            .sort((a, b) => b.count - a.count)
-            .slice(0, 5); // Get top 5
+            .sort((a, b) => b.count - a.count);
 
-    }, [transactions, period]);
+    }, [transactions, period, categories]);
 
     const maxCount = analysisData.length > 0 ? analysisData[0].count : 0;
 

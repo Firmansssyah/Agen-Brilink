@@ -8,9 +8,19 @@ interface ConfirmationModalProps {
     onConfirm: () => void;
     title: string;
     message: string;
+    confirmText?: string;
+    confirmColor?: string;
 }
 
-const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, title, message }) => {
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ 
+    isOpen, 
+    onClose, 
+    onConfirm, 
+    title, 
+    message,
+    confirmText = 'Konfirmasi',
+    confirmColor = 'bg-red-600 hover:bg-red-700'
+}) => {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -50,7 +60,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
                 </div>
                 <div className="px-6 py-4 flex justify-end space-x-3">
                     <button type="button" onClick={handleClose} className="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-200 dark:hover:bg-indigo-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
-                    <button type="button" onClick={handleConfirm} className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-sm transition-colors">Konfirmasi</button>
+                    <button type="button" onClick={handleConfirm} className={`${confirmColor} text-white font-semibold py-2 px-5 rounded-full text-sm transition-colors`}>{confirmText}</button>
                 </div>
             </div>
         </div>

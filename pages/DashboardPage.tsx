@@ -9,7 +9,7 @@ import WeeklyTransactionSummary from '../components/WeeklyTransactionSummary';
 import TransactionModal from '../components/TransactionModal';
 import AddFeeModal from '../components/AddFeeModal';
 import TransactionFilterControls from '../components/TransactionFilterControls';
-import { PlusIcon } from '../components/icons/Icons';
+import { PlusIcon, TransferIcon } from '../components/icons/Icons';
 import TransferModal from '../components/TransferModal';
 import DailyTransactionsModal from '../components/DailyTransactionsModal';
 
@@ -23,6 +23,7 @@ interface DashboardPageProps {
     customers: string[];
     onSettleReceivable: (transaction: Transaction) => void;
     onSaveTransaction: (data: Transaction | Omit<Transaction, 'id' | 'date'>) => void;
+    onBalanceTransfer: (data: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => void;
     onDeleteTransaction: (transactionId: string) => void;
     formatRupiah: (amount: number) => string;
 }
@@ -36,6 +37,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     customers,
     onSettleReceivable,
     onSaveTransaction,
+    onBalanceTransfer,
     onDeleteTransaction,
     formatRupiah,
 }) => {
@@ -62,13 +64,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         return transactions
             .filter(t => {
                 const transactionDate = new Date(t.date);
-                return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear;
+                return transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear && !t.isInternalTransfer;
             })
             .reduce((acc, curr) => acc + curr.margin, 0);
     }, [transactions]);
 
     const filteredAndSortedTransactions = useMemo(() => {
-        let items = [...transactions];
+        let items = transactions.filter(t => !t.isDeleting);
 
         // 1. Apply search filter
         if (searchTerm.trim()) {
@@ -187,36 +189,10 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsFeeModalOpen(false);
     };
 
-    const handleSaveTransfer = useCallback((transferData: { fromWallet: string; toWallet: string; amount: number; }) => {
-        const { fromWallet, toWallet, amount } = transferData;
-        const fromWalletName = wallets.find(w => w.id === fromWallet)?.name;
-        const toWalletName = wallets.find(w => w.id === toWallet)?.name;
-    
-        if (!fromWalletName || !toWalletName) return;
-    
-        const outTransaction: Omit<Transaction, 'id' | 'date'> = {
-            description: `Pindah Saldo ke ${toWalletName}`,
-            customer: 'Internal',
-            type: TransactionType.OUT,
-            amount,
-            margin: 0,
-            wallet: fromWallet,
-            isPiutang: false,
-        };
-        onSaveTransaction(outTransaction);
-    
-        const inTransaction: Omit<Transaction, 'id' | 'date'> = {
-            description: `Pindah Saldo dari ${fromWalletName}`,
-            customer: 'Internal',
-            type: TransactionType.IN,
-            amount,
-            margin: 0,
-            wallet: toWallet,
-            isPiutang: false,
-        };
-        onSaveTransaction(inTransaction);
+    const handleSaveTransfer = useCallback((transferData: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => {
+        onBalanceTransfer(transferData);
         setIsTransferModalOpen(false);
-    }, [wallets, onSaveTransaction]);
+    }, [onBalanceTransfer]);
 
     const resetPage = (callback: (...args: any[]) => void) => (...args: any[]) => {
         callback(...args);
@@ -293,6 +269,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         <h3 className="text-lg font-medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
                                         <div className="flex items-center space-x-2">
                                             <div className="grid grid-flow-col gap-2">
+                                                 <button 
+                                                    onClick={() => setIsTransferModalOpen(true)}
+                                                    className="bg-sky-100 hover:bg-sky-200 text-sky-700 dark:bg-sky-400/10 dark:hover:bg-sky-400/20 dark:text-sky-200 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
+                                                    aria-label="Pindah saldo antar dompet"
+                                                >
+                                                    <TransferIcon className="h-4 w-4" />
+                                                    <span>Pindah Saldo</span>
+                                                </button>
                                                 <button 
                                                     onClick={() => setIsFeeModalOpen(true)}
                                                     className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-400/10 dark:hover:bg-indigo-400/20 dark:text-indigo-200 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
@@ -344,8 +328,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                     <WalletsSummaryCard 
                                         wallets={wallets}
                                         totalMargin={currentMonthMargin}
+                                        totalPiutang={totalPiutang}
                                         formatRupiah={formatRupiah}
-                                        onOpenTransferModal={() => setIsTransferModalOpen(true)}
                                     />
                                 </section>
                                 <section>

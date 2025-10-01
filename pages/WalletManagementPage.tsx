@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Wallet } from '../types';
 import { EditIcon, DeleteIcon, PlusIcon } from '../components/icons/Icons';
@@ -7,11 +8,12 @@ import ConfirmationModal from '../components/ConfirmationModal';
 
 interface WalletManagementPageProps {
     wallets: Wallet[];
-    setWallets: React.Dispatch<React.SetStateAction<Wallet[]>>;
+    onSaveWallet: (walletData: Omit<Wallet, 'id'> | Wallet) => Promise<void>;
+    onDeleteWallet: (walletId: string) => Promise<void>;
     formatRupiah: (amount: number) => string;
 }
 
-const WalletManagementPage: React.FC<WalletManagementPageProps> = ({ wallets, setWallets, formatRupiah }) => {
+const WalletManagementPage: React.FC<WalletManagementPageProps> = ({ wallets, onSaveWallet, onDeleteWallet, formatRupiah }) => {
     const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
@@ -32,24 +34,14 @@ const WalletManagementPage: React.FC<WalletManagementPageProps> = ({ wallets, se
         setIsDeleteModalOpen(true);
     }
 
-    const handleSaveWallet = (walletData: Omit<Wallet, 'id'> | Wallet) => {
-        if ('id' in walletData) {
-            // Editing existing wallet
-            setWallets(prev => prev.map(w => w.id === walletData.id ? walletData : w));
-        } else {
-            // Adding new wallet
-            const newWallet: Wallet = {
-                ...walletData,
-                id: `W${Date.now()}`
-            };
-            setWallets(prev => [...prev, newWallet]);
-        }
+    const handleSaveWallet = async (walletData: Omit<Wallet, 'id'> | Wallet) => {
+        await onSaveWallet(walletData);
         setIsAddEditModalOpen(false);
     };
 
-    const handleDeleteWallet = () => {
+    const handleDeleteWallet = async () => {
         if (walletToDelete) {
-            setWallets(prev => prev.filter(w => w.id !== walletToDelete.id));
+            await onDeleteWallet(walletToDelete.id);
             setIsDeleteModalOpen(false);
             setWalletToDelete(null);
         }

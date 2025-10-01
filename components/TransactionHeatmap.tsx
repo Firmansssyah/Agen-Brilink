@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState } from 'react';
 import { Transaction, TransactionType } from '../types';
 
@@ -34,18 +33,23 @@ const TransactionHeatmap: React.FC<TransactionHeatmapProps> = ({ transactions, o
 
     const dailyData = useMemo(() => {
         const map = new Map<string, DailySummary>();
-        transactions.forEach(t => {
-            const dateStr = new Date(t.date).toISOString().split('T')[0];
-            const entry = map.get(dateStr) || { count: 0, totalIn: 0, totalOut: 0, totalMargin: 0 };
-            entry.count++;
-            entry.totalMargin += t.margin;
-            if (t.type === TransactionType.IN) {
-                entry.totalIn += t.amount;
-            } else {
-                entry.totalOut += t.amount;
-            }
-            map.set(dateStr, entry);
-        });
+        transactions
+            .filter(t => t.description !== 'Fee Brilink')
+            .forEach(t => {
+                const localDate = new Date(t.date);
+                // Use local date parts to avoid timezone issues.
+                const dateStr = `${localDate.getFullYear()}-${String(localDate.getMonth() + 1).padStart(2, '0')}-${String(localDate.getDate()).padStart(2, '0')}`;
+                
+                const entry = map.get(dateStr) || { count: 0, totalIn: 0, totalOut: 0, totalMargin: 0 };
+                const newEntry = {
+                    ...entry,
+                    count: entry.count + 1,
+                    totalMargin: entry.totalMargin + t.margin,
+                    totalIn: entry.totalIn + (t.type === TransactionType.IN ? t.amount : 0),
+                    totalOut: entry.totalOut + (t.type === TransactionType.OUT ? t.amount : 0),
+                };
+                map.set(dateStr, newEntry);
+            });
         return map;
     }, [transactions]);
 
@@ -108,7 +112,7 @@ const TransactionHeatmap: React.FC<TransactionHeatmapProps> = ({ transactions, o
                 {calendarDays.map((day, index) => {
                     if (!day) return <div key={`empty-${index}`} />;
                     
-                    const dateStr = day.toISOString().split('T')[0];
+                    const dateStr = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
                     const data = dailyData.get(dateStr);
                     const count = data?.count || 0;
                     const isClickable = count > 0;

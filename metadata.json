@@ -1,5 +1,6 @@
 {
   "name": "BRILink Finance Dashboard",
   "description": "A web-based dashboard for monitoring financial transactions of a BRILink agent, featuring a modern dark mode UI inspired by Material You.",
+  "icon": "favicon/favicon-32x32.png",
   "requestFramePermissions": []
 }

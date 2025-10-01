@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
 import { ChevronDownIcon, CheckIcon, DeleteIcon, InfoIcon } from './icons/Icons';
 import WalletIconComponent from './WalletIconComponent';
-import ConfirmationModal from './ConfirmationModal';
+import DatePicker from './DatePicker';
 
 interface TransactionModalProps {
     isOpen: boolean;
@@ -17,11 +16,20 @@ interface TransactionModalProps {
     formatRupiah: (amount: number) => string;
 }
 
+const toYYYYMMDD = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
+
+
 const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, onSave, onDeleteTransaction, transactionToEdit, wallets, categories, customers, formatRupiah }) => {
     const getInitialData = useCallback(() => {
         const defaultDescription = categories[0] || '';
         const defaultType = defaultDescription === 'Tarik Tunai' ? TransactionType.IN : TransactionType.OUT;
         return {
+            date: new Date().toISOString(),
             description: defaultDescription,
             customer: '',
             type: defaultType,
@@ -30,12 +38,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             wallet: wallets.filter(w => w.id !== 'CASH')[0]?.id || '',
             isPiutang: false,
             marginType: 'dalam' as 'dalam' | 'luar',
+            isInternalTransfer: false,
         };
     }, [categories, wallets]);
 
-    const [formData, setFormData] = useState<Omit<Transaction, 'id' | 'date'> | Transaction>(getInitialData());
+    const [formData, setFormData] = useState(getInitialData());
     const [isVisible, setIsVisible] = useState(false);
-    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [showMarginSuggestions, setShowMarginSuggestions] = useState(false);
@@ -53,14 +61,16 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
 
     useEffect(() => {
         if (isOpen) {
-            const initialData = getInitialData();
-            // If editing, merge with initialData to ensure new fields like marginType exist
-            setFormData(transactionToEdit ? { ...initialData, ...transactionToEdit } : initialData);
+            const baseData = getInitialData();
+            // The transactionToEdit might not have some of the newer optional fields
+            const mergedData = transactionToEdit ? { ...baseData, ...transactionToEdit } : baseData;
+            setFormData(mergedData);
             setIsVisible(true);
         } else {
             setIsVisible(false);
         }
     }, [isOpen, transactionToEdit, getInitialData]);
+
 
     const handleClose = () => {
         setIsVisible(false);
@@ -106,6 +116,25 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
 
         setFormData(updatedData as any);
     };
+    
+     const handleDateChange = (dateString: string) => { // dateString is 'YYYY-MM-DD'
+        if (!dateString) return;
+        const [year, month, day] = dateString.split('-').map(Number);
+        
+        // Use current time for new transactions, preserve time for edited ones.
+        const baseDate = new Date(formData.date || Date.now());
+
+        const newDate = new Date(
+            year,
+            month - 1,
+            day,
+            baseDate.getHours(),
+            baseDate.getMinutes(),
+            baseDate.getSeconds()
+        );
+
+        setFormData(prev => ({ ...prev, date: newDate.toISOString() }));
+    };
 
     const handleSuggestionClick = (customerName: string) => {
         setFormData(prev => ({ ...prev, customer: customerName }));
@@ -136,10 +165,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
         onSave(formData);
     };
 
-    const handleConfirmDelete = () => {
+    const handleDelete = () => {
         if (transactionToEdit) {
             onDeleteTransaction(transactionToEdit.id);
-            setIsDeleteConfirmOpen(false);
             handleClose();
         }
     };
@@ -172,9 +200,9 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     
     if (!isOpen) return null;
 
-    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-lg p-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
     const formSelectClass = `${formInputClass} appearance-none`;
-    const formLabelClass = "block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2";
+    const formLabelClass = "block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2 px-2";
 
     return (
         <>
@@ -199,39 +227,51 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                     <select id="description" name="description" value={formData.description} onChange={handleChange} className={formSelectClass} required>
                                         {categories.map(c => <option key={c} value={c}>{c}</option>)}
                                     </select>
-                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
                                         <ChevronDownIcon />
                                     </div>
                                 </div>
                             </div>
-                            <div className="relative">
-                                <label htmlFor="customer" className={formLabelClass}>Pelanggan</label>
-                                <input
-                                    type="text"
-                                    id="customer"
-                                    name="customer"
-                                    placeholder="cth: Budi Santoso (Opsional)"
-                                    value={formData.customer}
-                                    onChange={handleChange}
-                                    onFocus={handleCustomerFocus}
-                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                                    className={formInputClass}
-                                    autoComplete="off"
-                                />
-                                {showSuggestions && suggestions.length > 0 && (
-                                    <ul className="absolute z-10 w-full bg-white dark:bg-[#4A4750] border border-slate-300 dark:border-slate-600 rounded-lg mt-1 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
-                                        {suggestions.map((suggestion) => (
-                                            <li
-                                                key={suggestion}
-                                                className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500/50"
-                                                onMouseDown={() => handleSuggestionClick(suggestion)}
-                                            >
-                                                {suggestion}
-                                            </li>
-                                        ))}
-                                    </ul>
+                            <div className={`grid grid-cols-1 ${transactionToEdit ? 'sm:grid-cols-2' : ''} gap-4`}>
+                                <div className="relative">
+                                    <label htmlFor="customer" className={formLabelClass}>Pelanggan</label>
+                                    <input
+                                        type="text"
+                                        id="customer"
+                                        name="customer"
+                                        placeholder="cth: Budi Santoso (Opsional)"
+                                        value={formData.customer}
+                                        onChange={handleChange}
+                                        onFocus={handleCustomerFocus}
+                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                        className={formInputClass}
+                                        autoComplete="off"
+                                    />
+                                    {showSuggestions && suggestions.length > 0 && (
+                                        <ul className="absolute z-10 w-full bg-white dark:bg-[#4A4750] border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
+                                            {suggestions.map((suggestion) => (
+                                                <li
+                                                    key={suggestion}
+                                                    className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500/50"
+                                                    onMouseDown={() => handleSuggestionClick(suggestion)}
+                                                >
+                                                    {suggestion}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </div>
+                                {transactionToEdit && (
+                                    <div>
+                                        <label htmlFor="date" className={formLabelClass}>Tanggal</label>
+                                        <DatePicker
+                                            value={formData.date ? toYYYYMMDD(new Date(formData.date)) : ''}
+                                            onChange={handleDateChange}
+                                        />
+                                    </div>
                                 )}
                             </div>
+
 
                             {/* Financials */}
                             <div className="grid grid-cols-2 gap-4">
@@ -264,7 +304,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         className={formInputClass}
                                     />
                                     {showMarginSuggestions && (
-                                        <ul className="absolute z-10 w-full bg-white dark:bg-[#4A4750] border border-slate-300 dark:border-slate-600 rounded-lg mt-1 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
+                                        <ul className="absolute z-10 w-full bg-white dark:bg-[#4A4750] border border-slate-300 dark:border-slate-600 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
                                             {marginSuggestions.map((suggestion) => (
                                                 <li
                                                     key={suggestion}
@@ -287,7 +327,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         <button
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, marginType: 'dalam' }))}
-                                            className={`px-3 py-2 text-sm font-semibold rounded-lg border-2 transition-colors duration-200 text-center ${
+                                            className={`px-3 py-2 text-sm font-semibold rounded-full border-2 transition-colors duration-200 text-center ${
                                                 (formData as Transaction).marginType === 'dalam' || !(formData as Transaction).marginType
                                                     ? 'bg-indigo-100 text-indigo-700 border-indigo-400 dark:bg-indigo-400/20 dark:text-indigo-200 dark:border-indigo-400'
                                                     : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:border-slate-500'
@@ -299,7 +339,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         <button
                                             type="button"
                                             onClick={() => setFormData(prev => ({ ...prev, marginType: 'luar' }))}
-                                            className={`px-3 py-2 text-sm font-semibold rounded-lg border-2 transition-colors duration-200 text-center ${
+                                            className={`px-3 py-2 text-sm font-semibold rounded-full border-2 transition-colors duration-200 text-center ${
                                                 (formData as Transaction).marginType === 'luar'
                                                     ? 'bg-indigo-100 text-indigo-700 border-indigo-400 dark:bg-indigo-400/20 dark:text-indigo-200 dark:border-indigo-400'
                                                     : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:border-slate-500'
@@ -375,7 +415,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                 {transactionToEdit && (
                                     <button 
                                         type="button" 
-                                        onClick={() => setIsDeleteConfirmOpen(true)}
+                                        onClick={handleDelete}
                                         className="bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 font-semibold py-2 px-5 rounded-full text-sm transition-colors"
                                     >
                                         Hapus
@@ -390,13 +430,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                     </form>
                 </div>
             </div>
-            <ConfirmationModal
-                isOpen={isDeleteConfirmOpen}
-                onClose={() => setIsDeleteConfirmOpen(false)}
-                onConfirm={handleConfirmDelete}
-                title="Hapus Transaksi"
-                message="Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini akan mengembalikan saldo dompet dan tidak dapat dibatalkan."
-            />
         </>
     );
 };

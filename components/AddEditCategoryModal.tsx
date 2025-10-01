@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 
 interface AddEditCategoryModalProps {
@@ -51,7 +50,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({ isOpen, onC
                 <form onSubmit={handleSubmit}>
                     <div className="p-6">
                         <label htmlFor="name" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Nama Kategori</label>
-                        <input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-lg p-3 text-sm text-slate-800 dark:text-white transition outline-none" required autoFocus />
+                        <input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none" required autoFocus />
                     </div>
                     <div className="px-6 py-4 flex justify-end space-x-3">
                         <button type="button" onClick={handleClose} className="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-200 dark:hover:bg-indigo-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
