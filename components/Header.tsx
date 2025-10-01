@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Page } from '../types';
 import { MenuIcon, CloseIcon } from './icons/Icons';
@@ -9,7 +8,7 @@ const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; }> = ({ theme,
     return (
         <button
             onClick={onToggle}
-            className="w-14 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-[#2A282F] focus:ring-indigo-400"
+            className="w-14 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-[#2A282F] focus:ring-blue-400"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
         >
             <span className={`w-6 h-6 rounded-full bg-white dark:bg-slate-800 shadow-md transform transition-transform duration-300 relative ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0'}`}>
@@ -37,7 +36,7 @@ const NavLink: React.FC<NavLinkProps> = ({ page, text, active, onClick, isMobile
     
     if (isMobile) {
         const mobileBase = "block text-center py-4 text-lg font-medium";
-        const mobileActive = "text-indigo-500 dark:text-indigo-300";
+        const mobileActive = "text-blue-500 dark:text-blue-300";
         const mobileInactive = "text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white";
         return (
             <a onClick={() => onClick(page)} className={`${baseClasses} ${mobileBase} ${active ? mobileActive : mobileInactive}`}>
@@ -47,7 +46,7 @@ const NavLink: React.FC<NavLinkProps> = ({ page, text, active, onClick, isMobile
     }
     
     const desktopBase = "px-4 py-2 rounded-full text-sm font-medium";
-    const desktopActive = "bg-indigo-100 text-indigo-700 dark:bg-indigo-400/20 dark:text-indigo-200";
+    const desktopActive = "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200";
     const desktopInactive = "text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-slate-100";
     
     return (

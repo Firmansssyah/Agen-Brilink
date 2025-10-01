@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { DashboardIcon, ReportIcon, SettingsIcon, PlusIcon, WalletIcon, CategoryIcon, CustomersIcon } from './icons/Icons';
 
@@ -15,14 +14,14 @@ interface NavLinkProps {
 
 const NavLink: React.FC<NavLinkProps> = ({ page, icon, text, active, onClick }) => {
     const baseClasses = "flex items-center h-14 w-full rounded-full transition-colors duration-200 cursor-pointer group";
-    const activeClasses = "bg-indigo-400/20";
+    const activeClasses = "bg-blue-400/20";
     const inactiveClasses = "hover:bg-white/10";
     
     return (
         <div onClick={() => onClick(page)} className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}>
             <div className="flex items-center pl-4 space-x-4">
-                <span className={active ? 'text-indigo-200' : 'text-slate-400 group-hover:text-slate-200'}>{icon}</span>
-                <span className={`font-medium ${active ? 'text-indigo-200' : 'text-slate-300 group-hover:text-slate-100'}`}>{text}</span>
+                <span className={active ? 'text-blue-200' : 'text-slate-400 group-hover:text-slate-200'}>{icon}</span>
+                <span className={`font-medium ${active ? 'text-blue-200' : 'text-slate-300 group-hover:text-slate-100'}`}>{text}</span>
             </div>
         </div>
     );

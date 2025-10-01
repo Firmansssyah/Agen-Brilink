@@ -48,7 +48,7 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
         <button
             onClick={onClick}
             className={`px-4 py-1.5 text-sm font-semibold rounded-full transition-colors duration-200 ${
-                active ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-400/20 dark:text-indigo-200' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-white/10'
+                active ? 'bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-white/10'
             }`}
         >
             {children}
@@ -79,7 +79,7 @@ const TransactionTypeAnalysis: React.FC<TransactionTypeAnalysisProps> = ({ trans
                             </div>
                             <div className="w-full bg-slate-200 dark:bg-slate-700/50 rounded-full h-2.5">
                                 <div
-                                    className="bg-indigo-400 h-2.5 rounded-full"
+                                    className="bg-blue-400 h-2.5 rounded-full"
                                     style={{ width: `${maxCount > 0 ? (count / maxCount) * 100 : 0}%` }}
                                 ></div>
                             </div>

@@ -89,7 +89,7 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                 <select 
                                     value={selectedPeriod} 
                                     onChange={(e) => setSelectedPeriod(e.target.value)}
-                                    className="w-full sm:w-56 bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none appearance-none"
+                                    className="w-full sm:w-56 bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none appearance-none"
                                 >
                                     <option value="all-time">Semua Waktu</option>
                                     {availableMonths.map(monthStr => {

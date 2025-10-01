@@ -1,5 +1,3 @@
-
-
 import React, { useMemo } from 'react';
 import { Transaction } from '../types';
 
@@ -98,7 +96,7 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
                             {/* Bar */}
                             <DayComponent
                                 onClick={isClickable ? () => onDayClick(dateStr) : undefined}
-                                className={`relative w-full rounded-md transition-all duration-300 flex items-center justify-center ${isClickable ? 'cursor-pointer hover:bg-indigo-400' : ''} ${isToday ? 'bg-indigo-500' : 'bg-indigo-400 dark:bg-indigo-500/50'}`}
+                                className={`relative w-full rounded-md transition-all duration-300 flex items-center justify-center ${isClickable ? 'cursor-pointer hover:bg-blue-400' : ''} ${isToday ? 'bg-blue-500' : 'bg-blue-400 dark:bg-blue-500/50'}`}
                                 style={{ height: `${barHeight}%` }}
                                 aria-label={isClickable ? `Lihat transaksi untuk ${dayData.date.toLocaleDateString('id-ID')}` : `Tidak ada transaksi pada ${dayData.date.toLocaleDateString('id-ID')}`}
                             >

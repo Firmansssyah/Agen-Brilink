@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useToastContext, ToastMessage, ToastType } from '../contexts/ToastContext';
@@ -56,7 +55,7 @@ const Toast: React.FC<{ toast: ToastMessage, onDismiss: (id: number) => void }> 
                                 <svg className="absolute inset-0" viewBox="0 0 24 24">
                                     <circle className="text-slate-200 dark:text-slate-600" strokeWidth="2" stroke="currentColor" fill="transparent" r="10" cx="12" cy="12" />
                                     <circle
-                                        className="text-indigo-500 dark:text-indigo-400 animate-countdown-circle"
+                                        className="text-blue-500 dark:text-blue-400 animate-countdown-circle"
                                         style={{ transform: 'rotate(-90deg)', transformOrigin: 'center' }}
                                         strokeWidth="2"
                                         strokeDasharray="62.83"
@@ -74,7 +73,7 @@ const Toast: React.FC<{ toast: ToastMessage, onDismiss: (id: number) => void }> 
                             </div>
                             <button
                                 onClick={handleUndo}
-                                className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:underline focus:outline-none"
+                                className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline focus:outline-none"
                             >
                                 Urungkan
                             </button>

@@ -200,7 +200,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     
     if (!isOpen) return null;
 
-    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
     const formSelectClass = `${formInputClass} appearance-none`;
     const formLabelClass = "block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2 px-2";
 
@@ -252,7 +252,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             {suggestions.map((suggestion) => (
                                                 <li
                                                     key={suggestion}
-                                                    className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500/50"
+                                                    className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500/50"
                                                     onMouseDown={() => handleSuggestionClick(suggestion)}
                                                 >
                                                     {suggestion}
@@ -308,7 +308,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             {marginSuggestions.map((suggestion) => (
                                                 <li
                                                     key={suggestion}
-                                                    className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500/50"
+                                                    className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500/50"
                                                     onMouseDown={() => handleMarginSuggestionClick(suggestion)}
                                                 >
                                                     {formatInputValue(suggestion)}
@@ -329,7 +329,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             onClick={() => setFormData(prev => ({ ...prev, marginType: 'dalam' }))}
                                             className={`px-3 py-2 text-sm font-semibold rounded-full border-2 transition-colors duration-200 text-center ${
                                                 (formData as Transaction).marginType === 'dalam' || !(formData as Transaction).marginType
-                                                    ? 'bg-indigo-100 text-indigo-700 border-indigo-400 dark:bg-indigo-400/20 dark:text-indigo-200 dark:border-indigo-400'
+                                                    ? 'bg-blue-100 text-blue-700 border-blue-400 dark:bg-blue-400/20 dark:text-blue-200 dark:border-blue-400'
                                                     : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:border-slate-500'
                                             }`}
                                         >
@@ -341,7 +341,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             onClick={() => setFormData(prev => ({ ...prev, marginType: 'luar' }))}
                                             className={`px-3 py-2 text-sm font-semibold rounded-full border-2 transition-colors duration-200 text-center ${
                                                 (formData as Transaction).marginType === 'luar'
-                                                    ? 'bg-indigo-100 text-indigo-700 border-indigo-400 dark:bg-indigo-400/20 dark:text-indigo-200 dark:border-indigo-400'
+                                                    ? 'bg-blue-100 text-blue-700 border-blue-400 dark:bg-blue-400/20 dark:text-blue-200 dark:border-blue-400'
                                                     : 'bg-slate-100 text-slate-600 border-transparent hover:border-slate-400 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:border-slate-500'
                                             }`}
                                         >
@@ -363,8 +363,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                             onClick={() => handleWalletChange(wallet.id)}
                                             className={`relative flex items-center justify-center p-3 rounded-xl transition-all duration-200 bg-white dark:bg-slate-800/30 aspect-square has-tooltip ${
                                                 formData.wallet === wallet.id
-                                                    ? 'ring-2 ring-indigo-400 shadow-lg'
-                                                    : 'hover:ring-2 hover:ring-indigo-300'
+                                                    ? 'ring-2 ring-blue-400 shadow-lg'
+                                                    : 'hover:ring-2 hover:ring-blue-300'
                                             }`}
                                             aria-label={wallet.name}
                                         >
@@ -375,7 +375,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                                 altText={wallet.name}
                                             />
                                             {formData.wallet === wallet.id && (
-                                                 <div className="absolute top-1.5 right-1.5 bg-indigo-500 rounded-full p-0.5 flex items-center justify-center">
+                                                 <div className="absolute top-1.5 right-1.5 bg-blue-500 rounded-full p-0.5 flex items-center justify-center">
                                                     <CheckIcon className="h-3 w-3 text-white" />
                                                 </div>
                                             )}
@@ -405,7 +405,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                     <div className="relative">
                                         <input type="checkbox" id="isPiutang" name="isPiutang" className="sr-only peer" checked={formData.isPiutang} onChange={handleChange} />
                                         <div className="block bg-slate-300 dark:bg-slate-600 w-12 h-7 rounded-full transition"></div>
-                                        <div className="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform peer-checked:translate-x-full peer-checked:bg-indigo-300"></div>
+                                        <div className="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform peer-checked:translate-x-full peer-checked:bg-blue-300"></div>
                                     </div>
                                 </label>
                             </div>
@@ -423,8 +423,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                 )}
                             </div>
                             <div className="flex space-x-3">
-                                <button type="button" onClick={handleClose} className="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-200 dark:hover:bg-indigo-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
-                                <button type="submit" className="bg-indigo-500 hover:bg-indigo-600 text-white dark:bg-indigo-400 dark:hover:bg-indigo-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Simpan</button>
+                                <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
+                                <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Simpan</button>
                             </div>
                         </div>
                     </form>

@@ -74,10 +74,10 @@ const TransactionHeatmap: React.FC<TransactionHeatmapProps> = ({ transactions, o
 
     const getColorIntensity = (count: number) => {
         if (count === 0) return 'bg-slate-200 hover:bg-slate-300 dark:bg-slate-700/60 dark:hover:bg-slate-700';
-        if (count <= 2) return 'bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-900 dark:hover:bg-indigo-800';
-        if (count <= 5) return 'bg-indigo-200 hover:bg-indigo-300 dark:bg-indigo-800 dark:hover:bg-indigo-700';
-        if (count <= 8) return 'bg-indigo-300 hover:bg-indigo-400 dark:bg-indigo-700 dark:hover:bg-indigo-600';
-        return 'bg-indigo-400 hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500';
+        if (count <= 2) return 'bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800';
+        if (count <= 5) return 'bg-blue-200 hover:bg-blue-300 dark:bg-blue-800 dark:hover:bg-blue-700';
+        if (count <= 8) return 'bg-blue-300 hover:bg-blue-400 dark:bg-blue-700 dark:hover:bg-blue-600';
+        return 'bg-blue-400 hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500';
     };
 
     const changeMonth = (offset: number) => {
@@ -128,7 +128,7 @@ const TransactionHeatmap: React.FC<TransactionHeatmapProps> = ({ transactions, o
                            <div className="flex justify-between items-start w-full">
                                 <span className="font-medium text-slate-700 dark:text-slate-300">{day.getDate()}</span>
                                 {data && data.count > 0 && (
-                                    <span className="bg-indigo-300 text-indigo-800 dark:bg-indigo-400/50 dark:text-indigo-200 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                                    <span className="bg-blue-300 text-blue-800 dark:bg-blue-400/50 dark:text-blue-200 text-[10px] font-bold px-1.5 py-0.5 rounded-full leading-none">
                                         {data.count}
                                     </span>
                                 )}

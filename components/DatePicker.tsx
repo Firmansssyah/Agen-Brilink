@@ -150,9 +150,9 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
 
                         let dayClasses = "h-8 w-8 flex items-center justify-center rounded-full text-sm transition-colors cursor-pointer ";
                         if (isSelected) {
-                            dayClasses += "bg-indigo-500 text-white font-bold";
+                            dayClasses += "bg-blue-500 text-white font-bold";
                         } else if (isToday) {
-                            dayClasses += "bg-indigo-100 text-indigo-700 dark:bg-indigo-400/20 dark:text-indigo-200";
+                            dayClasses += "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200";
                         } else {
                             dayClasses += "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/10";
                         }
@@ -187,7 +187,7 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange, placeholder })
                     value={formatDisplayDate(value)}
                     onClick={() => setIsOpen(!isOpen)}
                     placeholder={placeholder}
-                    className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-10 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-2 text-sm text-slate-800 dark:text-white transition outline-none cursor-pointer pr-10 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                     aria-haspopup="dialog"
                     aria-expanded={isOpen}
                 />

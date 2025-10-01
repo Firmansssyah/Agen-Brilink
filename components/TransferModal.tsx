@@ -10,7 +10,7 @@ interface TransferModalProps {
 }
 
 const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, wallets }) => {
-    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500";
     const formSelectClass = `${formInputClass} appearance-none`;
 
     const getInitialData = () => ({
@@ -179,8 +179,8 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
 
                     </div>
                     <div className="px-6 py-4 flex justify-end space-x-3">
-                        <button type="button" onClick={handleClose} className="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-200 dark:hover:bg-indigo-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
-                        <button type="submit" className="bg-indigo-500 hover:bg-indigo-600 text-white dark:bg-indigo-400 dark:hover:bg-indigo-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Pindahkan</button>
+                        <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
+                        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Pindahkan</button>
                     </div>
                 </form>
             </div>

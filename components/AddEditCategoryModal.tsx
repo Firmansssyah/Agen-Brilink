@@ -50,11 +50,11 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({ isOpen, onC
                 <form onSubmit={handleSubmit}>
                     <div className="p-6">
                         <label htmlFor="name" className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">Nama Kategori</label>
-                        <input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none" required autoFocus />
+                        <input type="text" name="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-slate-100 dark:bg-[#3C3A42] border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none" required autoFocus />
                     </div>
                     <div className="px-6 py-4 flex justify-end space-x-3">
-                        <button type="button" onClick={handleClose} className="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-200 dark:hover:bg-indigo-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
-                        <button type="submit" className="bg-indigo-500 hover:bg-indigo-600 text-white dark:bg-indigo-400 dark:hover:bg-indigo-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Simpan</button>
+                        <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
+                        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Simpan</button>
                     </div>
                 </form>
             </div>

@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 
 interface ConfirmationModalProps {
@@ -59,7 +57,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                     <p className="text-slate-600 dark:text-[#CAC4D0] text-sm">{message}</p>
                 </div>
                 <div className="px-6 py-4 flex justify-end space-x-3">
-                    <button type="button" onClick={handleClose} className="text-indigo-600 hover:bg-indigo-100 dark:text-indigo-200 dark:hover:bg-indigo-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
+                    <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
                     <button type="button" onClick={handleConfirm} className={`${confirmColor} text-white font-semibold py-2 px-5 rounded-full text-sm transition-colors`}>{confirmText}</button>
                 </div>
             </div>

@@ -1,5 +1,3 @@
-
-
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { Transaction, Wallet, SortKey, SortDirection, TransactionType } from '../types';
 import WalletsSummaryCard from '../components/WalletsSummaryCard';
@@ -279,7 +277,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                                 </button>
                                                 <button 
                                                     onClick={() => setIsFeeModalOpen(true)}
-                                                    className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-400/10 dark:hover:bg-indigo-400/20 dark:text-indigo-200 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
+                                                    className="bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-400/10 dark:hover:bg-blue-400/20 dark:text-blue-200 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
                                                     aria-label="Tambah Fee Brilink"
                                                 >
                                                     <PlusIcon className="h-4 w-4" />
@@ -287,7 +285,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                                 </button>
                                                 <button 
                                                     onClick={handleOpenAddModal}
-                                                    className="bg-indigo-500 hover:bg-indigo-600 text-white dark:bg-indigo-400 dark:hover:bg-indigo-500 dark:text-slate-900 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     <PlusIcon className="h-4 w-4" />
                                                     <span>Tambah Transaksi</span>

@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { Transaction } from '../types';
 
@@ -69,7 +68,7 @@ const BrilinkFeeReport: React.FC<BrilinkFeeReportProps> = ({ feeTransactions, fo
                 </div>
                 <button 
                     onClick={onOpenDetail}
-                    className="text-xs font-semibold text-indigo-500 dark:text-indigo-300 hover:underline"
+                    className="text-xs font-semibold text-blue-500 dark:text-blue-300 hover:underline"
                 >
                     Lihat Detail
                 </button>

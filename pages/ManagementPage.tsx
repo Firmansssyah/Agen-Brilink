@@ -110,7 +110,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Daftar Dompet</h3>
                             <button 
                                 onClick={handleOpenAddWalletModal}
-                                className="bg-indigo-500 hover:bg-indigo-600 text-white dark:bg-indigo-400 dark:hover:bg-indigo-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
                             >
                                 <PlusIcon />
                                 <span>Tambah Dompet</span>
@@ -151,7 +151,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Jenis Transaksi</h3>
                             <button 
                                 onClick={handleOpenAddCategoryModal}
-                                className="bg-indigo-500 hover:bg-indigo-600 text-white dark:bg-indigo-400 dark:hover:bg-indigo-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
                             >
                                 <PlusIcon />
                                 <span>Tambah Kategori</span>

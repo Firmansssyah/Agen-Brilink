@@ -10,7 +10,7 @@ interface AddTransactionPageProps {
 }
 
 const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransaction, wallets, categories }) => {
-    const formInputClass = "w-full bg-[#3C3A42] border border-slate-600 focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 rounded-lg p-3 text-sm text-white transition outline-none";
+    const formInputClass = "w-full bg-[#3C3A42] border border-slate-600 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg p-3 text-sm text-white transition outline-none";
     const formSelectClass = `${formInputClass} appearance-none`;
     
     const initialData = {
