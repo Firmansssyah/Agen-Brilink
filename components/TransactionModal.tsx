@@ -23,9 +23,16 @@ const toYYYYMMDD = (date: Date): string => {
     return `${year}-${month}-${day}`;
 };
 
+// Define a type for the form data to allow null for numeric inputs, distinguishing empty from zero.
+type FormDataType = Omit<Transaction, 'id' | 'date' | 'amount' | 'margin' | 'isDeleting'> & {
+    date: string;
+    amount: number | null;
+    margin: number | null;
+};
+
 
 const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, onSave, onDeleteTransaction, transactionToEdit, wallets, categories, customers, formatRupiah }) => {
-    const getInitialData = useCallback(() => {
+    const getInitialData = useCallback((): FormDataType => {
         const defaultDescription = categories[0] || '';
         const defaultType = defaultDescription === 'Tarik Tunai' ? TransactionType.IN : TransactionType.OUT;
         return {
@@ -33,8 +40,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             description: defaultDescription,
             customer: '',
             type: defaultType,
-            amount: 0,
-            margin: 0,
+            amount: null,
+            margin: null,
             wallet: wallets.filter(w => w.id !== 'CASH')[0]?.id || '',
             isPiutang: false,
             marginType: 'dalam' as 'dalam' | 'luar',
@@ -42,29 +49,36 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
         };
     }, [categories, wallets]);
 
-    const [formData, setFormData] = useState(getInitialData());
+    const [formData, setFormData] = useState<FormDataType>(getInitialData());
     const [isVisible, setIsVisible] = useState(false);
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [showMarginSuggestions, setShowMarginSuggestions] = useState(false);
 
-    const marginSuggestions = [1500, 2500, 3000, 5000, 7500, 10000];
+    const marginSuggestions = useMemo(() => {
+        const specialCategories = ['Pulsa', 'Listrik', 'Lainnya'];
+        if (specialCategories.includes(formData.description)) {
+            return [1500, 2000, 2500, 3000, 5000];
+        }
+        return [2500, 3000, 5000, 7500, 10000];
+    }, [formData.description]);
 
-    const formatInputValue = (value: number) => {
-        if (value === 0) return '';
+    const formatInputValue = (value: number | null) => {
+        if (value === null) return '';
         return new Intl.NumberFormat('id-ID').format(value);
     };
 
-    const parseInputValue = (value: string): number => {
-        return Number(value.replace(/\./g, '')) || 0;
+    const parseInputValue = (value: string): number | null => {
+        if (value.trim() === '') return null;
+        const num = Number(value.replace(/\./g, ''));
+        return isNaN(num) ? null : num;
     };
 
     useEffect(() => {
         if (isOpen) {
             const baseData = getInitialData();
-            // The transactionToEdit might not have some of the newer optional fields
             const mergedData = transactionToEdit ? { ...baseData, ...transactionToEdit } : baseData;
-            setFormData(mergedData);
+            setFormData(mergedData as FormDataType);
             setIsVisible(true);
         } else {
             setIsVisible(false);
@@ -93,7 +107,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         
-        let processedValue: string | number | boolean = value;
+        let processedValue: string | number | boolean | null = value;
 
         if (name === 'amount' || name === 'margin') {
             processedValue = parseInputValue(value);
@@ -158,11 +172,19 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.description || formData.amount <= 0 || !formData.wallet) {
-            alert('Deskripsi, Jumlah, dan Dompet harus diisi.');
+        // Updated validation: amount can be 0, but not empty (null).
+        if (!formData.description || formData.amount === null || formData.amount < 0 || !formData.wallet) {
+            alert('Deskripsi, Jumlah (tidak boleh kosong), dan Dompet harus diisi.');
             return;
         }
-        onSave(formData);
+        
+        // Convert null margin back to 0 before saving.
+        const dataToSave = {
+            ...formData,
+            amount: formData.amount,
+            margin: formData.margin ?? 0,
+        };
+        onSave(dataToSave as Transaction);
     };
 
     const handleDelete = () => {
@@ -178,21 +200,23 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     };
 
      const cashFlowInfo = useMemo(() => {
-        const transactionData = formData as Transaction;
-        if (transactionData.isPiutang) {
-            if (transactionData.description === 'Tarik Tunai' && transactionData.amount > 0) {
-                 return `Piutang akan tercatat. Kas akan berkurang sejumlah ${formatRupiah(transactionData.amount)}.`;
+        const amount = formData.amount ?? 0;
+        const margin = formData.margin ?? 0;
+
+        if (formData.isPiutang) {
+            if (formData.description === 'Tarik Tunai' && amount > 0) {
+                 return `Piutang akan tercatat. Kas akan berkurang sejumlah ${formatRupiah(amount)}.`;
             }
             return "Transaksi akan dicatat sebagai piutang. Tidak ada perubahan kas.";
         }
-        if (transactionData.amount > 0) {
-            if (transactionData.description === 'Tarik Tunai') {
-                 if (transactionData.marginType === 'luar') {
-                    return `Kas akan berkurang ${formatRupiah(transactionData.amount)} dan bertambah dari margin ${formatRupiah(transactionData.margin)}.`;
+        if (amount >= 0) {
+            if (formData.description === 'Tarik Tunai') {
+                 if (formData.marginType === 'luar') {
+                    return `Kas akan berkurang ${formatRupiah(amount)} dan bertambah dari margin ${formatRupiah(margin)}.`;
                 }
-                return `Kas akan berkurang sejumlah ${formatRupiah(transactionData.amount)}.`;
+                return `Kas akan berkurang sejumlah ${formatRupiah(amount)}.`;
             } else {
-                return `Kas akan bertambah sejumlah ${formatRupiah(transactionData.amount + transactionData.margin)}.`;
+                return `Kas akan bertambah sejumlah ${formatRupiah(amount + margin)}.`;
             }
         }
         return "Masukkan jumlah untuk melihat dampak pada kas.";

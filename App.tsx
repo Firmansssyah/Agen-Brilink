@@ -87,13 +87,26 @@ const MainApp: React.FC = () => {
     }, [accountsReceivable]);
 
     const customers = useMemo(() => {
-        const customerSet = new Set<string>();
+        const customerCounts = new Map<string, number>();
         transactions.forEach(t => {
-            if (t.customer && t.customer.trim() && t.customer.toLowerCase() !== 'pelanggan') {
-                customerSet.add(t.customer.trim());
+            const customerName = t.customer?.trim();
+            if (customerName) {
+                const lowerCaseName = customerName.toLowerCase();
+                // Filter out generic and internal names
+                if (lowerCaseName !== 'pelanggan' && lowerCaseName !== 'internal' && lowerCaseName !== 'brilink') {
+                     customerCounts.set(customerName, (customerCounts.get(customerName) || 0) + 1);
+                }
             }
         });
-        return Array.from(customerSet).sort((a, b) => a.localeCompare(b));
+
+        // Convert map to array of [name, count]
+        const sortedCustomers = Array.from(customerCounts.entries())
+            // Sort by count descending
+            .sort(([, countA], [, countB]) => countB - countA)
+            // Extract just the name
+            .map(([name]) => name);
+
+        return sortedCustomers;
     }, [transactions]);
 
     const applyWalletChanges = useCallback(async (
