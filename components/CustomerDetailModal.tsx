@@ -82,10 +82,10 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             aria-labelledby="customer-detail-title"
         >
             <div
-                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-3xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-3xl transform transition-all duration-300 ease-in-out flex flex-col max-h-[90vh] ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10">
+                <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <div>
                         <h2 id="customer-detail-title" className="text-xl font-medium text-slate-800 dark:text-white">{customerName}</h2>
                         <p className="text-sm text-slate-500 dark:text-neutral-400">Detail Pelanggan</p>
@@ -95,7 +95,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                     </button>
                 </div>
                 
-                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 max-h-[70vh] overflow-y-auto">
+                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 overflow-y-auto flex-grow">
                     {/* Left Column: Summary & Monthly Breakdown */}
                     <div className="md:col-span-1 space-y-6">
                         {/* Summary */}
@@ -171,7 +171,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                     </div>
                 </div>
 
-                <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10">
+                <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10 flex-shrink-0">
                     <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Tutup</button>
                 </div>
             </div>

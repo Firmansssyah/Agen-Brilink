@@ -242,14 +242,14 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                 onClick={handleClose}
             >
                 <div 
-                    className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                    className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-lg transform transition-all duration-300 ease-in-out flex flex-col max-h-[90vh] ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
-                     <div className="p-6 border-b border-slate-200 dark:border-white/10">
+                     <div className="p-6 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                         <h2 className="text-xl font-medium text-slate-800 dark:text-white">{transactionToEdit ? 'Edit Transaksi' : 'Tambah Transaksi Baru'}</h2>
                     </div>
-                    <form onSubmit={handleSubmit}>
-                        <div className="p-6 flex flex-col gap-5">
+                    <form onSubmit={handleSubmit} className="flex flex-col flex-grow min-h-0">
+                        <div className="p-6 flex flex-col gap-5 overflow-y-auto">
                             {/* Transaction Details */}
                             <div>
                                 <label htmlFor="description" className={formLabelClass}>Jenis Transaksi</label>
@@ -453,7 +453,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                 </label>
                             </div>
                         </div>
-                        <div className="px-6 py-4 flex justify-between items-center border-t border-slate-200 dark:border-white/10">
+                        <div className="px-6 py-4 flex justify-between items-center border-t border-slate-200 dark:border-white/10 flex-shrink-0">
                             <div>
                                 {transactionToEdit && (
                                     <button 

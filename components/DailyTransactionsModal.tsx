@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
 import WalletIconComponent from './WalletIconComponent';
@@ -68,10 +65,10 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
             aria-labelledby="daily-transactions-title"
         >
             <div
-                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
+                className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 ease-in-out flex flex-col max-h-[90vh] ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10">
+                <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <div>
                         <h2 id="daily-transactions-title" className="text-xl font-medium text-slate-800 dark:text-white">Detail Transaksi</h2>
                         <p className="text-sm text-slate-500 dark:text-neutral-400">{formattedDate}</p>
@@ -81,7 +78,7 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
                     </button>
                 </div>
 
-                <div className="p-2 sm:p-4 max-h-[60vh] overflow-y-auto">
+                <div className="p-2 sm:p-4 overflow-y-auto flex-grow">
                     {transactions.length > 0 ? (
                         <ul className="space-y-2">
                             {transactions.map(t => {
@@ -130,7 +127,7 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
                         <p className="text-center py-10 text-slate-400 dark:text-neutral-500">Tidak ada transaksi pada tanggal ini.</p>
                     )}
                 </div>
-                <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10">
+                <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10 flex-shrink-0">
                     <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Tutup</button>
                 </div>
             </div>
