@@ -42,8 +42,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
     return (
         <div 
-            className={`fixed inset-0 z-50 flex justify-center items-center p-4 transition-opacity duration-300 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-            style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)'}}
+            className={`fixed inset-0 z-50 flex justify-center items-center p-4 transition-opacity duration-300 ease-in-out bg-black/40 backdrop-blur-sm ${isVisible ? 'opacity-100' : 'opacity-0'}`}
             onClick={handleClose}
         >
             <div 
