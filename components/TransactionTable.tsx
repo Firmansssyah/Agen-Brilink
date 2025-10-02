@@ -1,6 +1,7 @@
 
 
 
+
 import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 import WalletIconComponent from './WalletIconComponent';
@@ -81,7 +82,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         }`}
                                     >
                                         <td className="p-3 text-sm text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
-                                        <td className="p-3 text-sm text-slate-800 dark:text-white">{transaction.description}</td>
+                                        <td className="p-3 text-sm text-slate-800 dark:text-white">
+                                            {transaction.description}
+                                            {transaction.notes && (
+                                                <p className="text-xs text-slate-500 dark:text-neutral-400 truncate italic">
+                                                    "{transaction.notes}"
+                                                </p>
+                                            )}
+                                        </td>
                                         <td className="p-3 text-sm text-slate-600 dark:text-neutral-300">{transaction.customer}</td>
                                         <td className={`p-3 text-sm font-medium ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                                             <div className="flex items-center space-x-3">
@@ -133,6 +141,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     <div className="flex-1 min-w-0">
                                         <p className="text-base font-semibold text-slate-800 dark:text-white truncate">{transaction.description}</p>
                                         <p className="text-sm text-slate-600 dark:text-neutral-300 truncate">{transaction.customer || 'Pelanggan'}</p>
+                                        {transaction.notes && (
+                                            <p className="text-xs text-slate-500 dark:text-neutral-400 truncate italic mt-1">
+                                                "{transaction.notes}"
+                                            </p>
+                                        )}
                                     </div>
                                     {transaction.isPiutang && (
                                         <div className="ml-2 flex-shrink-0 text-xs font-bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">Piutang</div>

@@ -1,5 +1,6 @@
 
 
+
 import React, { useState, useEffect } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
 import WalletIconComponent from './WalletIconComponent';
@@ -101,6 +102,11 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
                                             <div className="min-w-0 flex-1">
                                                 <p className="text-sm font-medium text-slate-800 dark:text-white truncate">{t.description}</p>
                                                 <p className="text-xs text-slate-500 dark:text-neutral-400 truncate">{t.customer || 'Pelanggan'}</p>
+                                                {t.notes && (
+                                                    <p className="text-xs text-slate-400 dark:text-neutral-500 truncate italic mt-0.5">
+                                                        "{t.notes}"
+                                                    </p>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="flex items-center space-x-4 ml-4">

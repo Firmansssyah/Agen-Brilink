@@ -145,7 +145,16 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                                                 <td className="p-3 text-slate-600 dark:text-neutral-300 whitespace-nowrap">
                                                     {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
                                                 </td>
-                                                <td className="p-3 text-slate-800 dark:text-white">{t.description}</td>
+                                                <td className="p-3 text-slate-800 dark:text-white">
+                                                    <div>
+                                                        {t.description}
+                                                        {t.notes && (
+                                                            <p className="text-xs text-slate-500 dark:text-neutral-400 truncate italic">
+                                                                "{t.notes}"
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </td>
                                                 <td className={`p-3 font-medium text-right ${t.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                                                     {formatRupiah(t.amount)}
                                                 </td>

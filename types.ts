@@ -1,4 +1,5 @@
 
+
 export enum TransactionType {
     IN = 'IN',
     OUT = 'OUT',
@@ -24,6 +25,7 @@ export interface Transaction {
     marginType?: 'dalam' | 'luar';
     isInternalTransfer?: boolean;
     isDeleting?: boolean;
+    notes?: string;
 }
 
 export type Page = 'dashboard' | 'management' | 'customers' | 'reports' | 'settings';

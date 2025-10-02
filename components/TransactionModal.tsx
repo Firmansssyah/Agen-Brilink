@@ -24,10 +24,11 @@ const toYYYYMMDD = (date: Date): string => {
 };
 
 // Define a type for the form data to allow null for numeric inputs, distinguishing empty from zero.
-type FormDataType = Omit<Transaction, 'id' | 'date' | 'amount' | 'margin' | 'isDeleting'> & {
+type FormDataType = Omit<Transaction, 'id' | 'date' | 'amount' | 'margin' | 'isDeleting' | 'notes'> & {
     date: string;
     amount: number | null;
     margin: number | null;
+    notes?: string;
 };
 
 
@@ -46,6 +47,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             isPiutang: false,
             marginType: 'dalam' as 'dalam' | 'luar',
             isInternalTransfer: false,
+            notes: '',
         };
     }, [categories, wallets]);
 
@@ -256,45 +258,58 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                     </div>
                                 </div>
                             </div>
-                            <div className={`grid grid-cols-1 ${transactionToEdit ? 'sm:grid-cols-2' : ''} gap-4`}>
-                                <div className="relative">
-                                    <label htmlFor="customer" className={formLabelClass}>Pelanggan</label>
-                                    <input
-                                        type="text"
-                                        id="customer"
-                                        name="customer"
-                                        placeholder="cth: Budi Santoso (Opsional)"
-                                        value={formData.customer}
-                                        onChange={handleChange}
-                                        onFocus={handleCustomerFocus}
-                                        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                                        className={formInputClass}
-                                        autoComplete="off"
-                                    />
-                                    {showSuggestions && suggestions.length > 0 && (
-                                        <ul className="absolute z-10 w-full bg-white dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 rounded-2xl mt-2 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
-                                            {suggestions.map((suggestion) => (
-                                                <li
-                                                    key={suggestion}
-                                                    className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500/50"
-                                                    onMouseDown={() => handleSuggestionClick(suggestion)}
-                                                >
-                                                    {suggestion}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                                {transactionToEdit && (
-                                    <div>
-                                        <label htmlFor="date" className={formLabelClass}>Tanggal</label>
-                                        <DatePicker
-                                            value={formData.date ? toYYYYMMDD(new Date(formData.date)) : ''}
-                                            onChange={handleDateChange}
-                                        />
-                                    </div>
+                            <div className="relative">
+                                <label htmlFor="customer" className={formLabelClass}>Pelanggan</label>
+                                <input
+                                    type="text"
+                                    id="customer"
+                                    name="customer"
+                                    placeholder="cth: Budi Santoso (Opsional)"
+                                    value={formData.customer}
+                                    onChange={handleChange}
+                                    onFocus={handleCustomerFocus}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                    className={formInputClass}
+                                    autoComplete="off"
+                                />
+                                {showSuggestions && suggestions.length > 0 && (
+                                    <ul className="absolute z-10 w-full bg-white dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 rounded-2xl mt-2 max-h-40 overflow-y-auto shadow-lg animate-fade-in">
+                                        {suggestions.map((suggestion) => (
+                                            <li
+                                                key={suggestion}
+                                                className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500/50"
+                                                onMouseDown={() => handleSuggestionClick(suggestion)}
+                                            >
+                                                {suggestion}
+                                            </li>
+                                        ))}
+                                    </ul>
                                 )}
                             </div>
+
+                             <div>
+                                <label htmlFor="notes" className={formLabelClass}>Catatan (Opsional)</label>
+                                <input
+                                    type="text"
+                                    id="notes"
+                                    name="notes"
+                                    placeholder="cth: untuk bayar arisan"
+                                    value={formData.notes || ''}
+                                    onChange={handleChange}
+                                    className={formInputClass}
+                                    autoComplete="off"
+                                />
+                            </div>
+
+                            {transactionToEdit && (
+                                <div>
+                                    <label htmlFor="date" className={formLabelClass}>Tanggal</label>
+                                    <DatePicker
+                                        value={formData.date ? toYYYYMMDD(new Date(formData.date)) : ''}
+                                        onChange={handleDateChange}
+                                    />
+                                </div>
+                            )}
 
 
                             {/* Financials */}
