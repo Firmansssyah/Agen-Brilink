@@ -51,6 +51,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [filterType, setFilterType] = useState<'all' | TransactionType>('all');
     const [filterStartDate, setFilterStartDate] = useState('');
     const [filterEndDate, setFilterEndDate] = useState('');
+    const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
     
     const itemsPerPage = 10;
 
@@ -126,6 +127,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const handleOpenAddModal = useCallback(() => {
         setTransactionToEdit(null);
         setIsTransactionModalOpen(true);
+        setIsFabMenuOpen(false);
     }, []);
 
     const handleOpenEditModal = (transaction: Transaction) => {
@@ -172,6 +174,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         }
         setTransactionTablePage(1);
     };
+    
+    const handleOpenFeeModal = () => {
+        setIsFeeModalOpen(true);
+        setIsFabMenuOpen(false);
+    };
 
     const handleSaveFee = (amount: number) => {
         const feeTransaction: Omit<Transaction, 'id' | 'date'> = {
@@ -185,6 +192,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         };
         onSaveTransaction(feeTransaction);
         setIsFeeModalOpen(false);
+    };
+    
+    const handleOpenTransferModal = () => {
+        setIsTransferModalOpen(true);
+        setIsFabMenuOpen(false);
     };
 
     const handleSaveTransfer = useCallback((transferData: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => {
@@ -260,15 +272,41 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                     <div className="space-y-6">
                         {/* Main Grid Content */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Main Content Area */}
-                            <div className="lg:col-span-2 space-y-6">
+                            {/* Right Summary Sidebar - First on mobile */}
+                            <div className="lg:col-span-1 space-y-6 lg:order-2">
+                                 <section>
+                                    <WalletsSummaryCard 
+                                        wallets={wallets}
+                                        totalMargin={currentMonthMargin}
+                                        totalPiutang={totalPiutang}
+                                        formatRupiah={formatRupiah}
+                                    />
+                                </section>
+                                <section>
+                                    <WeeklyTransactionSummary 
+                                        transactions={transactions}
+                                        onDayClick={handleDayClick}
+                                    />
+                                </section>                                
+                                <section>
+                                    <AccountsReceivableCard 
+                                        receivableTransactions={accountsReceivable} 
+                                        totalPiutang={totalPiutang}
+                                        formatRupiah={formatRupiah} 
+                                        onSettleReceivable={onSettleReceivable}
+                                    />
+                                </section>
+                            </div>
+
+                            {/* Main Content Area - Second on mobile */}
+                            <div className="lg:col-span-2 space-y-6 lg:order-1">
                                 <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
                                     <div className="flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font-medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
-                                        <div className="flex items-center space-x-2">
+                                        <div className="hidden md:flex items-center space-x-2">
                                             <div className="grid grid-flow-col gap-2">
                                                  <button 
-                                                    onClick={() => setIsTransferModalOpen(true)}
+                                                    onClick={handleOpenTransferModal}
                                                     className="bg-sky-100 hover:bg-sky-200 text-sky-700 dark:bg-sky-400/10 dark:hover:bg-sky-400/20 dark:text-sky-200 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
                                                     aria-label="Pindah saldo antar dompet"
                                                 >
@@ -276,7 +314,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                                     <span>Pindah Saldo</span>
                                                 </button>
                                                 <button 
-                                                    onClick={() => setIsFeeModalOpen(true)}
+                                                    onClick={handleOpenFeeModal}
                                                     className="bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-400/10 dark:hover:bg-blue-400/20 dark:text-blue-200 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
                                                     aria-label="Tambah Fee Brilink"
                                                 >
@@ -319,36 +357,63 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                     />
                                 </div>
                             </div>
-
-                            {/* Right Summary Sidebar */}
-                            <div className="lg:col-span-1 space-y-6">
-                                 <section>
-                                    <WalletsSummaryCard 
-                                        wallets={wallets}
-                                        totalMargin={currentMonthMargin}
-                                        totalPiutang={totalPiutang}
-                                        formatRupiah={formatRupiah}
-                                    />
-                                </section>
-                                <section>
-                                    <WeeklyTransactionSummary 
-                                        transactions={transactions}
-                                        onDayClick={handleDayClick}
-                                    />
-                                </section>                                
-                                <section>
-                                    <AccountsReceivableCard 
-                                        receivableTransactions={accountsReceivable} 
-                                        totalPiutang={totalPiutang}
-                                        formatRupiah={formatRupiah} 
-                                        onSettleReceivable={onSettleReceivable}
-                                    />
-                                </section>
-                            </div>
                         </div>
                     </div>
                 </div>
             </main>
+            
+            {/* FAB for Mobile */}
+            <div className="md:hidden fixed bottom-6 right-6 z-40">
+                {isFabMenuOpen && (
+                    <div 
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm" 
+                        onClick={() => setIsFabMenuOpen(false)}
+                        aria-hidden="true"
+                    ></div>
+                )}
+                <div className="relative flex flex-col items-end gap-3">
+                    {/* Secondary Actions */}
+                    <div 
+                        className={`transition-all duration-300 ease-in-out flex flex-col items-end gap-3 ${isFabMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+                    >
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white dark:bg-neutral-700 text-slate-700 dark:text-neutral-200 text-xs font-semibold px-3 py-1.5 rounded-full shadow-md">
+                                Tambah Transaksi
+                            </div>
+                            <button onClick={handleOpenAddModal} className="h-12 w-12 rounded-full bg-white dark:bg-neutral-700 text-blue-500 dark:text-blue-300 flex items-center justify-center shadow-md hover:bg-slate-100 dark:hover:bg-neutral-600">
+                                <PlusIcon className="h-6 w-6" strokeWidth={2} />
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white dark:bg-neutral-700 text-slate-700 dark:text-neutral-200 text-xs font-semibold px-3 py-1.5 rounded-full shadow-md">
+                                Fee Brilink
+                            </div>
+                            <button onClick={handleOpenFeeModal} className="h-12 w-12 rounded-full bg-white dark:bg-neutral-700 text-blue-500 dark:text-blue-300 flex items-center justify-center shadow-md hover:bg-slate-100 dark:hover:bg-neutral-600">
+                                <PlusIcon className="h-6 w-6" strokeWidth={2} />
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="bg-white dark:bg-neutral-700 text-slate-700 dark:text-neutral-200 text-xs font-semibold px-3 py-1.5 rounded-full shadow-md">
+                                Pindah Saldo
+                            </div>
+                            <button onClick={handleOpenTransferModal} className="h-12 w-12 rounded-full bg-white dark:bg-neutral-700 text-sky-500 dark:text-sky-300 flex items-center justify-center shadow-md hover:bg-slate-100 dark:hover:bg-neutral-600">
+                                <TransferIcon className="h-6 w-6" strokeWidth={1.5} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Main FAB */}
+                    <button
+                        onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
+                        className="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:bg-blue-600 transition-transform duration-300"
+                        style={{ transform: isFabMenuOpen ? 'rotate(45deg)' : 'none' }}
+                        aria-expanded={isFabMenuOpen}
+                        aria-label={isFabMenuOpen ? "Tutup menu aksi" : "Buka menu aksi"}
+                    >
+                        <PlusIcon className="h-8 w-8" strokeWidth={2} />
+                    </button>
+                </div>
+            </div>
         </>
     );
 };
