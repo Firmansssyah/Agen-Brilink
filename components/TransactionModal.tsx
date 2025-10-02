@@ -180,9 +180,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             return;
         }
         
+        // Default customer name to "Pelanggan" if empty
+        const customerName = formData.customer.trim() === '' ? 'Pelanggan' : formData.customer;
+
         // Convert null margin back to 0 before saving.
         const dataToSave = {
             ...formData,
+            customer: customerName,
             amount: formData.amount,
             margin: formData.margin ?? 0,
         };

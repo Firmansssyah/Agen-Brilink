@@ -47,8 +47,8 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         const summaryMap = new Map<string, Omit<CustomerSummary, 'name'>>();
         
         filteredTransactions.forEach(t => {
-            // Exclude internal/generic customers
-            if (!t.customer || ['pelanggan', 'internal', 'brilink'].includes(t.customer.toLowerCase())) return;
+            // Exclude internal/generic customers, but include "Pelanggan"
+            if (!t.customer || ['internal', 'brilink'].includes(t.customer.toLowerCase())) return;
 
             const entry = summaryMap.get(t.customer) || { transactionCount: 0, totalPiutang: 0, totalMargin: 0 };
             
