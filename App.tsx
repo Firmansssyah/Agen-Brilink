@@ -10,8 +10,6 @@ import ToastContainer from './components/ToastContainer';
 
 type Theme = 'light' | 'dark';
 
-const API_BASE_URL = 'http://localhost:3001';
-
 const MainApp: React.FC = () => {
     const { addToast } = useToastContext();
     const [wallets, setWallets] = useState<Wallet[]>([]);
@@ -25,6 +23,11 @@ const MainApp: React.FC = () => {
         (localStorage.getItem('theme') as Theme) ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     );
+
+    const API_BASE_URL = useMemo(() => {
+        const hostname = window.location.hostname || 'localhost';
+        return `http://${hostname}:3001`;
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -55,7 +58,7 @@ const MainApp: React.FC = () => {
         };
 
         fetchData();
-    }, []);
+    }, [API_BASE_URL]);
 
 
     useEffect(() => {
@@ -206,7 +209,7 @@ const MainApp: React.FC = () => {
         await Promise.all(updatePromises);
         setWallets(updatedWalletsState);
 
-    }, [wallets]);
+    }, [wallets, API_BASE_URL]);
 
     const handleSaveTransaction = useCallback(async (data: Transaction | Omit<Transaction, 'id' | 'date'>) => {
         const isEditing = 'id' in data;
@@ -250,7 +253,7 @@ const MainApp: React.FC = () => {
             console.error("Failed to save transaction:", err);
             addToast('Gagal menyimpan transaksi.', 'error');
         }
-    }, [transactions, applyWalletChanges, addToast]);
+    }, [transactions, applyWalletChanges, addToast, API_BASE_URL]);
     
     const handleSettleReceivable = useCallback(async (transactionToSettle: Transaction) => {
         try {
@@ -270,7 +273,7 @@ const MainApp: React.FC = () => {
             console.error("Failed to settle receivable:", err);
             addToast('Gagal melunasi piutang.', 'error');
         }
-    }, [applyWalletChanges, addToast]);
+    }, [applyWalletChanges, addToast, API_BASE_URL]);
     
     const handleDeleteTransaction = useCallback((transactionId: string) => {
         const transactionToDelete = transactions.find(t => t.id === transactionId);
@@ -306,9 +309,9 @@ const MainApp: React.FC = () => {
         deleteTimeoutId = setTimeout(confirmDelete, 5000);
 
         addToast('Transaksi dihapus', 'info', { undoHandler: cancelDelete });
-    }, [transactions, applyWalletChanges, addToast]);
+    }, [transactions, applyWalletChanges, addToast, API_BASE_URL]);
 
-    const handleSaveWallet = async (walletData: Omit<Wallet, 'id'> | Wallet) => {
+    const handleSaveWallet = useCallback(async (walletData: Omit<Wallet, 'id'> | Wallet) => {
         try {
             if ('id' in walletData) {
                 const res = await fetch(`${API_BASE_URL}/wallets/${walletData.id}`, {
@@ -333,9 +336,9 @@ const MainApp: React.FC = () => {
             console.error("Failed to save wallet:", err);
             addToast('Gagal menyimpan dompet.', 'error');
         }
-    };
+    }, [addToast, API_BASE_URL]);
 
-    const handleDeleteWallet = async (walletId: string) => {
+    const handleDeleteWallet = useCallback(async (walletId: string) => {
         try {
             const res = await fetch(`${API_BASE_URL}/wallets/${walletId}`, { method: 'DELETE' });
             if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
@@ -345,9 +348,9 @@ const MainApp: React.FC = () => {
             console.error("Failed to delete wallet:", err);
             addToast('Gagal menghapus dompet.', 'error');
         }
-    };
+    }, [addToast, API_BASE_URL]);
 
-    const handleSaveCategories = async (newCategories: string[]) => {
+    const handleSaveCategories = useCallback(async (newCategories: string[]) => {
         try {
             const res = await fetch(`${API_BASE_URL}/categories/1`, {
                 method: 'PUT',
@@ -361,7 +364,7 @@ const MainApp: React.FC = () => {
             console.error("Failed to save categories:", err);
             addToast('Gagal menyimpan kategori.', 'error');
         }
-    };
+    }, [addToast, API_BASE_URL]);
 
     const handleBalanceTransfer = useCallback(async (transferData: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => {
         const { fromWallet, toWallet, amount, fee } = transferData;
@@ -445,7 +448,7 @@ const MainApp: React.FC = () => {
             console.error("Failed to process transfer:", err);
             addToast(err instanceof Error ? err.message : 'Gagal memproses pindah saldo.', 'error');
         }
-    }, [wallets, addToast]);
+    }, [wallets, addToast, API_BASE_URL]);
 
 
     const renderPage = () => {
