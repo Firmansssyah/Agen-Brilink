@@ -56,6 +56,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [showMarginSuggestions, setShowMarginSuggestions] = useState(false);
+    const [showNotes, setShowNotes] = useState(false);
 
     const marginSuggestions = useMemo(() => {
         const specialCategories = ['Pulsa', 'Listrik', 'Lainnya'];
@@ -81,6 +82,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             const baseData = getInitialData();
             const mergedData = transactionToEdit ? { ...baseData, ...transactionToEdit } : baseData;
             setFormData(mergedData as FormDataType);
+            setShowNotes(!!transactionToEdit?.notes && transactionToEdit.notes.trim() !== '');
             setIsVisible(true);
         } else {
             setIsVisible(false);
@@ -204,29 +206,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
         setFormData(prev => ({ ...prev, margin: amount }));
         setShowMarginSuggestions(false);
     };
-
-     const cashFlowInfo = useMemo(() => {
-        const amount = formData.amount ?? 0;
-        const margin = formData.margin ?? 0;
-
-        if (formData.isPiutang) {
-            if (formData.description === 'Tarik Tunai' && amount > 0) {
-                 return `Piutang akan tercatat. Kas akan berkurang sejumlah ${formatRupiah(amount)}.`;
-            }
-            return "Transaksi akan dicatat sebagai piutang. Tidak ada perubahan kas.";
-        }
-        if (amount >= 0) {
-            if (formData.description === 'Tarik Tunai') {
-                 if (formData.marginType === 'luar') {
-                    return `Kas akan berkurang ${formatRupiah(amount)} dan bertambah dari margin ${formatRupiah(margin)}.`;
-                }
-                return `Kas akan berkurang sejumlah ${formatRupiah(amount)}.`;
-            } else {
-                return `Kas akan bertambah sejumlah ${formatRupiah(amount + margin)}.`;
-            }
-        }
-        return "Masukkan jumlah untuk melihat dampak pada kas.";
-    }, [formData, formatRupiah]);
     
     if (!isOpen) return null;
 
@@ -289,20 +268,6 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         ))}
                                     </ul>
                                 )}
-                            </div>
-
-                             <div>
-                                <label htmlFor="notes" className={formLabelClass}>Catatan (Opsional)</label>
-                                <input
-                                    type="text"
-                                    id="notes"
-                                    name="notes"
-                                    placeholder="cth: untuk bayar arisan"
-                                    value={formData.notes || ''}
-                                    onChange={handleChange}
-                                    className={formInputClass}
-                                    autoComplete="off"
-                                />
                             </div>
 
                             {transactionToEdit && (
@@ -429,10 +394,32 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                     ))}
                                 </div>
                             </div>
-
-                            <div className="flex items-center justify-center gap-2 text-center text-xs text-slate-500 dark:text-neutral-400 px-2">
-                                <InfoIcon className="h-4 w-4 flex-shrink-0" />
-                                <span>{cashFlowInfo}</span>
+                            
+                            <div>
+                                {showNotes ? (
+                                    <div>
+                                        <label htmlFor="notes" className={formLabelClass}>Catatan</label>
+                                        <input
+                                            type="text"
+                                            id="notes"
+                                            name="notes"
+                                            placeholder="cth: untuk bayar arisan"
+                                            value={formData.notes || ''}
+                                            onChange={handleChange}
+                                            className={formInputClass}
+                                            autoComplete="off"
+                                            autoFocus
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="pt-2 text-center">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowNotes(true)}
+                                            className="text-sm font-semibold text-blue-600 dark:text-blue-300 hover:underline"
+                                        >+ Tambah Catatan</button>
+                                    </div>
+                                )}
                             </div>
                             
                             <div className="flex justify-between items-center pt-2">
