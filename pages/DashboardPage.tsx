@@ -11,6 +11,7 @@ import { PlusIcon, TransferIcon } from '../components/icons/Icons';
 import TransferModal from '../components/TransferModal';
 import DailyTransactionsModal from '../components/DailyTransactionsModal';
 import ReceivableDetailModal from '../components/ReceivableDetailModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 
 interface DashboardPageProps {
@@ -23,7 +24,9 @@ interface DashboardPageProps {
     onSettleReceivable: (transaction: Transaction) => void;
     onSaveTransaction: (data: Transaction | Omit<Transaction, 'id' | 'date'>) => void;
     onBalanceTransfer: (data: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => void;
+    onUpdateBalanceTransfer: (data: { fromWallet: string; toWallet: string; amount: number; fee: number; transferId: string; }) => void;
     onDeleteTransaction: (transactionId: string) => void;
+    onDeleteBalanceTransfer: (transferId: string) => void;
     formatRupiah: (amount: number) => string;
 }
 
@@ -37,13 +40,16 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     onSettleReceivable,
     onSaveTransaction,
     onBalanceTransfer,
+    onUpdateBalanceTransfer,
     onDeleteTransaction,
+    onDeleteBalanceTransfer,
     formatRupiah,
 }) => {
     const [transactionTablePage, setTransactionTablePage] = useState(1);
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
     const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
+    const [transferToEdit, setTransferToEdit] = useState<Transaction | null>(null);
     const [sortKey, setSortKey] = useState<SortKey>('date');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
@@ -55,6 +61,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
     const [isReceivableDetailModalOpen, setIsReceivableDetailModalOpen] = useState(false);
     const [selectedCustomerForReceivables, setSelectedCustomerForReceivables] = useState<string | null>(null);
+    const [isDeleteTransferConfirmOpen, setIsDeleteTransferConfirmOpen] = useState(false);
+    const [transferToDeleteId, setTransferToDeleteId] = useState<string | null>(null);
 
     
     const itemsPerPage = 10;
@@ -72,8 +80,54 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             .reduce((acc, curr) => acc + curr.margin, 0);
     }, [transactions]);
 
+    const displayTransactions = useMemo(() => {
+        const transfers = new Map<string, { in?: Transaction, out?: Transaction }>();
+        const otherTransactions: Transaction[] = [];
+
+        // Group transfers and separate other transactions
+        transactions.forEach(t => {
+            if (t.isInternalTransfer && t.transferId) {
+                const pair = transfers.get(t.transferId) || {};
+                if (t.type === TransactionType.IN) {
+                    pair.in = t;
+                } else { // OUT
+                    pair.out = t;
+                }
+                transfers.set(t.transferId, pair);
+            } else {
+                otherTransactions.push(t);
+            }
+        });
+
+        // Create combined transfer objects
+        const combinedTransferTransactions: Transaction[] = [];
+        for (const [transferId, pair] of transfers.entries()) {
+            if (pair.in && pair.out) {
+                combinedTransferTransactions.push({
+                    id: transferId, // Use transferId as the unique ID for the combined view
+                    transferId: transferId,
+                    date: pair.out.date,
+                    description: `Pindah Saldo`,
+                    customer: 'Internal',
+                    type: TransactionType.OUT, // Neutral type for sorting, display logic is custom
+                    amount: pair.in.amount,
+                    margin: pair.out.amount - pair.in.amount, // fee
+                    wallet: pair.out.wallet, // fromWallet
+                    toWallet: pair.in.wallet, // toWallet
+                    isPiutang: false,
+                    isInternalTransfer: true,
+                });
+            } else {
+                // Incomplete pair, push back as individual transactions
+                if (pair.in) otherTransactions.push(pair.in);
+                if (pair.out) otherTransactions.push(pair.out);
+            }
+        }
+        return [...otherTransactions, ...combinedTransferTransactions];
+    }, [transactions]);
+
     const filteredAndSortedTransactions = useMemo(() => {
-        let items = transactions.filter(t => !t.isDeleting);
+        let items = displayTransactions.filter(t => !t.isDeleting);
 
         // 1. Apply search filter
         if (searchTerm.trim()) {
@@ -130,7 +184,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             return sortDirection === 'asc' ? comparison : -comparison;
         });
         return items;
-    }, [transactions, searchTerm, filterType, filterStartDate, filterEndDate, sortKey, sortDirection, formatRupiah]);
+    }, [displayTransactions, searchTerm, filterType, filterStartDate, filterEndDate, sortKey, sortDirection, formatRupiah]);
     
     const totalPages = Math.ceil(filteredAndSortedTransactions.length / itemsPerPage) || 1;
 
@@ -148,6 +202,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const handleOpenEditModal = (transaction: Transaction) => {
         setTransactionToEdit(transaction);
         setIsTransactionModalOpen(true);
+    };
+
+    const handleOpenEditTransferModal = (transfer: Transaction) => {
+        setTransferToEdit(transfer);
+        setIsTransferModalOpen(true);
     };
     
     const handleDayClick = useCallback((date: string) => {
@@ -223,14 +282,35 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     };
     
     const handleOpenTransferModal = () => {
+        setTransferToEdit(null);
         setIsTransferModalOpen(true);
         setIsFabMenuOpen(false);
     };
-
-    const handleSaveTransfer = useCallback((transferData: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => {
-        onBalanceTransfer(transferData);
+    
+    const handleSaveTransfer = useCallback((data: { fromWallet: string; toWallet: string; amount: number; fee: number; transferId?: string; }) => {
+        if (data.transferId) {
+            onUpdateBalanceTransfer(data as { fromWallet: string; toWallet: string; amount: number; fee: number; transferId: string; });
+        } else {
+            onBalanceTransfer(data);
+        }
         setIsTransferModalOpen(false);
-    }, [onBalanceTransfer]);
+        setTransferToEdit(null);
+    }, [onBalanceTransfer, onUpdateBalanceTransfer]);
+
+    const handleOpenDeleteTransferConfirm = (transferId: string) => {
+        setIsTransferModalOpen(false);
+        setTransferToEdit(null);
+        setTransferToDeleteId(transferId);
+        setIsDeleteTransferConfirmOpen(true);
+    };
+
+    const handleConfirmDeleteTransfer = () => {
+        if (transferToDeleteId) {
+            onDeleteBalanceTransfer(transferToDeleteId);
+        }
+        setIsDeleteTransferConfirmOpen(false);
+        setTransferToDeleteId(null);
+    };
 
     const resetPage = (callback: (...args: any[]) => void) => (...args: any[]) => {
         callback(...args);
@@ -271,9 +351,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         <>
             <TransferModal
                 isOpen={isTransferModalOpen}
-                onClose={() => setIsTransferModalOpen(false)}
+                onClose={() => {
+                    setIsTransferModalOpen(false);
+                    setTransferToEdit(null);
+                }}
                 onSave={handleSaveTransfer}
                 wallets={wallets}
+                transferToEdit={transferToEdit}
+                onDelete={handleOpenDeleteTransferConfirm}
             />
             <TransactionModal
                 isOpen={isTransactionModalOpen}
@@ -307,6 +392,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 isOpen={isFeeModalOpen}
                 onClose={() => setIsFeeModalOpen(false)}
                 onSave={handleSaveFee}
+            />
+            <ConfirmationModal 
+                isOpen={isDeleteTransferConfirmOpen}
+                onClose={() => setIsDeleteTransferConfirmOpen(false)}
+                onConfirm={handleConfirmDeleteTransfer}
+                title="Hapus Pindah Saldo"
+                message="Apakah Anda yakin ingin menghapus transaksi pindah saldo ini? Kedua transaksi (keluar dan masuk) akan dihapus secara permanen."
             />
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-7xl">
@@ -393,6 +485,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         totalPages={totalPages}
                                         setCurrentPage={setTransactionTablePage}
                                         onEditTransaction={handleOpenEditModal}
+                                        onEditTransfer={handleOpenEditTransferModal}
                                         sortKey={sortKey}
                                         sortDirection={sortDirection}
                                         onSort={handleSort}

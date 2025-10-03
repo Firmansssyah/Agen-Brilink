@@ -21,9 +21,11 @@ export interface Transaction {
     amount: number;
     margin: number;
     wallet: string; // Changed from WalletId enum to string
+    toWallet?: string;
     isPiutang: boolean;
     marginType?: 'dalam' | 'luar';
     isInternalTransfer?: boolean;
+    transferId?: string;
     isDeleting?: boolean;
     notes?: string;
 }

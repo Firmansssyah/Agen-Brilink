@@ -11,6 +11,7 @@ interface TransactionTableProps {
     totalPages: number;
     setCurrentPage: (page: number) => void;
     onEditTransaction: (transaction: Transaction) => void;
+    onEditTransfer?: (transaction: Transaction) => void;
     sortKey: SortKey;
     sortDirection: SortDirection;
     onSort: (key: SortKey) => void;
@@ -47,6 +48,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     totalPages, 
     setCurrentPage,
     onEditTransaction,
+    onEditTransfer,
     sortKey,
     sortDirection,
     onSort
@@ -88,7 +90,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                 transactions.map(transaction => (
                                     <tr 
                                         key={transaction.id} 
-                                        onClick={() => onEditTransaction(transaction)}
+                                        onClick={() => {
+                                            if (transaction.isInternalTransfer && transaction.toWallet) {
+                                                onEditTransfer?.(transaction);
+                                            } else {
+                                                onEditTransaction(transaction);
+                                            }
+                                        }}
                                         className={`border-b border-slate-200 dark:border-white/10 last:border-b-0 transition-colors duration-200 cursor-pointer ${
                                             transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                         }`}
@@ -110,21 +118,41 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             )}
                                         </td>
                                         <td className="p-3 text-sm text-slate-600 dark:text-neutral-300">{transaction.customer}</td>
-                                        <td className={`p-3 text-sm font-medium ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                            <div className="flex items-center space-x-3">
-                                                {(() => {
-                                                    const wallet = wallets.find(w => w.id === transaction.wallet);
-                                                    return wallet && (
-                                                        <WalletIconComponent 
-                                                            walletId={wallet.id} 
-                                                            iconUrl={wallet.icon} 
-                                                            className="h-6 w-6 object-contain dark:brightness-0 dark:invert"
-                                                            altText={wallet.name}
-                                                        />
-                                                    );
-                                                })()}
-                                                <span>{`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}</span>
-                                            </div>
+                                        <td className={`p-3 text-sm font-medium ${
+                                                transaction.toWallet ? 'text-slate-800 dark:text-white' :
+                                                transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                                            }`}>
+                                             {transaction.toWallet ? (
+                                                <div className="flex items-center space-x-2">
+                                                    {(() => {
+                                                        const fromWallet = wallets.find(w => w.id === transaction.wallet);
+                                                        const toWallet = wallets.find(w => w.id === transaction.toWallet);
+                                                        return (
+                                                            <>
+                                                                {fromWallet && <WalletIconComponent walletId={fromWallet.id} iconUrl={fromWallet.icon} className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={fromWallet.name} />}
+                                                                <span className="text-slate-500 dark:text-neutral-400">→</span>
+                                                                {toWallet && <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={toWallet.name} />}
+                                                                <span className="ml-2">{formatRupiah(transaction.amount)}</span>
+                                                            </>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center space-x-3">
+                                                    {(() => {
+                                                        const wallet = wallets.find(w => w.id === transaction.wallet);
+                                                        return wallet && (
+                                                            <WalletIconComponent 
+                                                                walletId={wallet.id} 
+                                                                iconUrl={wallet.icon} 
+                                                                className="h-6 w-6 object-contain dark:brightness-0 dark:invert"
+                                                                altText={wallet.name}
+                                                            />
+                                                        );
+                                                    })()}
+                                                    <span>{`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}</span>
+                                                </div>
+                                            )}
                                         </td>
                                         <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
                                     </tr>
@@ -145,11 +173,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
             <div className="flex-grow md:hidden space-y-3">
                  {transactions.length > 0 ? (
                     transactions.map(transaction => {
-                        const wallet = wallets.find(w => w.id === transaction.wallet);
                         return (
                             <div 
                                 key={transaction.id} 
-                                onClick={() => onEditTransaction(transaction)}
+                                onClick={() => {
+                                    if (transaction.isInternalTransfer && transaction.toWallet) {
+                                        onEditTransfer?.(transaction);
+                                    } else {
+                                        onEditTransaction(transaction);
+                                    }
+                                }}
                                 className={`p-4 rounded-2xl border transition-colors duration-200 cursor-pointer ${
                                     transaction.isPiutang 
                                         ? 'bg-yellow-100 border-yellow-200 dark:bg-yellow-400/10 dark:border-yellow-400/20 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20 border-l-4 border-l-yellow-400 dark:border-l-yellow-500' 
@@ -171,22 +204,38 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     )}
                                 </div>
                                 <div className="mt-3 flex justify-between items-end">
-                                    <div className="flex items-center space-x-3">
-                                        {wallet && (
-                                            <WalletIconComponent 
-                                                walletId={wallet.id} 
-                                                iconUrl={wallet.icon} 
-                                                className="h-7 w-7 object-contain dark:brightness-0 dark:invert"
-                                                altText={wallet.name}
-                                            />
-                                        )}
-                                        <div>
-                                            <p className={`text-lg font-bold ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                                {`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}
-                                            </p>
-                                            <p className="text-xs text-sky-600 dark:text-sky-300">Margin: {formatRupiah(transaction.margin)}</p>
+                                     {transaction.toWallet ? (
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center space-x-2">
+                                                {(() => {
+                                                    const fromWallet = wallets.find(w => w.id === transaction.wallet);
+                                                    const toWallet = wallets.find(w => w.id === transaction.toWallet);
+                                                    return (
+                                                        <>
+                                                            {fromWallet && <WalletIconComponent walletId={fromWallet.id} iconUrl={fromWallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={fromWallet.name} />}
+                                                            <span className="text-slate-500 dark:text-neutral-400">→</span>
+                                                            {toWallet && <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={toWallet.name} />}
+                                                        </>
+                                                    );
+                                                })()}
+                                            </div>
+                                            <p className="text-lg font-bold text-slate-800 dark:text-white mt-1">{formatRupiah(transaction.amount)}</p>
+                                            {transaction.margin > 0 && <p className="text-xs text-sky-600 dark:text-sky-300">Biaya: {formatRupiah(transaction.margin)}</p>}
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="flex items-center space-x-3">
+                                            {(() => {
+                                                const wallet = wallets.find(w => w.id === transaction.wallet);
+                                                return wallet && <WalletIconComponent walletId={wallet.id} iconUrl={wallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={wallet.name} />;
+                                            })()}
+                                            <div>
+                                                <p className={`text-lg font-bold ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                    {`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}
+                                                </p>
+                                                <p className="text-xs text-sky-600 dark:text-sky-300">Margin: {formatRupiah(transaction.margin)}</p>
+                                            </div>
+                                        </div>
+                                    )}
                                     <p className="text-xs text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
                                 </div>
                             </div>

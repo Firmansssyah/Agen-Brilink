@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet } from '../types';
+import { Transaction, Wallet } from '../types';
 import { ChevronDownIcon, TransferIcon } from './icons/Icons';
 
 interface TransferModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (data: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => void;
+    onSave: (data: { fromWallet: string; toWallet: string; amount: number; fee: number; transferId?: string; }) => void;
     wallets: Wallet[];
+    transferToEdit?: Transaction | null;
+    onDelete?: (transferId: string) => void;
 }
 
-const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, wallets }) => {
+const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, wallets, transferToEdit, onDelete }) => {
     const formInputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500";
     const formSelectClass = `${formInputClass} appearance-none`;
 
@@ -35,13 +37,22 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
 
     useEffect(() => {
         if (isOpen) {
-            setFormData(getInitialData());
+            if (transferToEdit) {
+                setFormData({
+                    fromWallet: transferToEdit.wallet,
+                    toWallet: transferToEdit.toWallet || '',
+                    amount: transferToEdit.amount,
+                    fee: transferToEdit.margin,
+                });
+            } else {
+                setFormData(getInitialData());
+            }
             setError('');
             setIsVisible(true);
         } else {
             setIsVisible(false);
         }
-    }, [isOpen, wallets]);
+    }, [isOpen, wallets, transferToEdit]);
 
     const handleClose = () => {
         setIsVisible(false);
@@ -81,13 +92,23 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
             setError("Jumlah harus lebih besar dari 0.");
             return;
         }
-        const sourceWallet = wallets.find(w => w.id === formData.fromWallet);
-        if (sourceWallet && sourceWallet.balance < (formData.amount + formData.fee)) {
-            setError("Saldo dompet sumber tidak mencukupi.");
-            return;
+        
+        // Don't check balance on edit, as the calculation is relative
+        if (!transferToEdit) {
+            const sourceWallet = wallets.find(w => w.id === formData.fromWallet);
+            if (sourceWallet && sourceWallet.balance < (formData.amount + formData.fee)) {
+                setError("Saldo dompet sumber tidak mencukupi.");
+                return;
+            }
         }
 
-        onSave(formData);
+        onSave({ ...formData, transferId: transferToEdit?.id });
+    };
+
+    const handleDeleteClick = () => {
+        if (transferToEdit?.id && onDelete) {
+            onDelete(transferToEdit.id);
+        }
     };
 
     if (!isOpen) return null;
@@ -108,7 +129,9 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
-                    <h2 id="transfer-modal-title" className="text-xl font-medium text-slate-800 dark:text-white">Pindah Saldo</h2>
+                    <h2 id="transfer-modal-title" className="text-xl font-medium text-slate-800 dark:text-white">
+                        {transferToEdit ? 'Edit Pindah Saldo' : 'Pindah Saldo'}
+                    </h2>
                 </div>
                 <form onSubmit={handleSubmit}>
                     <div className="p-6 space-y-6">
@@ -177,9 +200,24 @@ const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onSave, 
                         {error && <p className="text-sm text-red-500 dark:text-red-400 text-center">{error}</p>}
 
                     </div>
-                    <div className="px-6 py-4 flex justify-end space-x-3">
-                        <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
-                        <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Pindahkan</button>
+                    <div className="px-6 py-4 flex justify-between items-center">
+                        <div>
+                            {transferToEdit && onDelete && (
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteClick}
+                                    className="bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20 font-semibold py-2 px-5 rounded-full text-sm transition-colors"
+                                >
+                                    Hapus
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex space-x-3">
+                            <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Batal</button>
+                            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full text-sm transition-colors">
+                                {transferToEdit ? 'Simpan Perubahan' : 'Pindahkan'}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>

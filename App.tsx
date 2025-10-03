@@ -382,6 +382,8 @@ const MainApp: React.FC = () => {
             return;
         }
 
+        const transferId = `transfer-${Date.now()}-${Math.random()}`;
+
         const outTransactionData: Omit<Transaction, 'id'> = {
             date: new Date().toISOString(),
             description: `Pindah Saldo ke ${toWalletName}`,
@@ -392,6 +394,7 @@ const MainApp: React.FC = () => {
             wallet: fromWallet,
             isPiutang: false,
             isInternalTransfer: true,
+            transferId,
         };
 
         const inTransactionData: Omit<Transaction, 'id'> = {
@@ -404,6 +407,7 @@ const MainApp: React.FC = () => {
             wallet: toWallet,
             isPiutang: false,
             isInternalTransfer: true,
+            transferId,
         };
 
         try {
@@ -456,6 +460,154 @@ const MainApp: React.FC = () => {
         }
     }, [wallets, addToast, API_BASE_URL]);
 
+    const handleUpdateBalanceTransfer = useCallback(async (data: { fromWallet: string; toWallet: string; amount: number; fee: number; transferId: string; }) => {
+        try {
+            const originalOutTx = transactions.find(t => t.transferId === data.transferId && t.type === 'OUT');
+            const originalInTx = transactions.find(t => t.transferId === data.transferId && t.type === 'IN');
+
+            if (!originalOutTx || !originalInTx) {
+                throw new Error('Transaksi pindah saldo original tidak ditemukan.');
+            }
+
+            const toWalletName = wallets.find(w => w.id === data.toWallet)?.name || 'Unknown';
+            const fromWalletName = wallets.find(w => w.id === data.fromWallet)?.name || 'Unknown';
+
+            const updatedOutTx: Transaction = {
+                ...originalOutTx,
+                description: `Pindah Saldo ke ${toWalletName}`,
+                wallet: data.fromWallet,
+                amount: data.amount + data.fee,
+                margin: 0,
+            };
+
+            const updatedInTx: Transaction = {
+                ...originalInTx,
+                description: `Pindah Saldo dari ${fromWalletName}`,
+                wallet: data.toWallet,
+                amount: data.amount,
+                margin: 0,
+            };
+
+            const walletChanges = new Map<string, number>();
+            const addToMap = (walletId: string, value: number) => {
+                walletChanges.set(walletId, (walletChanges.get(walletId) || 0) + value);
+            };
+
+            // Revert original transaction effects
+            addToMap(originalOutTx.wallet, originalOutTx.amount);
+            addToMap(originalInTx.wallet, -originalInTx.amount);
+
+            // Apply new transaction effects
+            addToMap(updatedOutTx.wallet, -updatedOutTx.amount);
+            addToMap(updatedInTx.wallet, updatedInTx.amount);
+
+            // API Calls for transactions
+            const txUpdatePromises = [
+                fetch(`${API_BASE_URL}/transactions/${updatedOutTx.id}`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedOutTx)
+                }),
+                fetch(`${API_BASE_URL}/transactions/${updatedInTx.id}`, {
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedInTx)
+                })
+            ];
+            
+            const txResponses = await Promise.all(txUpdatePromises);
+            for (const res of txResponses) {
+                if (!res.ok) throw new Error('Gagal memperbarui data transaksi.');
+            }
+            const [savedOut, savedIn] = await Promise.all(txResponses.map(r => r.json()));
+
+            // API Calls and state update for wallets
+            const walletUpdatePromises: Promise<any>[] = [];
+            const updatedWalletsState = wallets.map(w => {
+                if (walletChanges.has(w.id)) {
+                    const newBalance = w.balance + (walletChanges.get(w.id) || 0);
+                    walletUpdatePromises.push(fetch(`${API_BASE_URL}/wallets/${w.id}`, {
+                        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ balance: newBalance })
+                    }));
+                    return { ...w, balance: newBalance };
+                }
+                return w;
+            });
+            
+            await Promise.all(walletUpdatePromises);
+            
+            // Update local state for wallets and transactions
+            setWallets(updatedWalletsState);
+            setTransactions(prev => 
+                prev.map(t => {
+                    if (t.id === savedOut.id) return savedOut;
+                    if (t.id === savedIn.id) return savedIn;
+                    return t;
+                }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+            );
+
+            addToast('Pindah saldo berhasil diperbarui', 'success');
+
+        } catch (err) {
+            console.error("Failed to update transfer:", err);
+            addToast(err instanceof Error ? err.message : 'Gagal memperbarui pindah saldo.', 'error');
+        }
+    }, [transactions, wallets, addToast, API_BASE_URL]);
+
+    const handleDeleteBalanceTransfer = useCallback(async (transferId: string) => {
+        const originalOutTx = transactions.find(t => t.transferId === transferId && t.type === 'OUT');
+        const originalInTx = transactions.find(t => t.transferId === transferId && t.type === 'IN');
+
+        if (!originalOutTx || !originalInTx) {
+            addToast('Transaksi transfer tidak ditemukan.', 'error');
+            return;
+        }
+
+        try {
+            // API Calls to delete transactions
+            const deletePromises = [
+                fetch(`${API_BASE_URL}/transactions/${originalOutTx.id}`, { method: 'DELETE' }),
+                fetch(`${API_BASE_URL}/transactions/${originalInTx.id}`, { method: 'DELETE' })
+            ];
+            const deleteResponses = await Promise.all(deletePromises);
+            for (const res of deleteResponses) {
+                if (!res.ok) throw new Error('Gagal menghapus data transaksi.');
+            }
+
+            // Calculate wallet changes
+            const walletChanges = new Map<string, number>();
+            const addToMap = (walletId: string, value: number) => {
+                walletChanges.set(walletId, (walletChanges.get(walletId) || 0) + value);
+            };
+            
+            // Revert original transaction effects
+            addToMap(originalOutTx.wallet, originalOutTx.amount); // Add back amount for OUT transaction
+            addToMap(originalInTx.wallet, -originalInTx.amount); // Subtract amount for IN transaction
+
+            // API Calls and state update for wallets
+            const walletUpdatePromises: Promise<any>[] = [];
+            const updatedWalletsState = wallets.map(w => {
+                if (walletChanges.has(w.id)) {
+                    const newBalance = w.balance + (walletChanges.get(w.id) || 0);
+                    walletUpdatePromises.push(fetch(`${API_BASE_URL}/wallets/${w.id}`, {
+                        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ balance: newBalance })
+                    }));
+                    return { ...w, balance: newBalance };
+                }
+                return w;
+            });
+            await Promise.all(walletUpdatePromises);
+
+            // Update local state
+            setWallets(updatedWalletsState);
+            setTransactions(prev => prev.filter(t => t.transferId !== transferId));
+            
+            addToast('Pindah saldo berhasil dihapus', 'success');
+            
+        } catch (err) {
+            console.error("Failed to delete transfer:", err);
+            addToast(err instanceof Error ? err.message : 'Gagal menghapus pindah saldo.', 'error');
+        }
+    }, [transactions, wallets, addToast, API_BASE_URL]);
+
 
     const renderPage = () => {
         switch (currentPage) {
@@ -468,7 +620,9 @@ const MainApp: React.FC = () => {
                     onSettleReceivable={handleSettleReceivable}
                     onSaveTransaction={handleSaveTransaction}
                     onBalanceTransfer={handleBalanceTransfer}
+                    onUpdateBalanceTransfer={handleUpdateBalanceTransfer}
                     onDeleteTransaction={handleDeleteTransaction}
+                    onDeleteBalanceTransfer={handleDeleteBalanceTransfer}
                     categories={categories}
                     customers={customers}
                     formatRupiah={formatRupiah}
@@ -501,7 +655,9 @@ const MainApp: React.FC = () => {
                     onSettleReceivable={handleSettleReceivable}
                     onSaveTransaction={handleSaveTransaction}
                     onBalanceTransfer={handleBalanceTransfer}
+                    onUpdateBalanceTransfer={handleUpdateBalanceTransfer}
                     onDeleteTransaction={handleDeleteTransaction}
+                    onDeleteBalanceTransfer={handleDeleteBalanceTransfer}
                     categories={categories}
                     customers={customers}
                     formatRupiah={formatRupiah}
