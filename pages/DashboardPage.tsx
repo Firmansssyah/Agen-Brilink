@@ -10,6 +10,7 @@ import TransactionFilterControls from '../components/TransactionFilterControls';
 import { PlusIcon, TransferIcon } from '../components/icons/Icons';
 import TransferModal from '../components/TransferModal';
 import DailyTransactionsModal from '../components/DailyTransactionsModal';
+import ReceivableDetailModal from '../components/ReceivableDetailModal';
 
 
 interface DashboardPageProps {
@@ -52,6 +53,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [filterStartDate, setFilterStartDate] = useState('');
     const [filterEndDate, setFilterEndDate] = useState('');
     const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
+    const [isReceivableDetailModalOpen, setIsReceivableDetailModalOpen] = useState(false);
+    const [selectedCustomerForReceivables, setSelectedCustomerForReceivables] = useState<string | null>(null);
+
     
     const itemsPerPage = 10;
 
@@ -100,6 +104,17 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         }
         
         items.sort((a, b) => {
+            // Primary sort: piutang status
+            if (a.isPiutang !== b.isPiutang) {
+                return a.isPiutang ? -1 : 1;
+            }
+            
+            // If both are piutang, sort by date ascending (oldest first, i.e., longest duration)
+            if (a.isPiutang && b.isPiutang) {
+                return new Date(a.date).getTime() - new Date(b.date).getTime();
+            }
+            
+            // For all non-piutang items, use the user-defined sort
             const valA = a[sortKey];
             const valB = b[sortKey];
 
@@ -152,7 +167,20 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         return transactions.filter(t => {
             const tDate = new Date(t.date);
             return tDate >= targetDateStart && tDate <= targetDateEnd;
-        }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        }).sort((a, b) => {
+            // Primary sort: piutang status
+            if (a.isPiutang !== b.isPiutang) {
+                return a.isPiutang ? -1 : 1;
+            }
+            
+            // If both are piutang, sort by date ascending (oldest first)
+            if (a.isPiutang && b.isPiutang) {
+                return new Date(a.date).getTime() - new Date(b.date).getTime();
+            }
+
+            // For non-piutang items, sort by date descending (newest first)
+            return new Date(b.date).getTime() - new Date(a.date).getTime();
+        });
     }, [dailyModalDate, transactions]);
 
 
@@ -217,6 +245,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setTransactionTablePage(1);
     }, []);
 
+    const handleOpenReceivableDetail = (customerName: string) => {
+        setSelectedCustomerForReceivables(customerName);
+        setIsReceivableDetailModalOpen(true);
+    };
+
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             const target = event.target as HTMLElement;
@@ -262,6 +295,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 formatRupiah={formatRupiah}
                 onEditTransaction={handleOpenEditModal}
             />
+             <ReceivableDetailModal
+                isOpen={isReceivableDetailModalOpen}
+                onClose={() => setIsReceivableDetailModalOpen(false)}
+                customerName={selectedCustomerForReceivables}
+                allReceivables={accountsReceivable}
+                onSettle={onSettleReceivable}
+                formatRupiah={formatRupiah}
+            />
             <AddFeeModal 
                 isOpen={isFeeModalOpen}
                 onClose={() => setIsFeeModalOpen(false)}
@@ -293,6 +334,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         receivableTransactions={accountsReceivable} 
                                         totalPiutang={totalPiutang}
                                         formatRupiah={formatRupiah} 
+                                        onOpenDetail={handleOpenReceivableDetail}
                                         onSettleReceivable={onSettleReceivable}
                                     />
                                 </section>

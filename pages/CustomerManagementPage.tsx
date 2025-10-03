@@ -75,7 +75,20 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         if (!selectedCustomerName) return [];
         return transactions
             .filter(t => t.customer === selectedCustomerName)
-            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            .sort((a, b) => {
+                // Primary sort: piutang status
+                if (a.isPiutang !== b.isPiutang) {
+                    return a.isPiutang ? -1 : 1;
+                }
+                
+                // Secondary sort: if both are piutang, sort by date ascending (oldest first)
+                if (a.isPiutang && b.isPiutang) {
+                    return new Date(a.date).getTime() - new Date(b.date).getTime();
+                }
+
+                // Tertiary sort: for non-piutang items, sort by date descending (newest first)
+                return new Date(b.date).getTime() - new Date(a.date).getTime();
+            });
     }, [selectedCustomerName, transactions]);
     
     return (

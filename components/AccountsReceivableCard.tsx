@@ -1,16 +1,57 @@
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Transaction } from '../types';
-import { CheckIcon } from './icons/Icons';
+import { ChevronRightIcon, CheckIcon } from './icons/Icons';
 
 interface AccountsReceivableCardProps {
     receivableTransactions: Transaction[];
     totalPiutang: number;
     formatRupiah: (amount: number) => string;
+    onOpenDetail: (customerName: string) => void;
     onSettleReceivable: (transaction: Transaction) => void;
 }
 
-const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receivableTransactions, totalPiutang, formatRupiah, onSettleReceivable }) => {
+interface GroupedReceivable {
+    customer: string;
+    totalAmount: number;
+    transactionCount: number;
+    oldestTransaction: Transaction;
+}
+
+const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receivableTransactions, totalPiutang, formatRupiah, onOpenDetail, onSettleReceivable }) => {
+
+    const groupedReceivables = useMemo((): GroupedReceivable[] => {
+        const customerMap = new Map<string, GroupedReceivable>();
+
+        receivableTransactions.forEach(transaction => {
+            const customerName = transaction.customer;
+            const existing = customerMap.get(customerName);
+
+            if (existing) {
+                existing.totalAmount += transaction.amount + transaction.margin;
+                existing.transactionCount++;
+                if (new Date(transaction.date) < new Date(existing.oldestTransaction.date)) {
+                    existing.oldestTransaction = transaction;
+                }
+            } else {
+                customerMap.set(customerName, {
+                    customer: customerName,
+                    totalAmount: transaction.amount + transaction.margin,
+                    transactionCount: 1,
+                    oldestTransaction: transaction,
+                });
+            }
+        });
+
+        const grouped = Array.from(customerMap.values());
+        
+        // Sort by the oldest transaction date, ascending
+        grouped.sort((a, b) => 
+            new Date(a.oldestTransaction.date).getTime() - new Date(b.oldestTransaction.date).getTime()
+        );
+
+        return grouped;
+    }, [receivableTransactions]);
+
 
     const calculateDaysAgo = (dateString: string): string => {
         const piutangDate = new Date(dateString);
@@ -27,10 +68,6 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
         return `${diffDays} hari`;
     };
     
-    const handleSettle = (transaction: Transaction) => {
-        onSettleReceivable(transaction);
-    };
-
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
             {/* Header */}
@@ -42,35 +79,38 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
             
             {/* Body (List) */}
             <div className="px-2 pb-2">
-                {receivableTransactions.length > 0 ? (
+                {groupedReceivables.length > 0 ? (
                     <div className="space-y-2">
-                        {receivableTransactions.map((item) => {
-                            const daysAgo = calculateDaysAgo(item.date);
+                        {groupedReceivables.map((item) => {
+                            const daysAgo = calculateDaysAgo(item.oldestTransaction.date);
                             return (
-                                <div key={item.id} className="group flex justify-between items-center px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-200">
+                                <button 
+                                    key={item.customer} 
+                                    onClick={() => onOpenDetail(item.customer)}
+                                    className="group w-full flex justify-between items-center px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-200 text-left"
+                                >
                                     <div className="flex flex-col min-w-0 flex-1">
                                         <span className="text-sm text-slate-700 dark:text-neutral-200 truncate font-medium">{item.customer}</span>
-                                        <span className="text-xs text-slate-500 dark:text-neutral-400 truncate">{item.description}</span>
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400 truncate">{`${item.transactionCount} transaksi`}</span>
                                     </div>
-                                    <div className="flex items-center space-x-3 flex-shrink-0 ml-2">
+                                    <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
                                         <div className="flex flex-col items-end">
-                                          <span className="text-sm font-medium text-yellow-500 dark:text-yellow-400">{formatRupiah(item.amount + item.margin)}</span>
+                                          <span className="text-sm font-medium text-yellow-500 dark:text-yellow-400">{formatRupiah(item.totalAmount)}</span>
                                           <span className="text-xs text-red-500 dark:text-red-300">{daysAgo}</span>
                                         </div>
-                                        <div className="relative has-tooltip flex items-center">
-                                            <button 
-                                                onClick={() => handleSettle(item)}
-                                                className="h-8 w-8 rounded-full border border-slate-300 dark:border-neutral-600 text-slate-500 dark:text-neutral-400 flex items-center justify-center transition-colors duration-200 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:border-emerald-400 dark:hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400"
-                                                aria-label={`Tandai lunas untuk ${item.customer}`}
-                                            >
-                                                <CheckIcon className="h-4 w-4" />
-                                            </button>
-                                            <div className="tooltip absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-700 dark:bg-neutral-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none whitespace-nowrap">
-                                                Tandai Lunas
-                                            </div>
-                                        </div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onSettleReceivable(item.oldestTransaction);
+                                            }}
+                                            className="z-10 h-9 w-9 flex-shrink-0 rounded-full border border-slate-300 dark:border-neutral-600 text-slate-500 dark:text-neutral-400 flex items-center justify-center transition-colors duration-200 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:border-emerald-400 dark:hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400"
+                                            aria-label={`Lunas piutang tertua dari ${item.customer}`}
+                                        >
+                                            <CheckIcon className="h-4 w-4" />
+                                        </button>
+                                        
                                     </div>
-                                </div>
+                                </button>
                             );
                         })}
                     </div>

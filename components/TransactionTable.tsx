@@ -1,7 +1,3 @@
-
-
-
-
 import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 import WalletIconComponent from './WalletIconComponent';
@@ -55,6 +51,22 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     sortDirection,
     onSort
 }) => {
+    
+    const calculateDaysAgo = (dateString: string): string => {
+        const piutangDate = new Date(dateString);
+        const today = new Date();
+        piutangDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        const diffTime = today.getTime() - piutangDate.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 0) {
+            return 'Hari ini';
+        }
+        return `${diffDays} hari`;
+    };
+
 
     return (
         <>
@@ -83,7 +95,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     >
                                         <td className="p-3 text-sm text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
                                         <td className="p-3 text-sm text-slate-800 dark:text-white">
-                                            {transaction.description}
+                                            {transaction.isPiutang ? (
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <span>{transaction.description}</span>
+                                                    <span className="flex-shrink-0 text-xs font-bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">{calculateDaysAgo(transaction.date)}</span>
+                                                </div>
+                                            ) : (
+                                                <span>{transaction.description}</span>
+                                            )}
                                             {transaction.notes && (
                                                 <p className="text-xs text-slate-500 dark:text-neutral-400 truncate italic">
                                                     "{transaction.notes}"
@@ -133,7 +152,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                 onClick={() => onEditTransaction(transaction)}
                                 className={`p-4 rounded-2xl border transition-colors duration-200 cursor-pointer ${
                                     transaction.isPiutang 
-                                        ? 'bg-yellow-100 border-yellow-200 dark:bg-yellow-400/10 dark:border-yellow-400/20 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' 
+                                        ? 'bg-yellow-100 border-yellow-200 dark:bg-yellow-400/10 dark:border-yellow-400/20 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20 border-l-4 border-l-yellow-400 dark:border-l-yellow-500' 
                                         : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10'
                                 }`}
                             >
@@ -148,7 +167,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         )}
                                     </div>
                                     {transaction.isPiutang && (
-                                        <div className="ml-2 flex-shrink-0 text-xs font-bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">Piutang</div>
+                                        <div className="ml-2 flex-shrink-0 text-xs font-bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">{calculateDaysAgo(transaction.date)}</div>
                                     )}
                                 </div>
                                 <div className="mt-3 flex justify-between items-end">
