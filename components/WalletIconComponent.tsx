@@ -1,7 +1,8 @@
 import React from 'react';
 import { WalletIcon } from './icons/Icons';
 
-// --- SVG Icon Components defined directly in the file ---
+// --- Mendefinisikan komponen ikon SVG secara langsung di dalam file ---
+// Ini memungkinkan kustomisasi SVG yang lebih baik dan mengurangi ketergantungan pada file eksternal.
 
 const BRIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
@@ -31,47 +32,51 @@ const SeaBankIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 const ShopeePayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
-        <path d="M129.575 40.9318C130.278 40.8701 130.987 40.9559 131.655 41.1827C132.323 41.4096 132.937 41.7732 133.457 42.2501C133.977 42.7271 134.393 43.307 134.677 43.9532C134.961 44.5993 135.107 45.2974 135.106 46.0031V54.337C135.106 54.9505 134.862 55.539 134.429 55.9728C133.995 56.4066 133.406 56.6505 132.793 56.6505H50.0469C49.4439 56.67 48.8723 56.9247 48.4541 57.3595C48.0359 57.7944 47.8044 58.3753 47.8086 58.9786C47.8086 60.3276 48.344 61.6214 49.2979 62.5753C50.2517 63.5292 51.5456 64.0646 52.8945 64.0646L145.146 64.1095C148.213 64.1095 151.155 65.3281 153.324 67.4972C155.493 69.6663 156.712 72.6083 156.712 75.6759V140.434C156.712 143.501 155.493 146.444 153.324 148.613C151.155 150.782 148.213 152.001 145.146 152.001H46.7852C43.7177 152.001 40.7756 150.782 38.6064 148.613C36.4373 146.444 35.2188 143.501 35.2188 140.434V59.9132C35.208 57.0102 36.2894 54.2093 38.248 52.0665C40.2066 49.9239 42.8989 48.5963 45.791 48.3468L129.575 40.9318ZM95.5273 77.337C85.7106 77.3667 77.9697 83.5799 77.332 91.8693C76.9069 97.8601 79.873 102.709 86.2295 106.416C89.9866 108.158 93.8384 109.688 97.7666 110.999C106.886 113.831 111.617 118.932 110.505 124.863C109.497 130.172 103.831 133.657 96.0166 133.761C90.1428 133.44 84.5168 131.288 79.9277 127.608L79.2012 127.044C79.1031 126.938 78.9816 126.856 78.8467 126.805C78.7118 126.754 78.5664 126.735 78.4229 126.749C78.2793 126.764 78.1407 126.811 78.0186 126.888C77.8964 126.965 77.793 127.068 77.7178 127.192L75.3604 130.632C74.9601 131.18 75.1671 131.492 75.582 131.833C77.3898 133.35 79.3421 134.686 81.4102 135.822C85.9266 138.119 90.8928 139.395 95.957 139.56C99.6061 139.732 103.25 139.11 106.635 137.735C109.332 136.654 111.686 134.863 113.448 132.553C115.1 130.387 116.174 127.84 116.573 125.151L116.674 124.76C117.86 115.091 111.632 108.937 95.2012 103.688C87.2381 100.959 83.4862 97.4005 83.5752 92.507C83.9014 87.0796 88.9584 83.1199 95.6611 82.9865C100.944 83.041 106.097 84.6332 110.49 87.5685C111.098 87.954 111.513 87.8803 111.854 87.3761C112.374 86.6345 113.471 84.8252 113.856 84.1876C113.943 84.071 114.003 83.9364 114.032 83.7941C114.061 83.6517 114.058 83.5047 114.024 83.3634C113.99 83.222 113.927 83.0894 113.836 82.9757C113.745 82.862 113.63 82.7698 113.5 82.7052C111.894 81.6551 110.203 80.7423 108.443 79.9767C104.357 78.2443 99.9656 77.3467 95.5273 77.337Z" fill="#EE4D2D"/>
+        <path d="M129.575 40.9318C130.278 40.8701 130.987 40.9559 131.655 41.1827C132.323 41.4096 132.937 41.7732 133.457 42.2501C133.977 42.7271 134.393 43.307 134.677 43.9532C134.961 44.5993 135.107 45.2974 135.106 46.0031V54.337C135.106 54.9505 134.862 55.539 134.429 55.9728C133.995 56.4066 133.406 56.6505 132.793 56.6505H50.0469C49.4439 56.67 48.8723 56.9247 48.4541 57.3595C48.0359 57.7944 47.8044 58.3753 47.8086 58.9786C47.8086 60.3276 48.344 61.6214 49.2979 62.5753C50.2517 63.5292 51.5456 64.0646 52.8945 64.0646L145.146 64.1095C148.213 64.1095 151.155 65.3281 153.324 67.4972C155.493 69.6663 156.712 72.6083 156.712 75.6759V140.434C156.712 143.501 155.493 146.444 153.324 148.613C151.155 150.782 148.213 152.001 145.146 152.001H46.7852C43.7177 152.001 40.7756 150.782 38.6064 148.613C36.4373 146.444 35.2188 143.501 35.2188 140.434V59.9132C35.208 57.0102 36.2894 54.2093 38.248 52.0665C40.2066 49.9239 42.8989 48.5963 45.791 48.3468L129.575 40.9318ZM95.5273 77.337C85.7106 77.3667 77.9697 83.5799 77.332 91.8693C76.9069 97.8601 79.873 102.709 86.2295 106.416C89.9866 108.158 93.8384 109.688 97.7666 110.999C106.886 113.831 111.617 118.932 110.505 124.863C109.497 130.172 103.831 133.657 96.0166 133.761C90.1428 133.44 84.5168 131.288 79.9277 127.608L79.2012 127.044C79.1031 126.938 78.9816 126.856 78.8467 126.805C78.7118 126.754 78.5664 126.735 78.4229 126.749C78.2793 126.764 78.1407 126.811 78.0186 126.888C77.8964 126.965 77.793 127.068 77.7178 127.192L75.3604 130.632C74.9601 131.18 75.1671 131.492 75.582 131.833C77.3898 133.35 79.3421 134.686 81.4102 135.822C85.9266 138.119 90.8928 139.395 95.9814 139.395C106.273 139.395 113.572 133.673 114.654 125.748C115.342 120.408 112.599 115.824 104.57 112.355C100.222 110.518 95.8428 108.908 91.5977 107.54C83.2754 104.836 78.7617 99.1935 79.626 92.7931C80.2949 87.8761 84.957 84.7745 90.6279 84.7745C95.4053 84.7745 100.122 86.6417 103.87 89.9405L104.581 90.5046C104.679 90.6105 104.8 90.6896 104.935 90.7374C105.07 90.7853 105.215 90.8016 105.359 90.7863C105.503 90.7709 105.641 90.7243 105.764 90.6481C105.886 90.5719 105.989 90.4695 106.064 90.3468L108.339 86.9962C108.769 86.3888 108.536 86.0958 108.136 85.7648C106.328 84.247 104.345 82.9109 102.247 81.7755C97.7705 79.5187 92.834 78.2325 87.3193 78.2774L95.5273 77.337Z" fill="#EE4D2D"/>
     </svg>
 );
 
-const CashIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}>
-        <path d="M15 8H9V11H15V8Z" />
-        <path fillRule="evenodd" clipRule="evenodd" d="M2.25 6C2.25 4.49239 3.49239 3.25 5 3.25H19C20.5076 3.25 21.75 4.49239 21.75 6V18C21.75 19.5076 20.5076 20.75 19 20.75H5C3.49239 20.75 2.25 19.5076 2.25 18V6ZM5 4.75C4.30964 4.75 3.75 5.30964 3.75 6V18C3.75 18.6904 4.30964 19.25 5 19.25H19C19.6904 19.25 20.25 18.6904 20.25 18V6C20.25 5.30964 19.6904 4.75 19 4.75H5Z" />
-        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15ZM12 13.5C12.8284 13.5 13.5 12.8284 13.5 12C13.5 11.1716 12.8284 10.5 12 10.5C11.1716 10.5 10.5 11.1716 10.5 12C10.5 12.8284 11.1716 13.5 12 13.5Z" />
-    </svg>
-);
-
+// --- The Main Component that selects which icon to render ---
+// Properti untuk komponen WalletIconComponent.
 interface WalletIconComponentProps {
     walletId: string;
     iconUrl: string;
     className?: string;
-    altText?: string;
+    altText: string;
 }
 
-const iconMap: { [key: string]: React.FC<any> } = {
-    'BRI': BRIcon,
-    'BRILINK': BrilinkIcon,
-    'SEABANK': SeaBankIcon,
-    'DANA': DanaIcon,
-    'SHOPEEPAY': ShopeePayIcon,
-    'CASH': CashIcon,
-};
-
-const WalletIconComponent: React.FC<WalletIconComponentProps> = ({ walletId, iconUrl, className, altText = '' }) => {
-    const IconComponent = iconMap[walletId];
-
-    if (IconComponent) {
-        return <IconComponent className={className} />;
-    }
-
-    // Fallback for custom wallets with image URLs
-    if(iconUrl) {
-        return <img src={iconUrl} alt={altText} className={className} />;
+/**
+ * Komponen WalletIconComponent adalah komponen "pintar" yang memilih
+ * dan me-render ikon yang sesuai untuk dompet tertentu, baik dari
+ * pustaka ikon SVG internal maupun dari URL eksternal.
+ */
+export const WalletIconComponent: React.FC<WalletIconComponentProps> = ({ walletId, iconUrl, className, altText }) => {
+    // Jika ada URL ikon kustom, utamakan itu.
+    if (iconUrl) {
+        return <img src={iconUrl} alt={altText} className={className} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />;
     }
     
-    // Fallback for custom wallets without image URLs
+    // Pemetaan ID dompet ke komponen ikon SVG internal.
+    // Menggunakan toLowerCase() untuk pencocokan yang tidak case-sensitive.
+    const lowerCaseId = walletId.toLowerCase();
+    
+    if (lowerCaseId.includes('bri') && !lowerCaseId.includes('brilink')) {
+        return <BRIcon className={className} />;
+    }
+    if (lowerCaseId.includes('brilink')) {
+        return <BrilinkIcon className={className} />;
+    }
+    if (lowerCaseId.includes('dana')) {
+        return <DanaIcon className={className} />;
+    }
+    if (lowerCaseId.includes('seabank')) {
+        return <SeaBankIcon className={className} />;
+    }
+    if (lowerCaseId.includes('shopee')) {
+        return <ShopeePayIcon className={className} />;
+    }
+
+    // Jika tidak ada yang cocok, gunakan ikon dompet generik.
     return <WalletIcon className={className} />;
 };
 

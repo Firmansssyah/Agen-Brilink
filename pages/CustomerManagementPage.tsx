@@ -3,12 +3,14 @@ import { Transaction, Wallet } from '../types';
 import CustomerDetailModal from '../components/CustomerDetailModal';
 import { ChevronDownIcon } from '../components/icons/Icons';
 
+// Properti untuk komponen CustomerManagementPage.
 interface CustomerManagementPageProps {
     transactions: Transaction[];
     formatRupiah: (amount: number) => string;
     wallets: Wallet[];
 }
 
+// Struktur data untuk ringkasan per pelanggan.
 interface CustomerSummary {
     name: string;
     transactionCount: number;
@@ -16,11 +18,20 @@ interface CustomerSummary {
     totalMargin: number;
 }
 
+/**
+ * Komponen CustomerManagementPage menampilkan analisis data pelanggan,
+ * termasuk jumlah transaksi, total margin, dan total piutang.
+ * Data dapat difilter berdasarkan periode waktu.
+ */
 const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transactions, formatRupiah, wallets }) => {
-    const [selectedPeriod, setSelectedPeriod] = useState('all-time'); // 'all-time' or 'YYYY-MM'
+    // State untuk periode filter (misal: 'all-time' atau '2023-10').
+    const [selectedPeriod, setSelectedPeriod] = useState('all-time');
+    // State untuk visibilitas modal detail pelanggan.
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    // State untuk menyimpan nama pelanggan yang detailnya akan ditampilkan.
     const [selectedCustomerName, setSelectedCustomerName] = useState<string | null>(null);
 
+    // useMemo untuk mendapatkan daftar bulan unik dari transaksi untuk filter dropdown.
     const availableMonths = useMemo(() => {
         const months = new Set<string>();
         transactions.forEach(t => {
@@ -32,7 +43,9 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         return Array.from(months).sort().reverse();
     }, [transactions]);
 
+    // useMemo untuk menghitung dan mengelompokkan data pelanggan berdasarkan periode yang dipilih.
     const customerData = useMemo<CustomerSummary[]>(() => {
+        // 1. Saring transaksi berdasarkan periode.
         const filteredTransactions = transactions.filter(t => {
             if (t.isInternalTransfer) return false;
             if (selectedPeriod === 'all-time') {
@@ -46,8 +59,9 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
 
         const summaryMap = new Map<string, Omit<CustomerSummary, 'name'>>();
         
+        // 2. Agregasi data per pelanggan.
         filteredTransactions.forEach(t => {
-            // Exclude internal/generic customers, but include "Pelanggan"
+            // Abaikan pelanggan internal/generik.
             if (!t.customer || ['internal', 'brilink'].includes(t.customer.toLowerCase())) return;
 
             const entry = summaryMap.get(t.customer) || { transactionCount: 0, totalPiutang: 0, totalMargin: 0 };
@@ -61,34 +75,24 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
             summaryMap.set(t.customer, updatedEntry);
         });
 
+        // 3. Ubah map menjadi array dan urutkan berdasarkan total margin.
         return Array.from(summaryMap, ([name, data]) => ({ name, ...data }))
             .sort((a,b) => b.totalMargin - a.totalMargin);
 
     }, [transactions, selectedPeriod]);
 
+    // Handler saat baris pelanggan di-klik untuk membuka modal detail.
     const handleRowClick = (customerName: string) => {
         setSelectedCustomerName(customerName);
         setIsDetailModalOpen(true);
     };
 
+    // useMemo untuk menyaring riwayat transaksi pelanggan yang dipilih untuk ditampilkan di modal.
     const selectedCustomerTransactions = useMemo(() => {
         if (!selectedCustomerName) return [];
         return transactions
             .filter(t => t.customer === selectedCustomerName)
-            .sort((a, b) => {
-                // Primary sort: piutang status
-                if (a.isPiutang !== b.isPiutang) {
-                    return a.isPiutang ? -1 : 1;
-                }
-                
-                // Secondary sort: if both are piutang, sort by date ascending (oldest first)
-                if (a.isPiutang && b.isPiutang) {
-                    return new Date(a.date).getTime() - new Date(b.date).getTime();
-                }
-
-                // Tertiary sort: for non-piutang items, sort by date descending (newest first)
-                return new Date(b.date).getTime() - new Date(a.date).getTime();
-            });
+            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }, [selectedCustomerName, transactions]);
     
     return (
@@ -97,7 +101,7 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                 <div className="mx-auto max-w-4xl">
                     <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 px-2 gap-4">
-                            <h3 className="text-lg font-medium text-slate-800 dark:text-white">Analisis Pelanggan</h3>
+                            <h3 className="text-lg font.medium text-slate-800 dark:text-white">Analisis Pelanggan</h3>
                             <div className="w-full sm:w-auto relative">
                                 <select 
                                     value={selectedPeriod} 
@@ -122,10 +126,10 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                 <table className="w-full text-left">
                                     <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                                         <tr>
-                                            <th className="p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Nama Pelanggan</th>
-                                            <th className="p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Jml. Transaksi</th>
-                                            <th className="p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Margin</th>
-                                            <th className="p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Piutang</th>
+                                            <th className="p-3 text-xs font.semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Nama Pelanggan</th>
+                                            <th className="p-3 text-xs font.semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Jml. Transaksi</th>
+                                            <th className="p-3 text-xs font.semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Margin</th>
+                                            <th className="p-3 text-xs font.semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Piutang</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -135,12 +139,12 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                                 className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200 cursor-pointer"
                                                 onClick={() => handleRowClick(customer.name)}
                                             >
-                                                <td className="p-3 text-sm text-slate-800 dark:text-white font-medium">{customer.name}</td>
+                                                <td className="p-3 text-sm text-slate-800 dark:text-white font.medium">{customer.name}</td>
                                                 <td className="p-3 text-sm text-slate-600 dark:text-neutral-300 text-center">{customer.transactionCount}</td>
-                                                <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                                                <td className="p-3 text-sm font.medium text-emerald-600 dark:text-emerald-400">
                                                     {formatRupiah(customer.totalMargin)}
                                                 </td>
-                                                <td className={`p-3 text-sm font-medium ${customer.totalPiutang > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
+                                                <td className={`p-3 text-sm font.medium ${customer.totalPiutang > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
                                                     {formatRupiah(customer.totalPiutang)}
                                                 </td>
                                             </tr>
@@ -158,6 +162,7 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                     </div>
                 </div>
             </main>
+            {/* Modal untuk menampilkan detail transaksi pelanggan */}
             <CustomerDetailModal 
                 isOpen={isDetailModalOpen}
                 onClose={() => setIsDetailModalOpen(false)}

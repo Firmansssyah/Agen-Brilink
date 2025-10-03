@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Transaction, Wallet, TransactionType } from '../types';
 import { CloseIcon } from './icons/Icons';
-import WalletIconComponent from './WalletIconComponent';
+// FIX: Changed to named import
+import { WalletIconComponent } from './WalletIconComponent';
 
 interface CustomerDetailModalProps {
     isOpen: boolean;

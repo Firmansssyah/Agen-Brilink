@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
-import { ChevronDownIcon, CheckIcon, DeleteIcon, InfoIcon } from './icons/Icons';
-import WalletIconComponent from './WalletIconComponent';
+import { ChevronDownIcon, CheckIcon, DeleteIcon } from './icons/Icons';
+// FIX: Changed to named import
+import { WalletIconComponent } from './WalletIconComponent';
 import DatePicker from './DatePicker';
 
 interface TransactionModalProps {
@@ -209,7 +210,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     
     if (!isOpen) return null;
 
-    const formInputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500";
+    const formInputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500 disabled:opacity-70 disabled:cursor-not-allowed";
     const formSelectClass = `${formInputClass} appearance-none`;
     const formLabelClass = "block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2 px-2";
 
@@ -411,11 +412,11 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                         />
                                     </div>
                                 ) : (
-                                    <div className="pt-2 text-center">
+                                    <div className="pt-2">
                                         <button
                                             type="button"
                                             onClick={() => setShowNotes(true)}
-                                            className="text-sm font-semibold text-blue-600 dark:text-blue-300 hover:underline"
+                                            className="w-full text-center py-2 px-4 border-2 border-dashed border-slate-300 dark:border-neutral-600 rounded-full text-sm font-semibold text-slate-500 dark:text-neutral-400 hover:bg-slate-100 dark:hover:bg-neutral-700 hover:border-slate-400 dark:hover:border-neutral-500 transition-colors"
                                         >+ Tambah Catatan</button>
                                     </div>
                                 )}
@@ -429,10 +430,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                                     </span>
                                 </div>
 
-                                <label htmlFor="isPiutang" className="flex items-center cursor-pointer">
+                                <label htmlFor="isPiutang" className={`flex items-center cursor-pointer`}>
                                     <span className="mr-3 text-sm text-slate-600 dark:text-neutral-300">Piutang</span>
                                     <div className="relative">
-                                        <input type="checkbox" id="isPiutang" name="isPiutang" className="sr-only peer" checked={formData.isPiutang} onChange={handleChange} />
+                                        <input type="checkbox" id="isPiutang" name="isPiutang" className="sr-only peer" checked={formData.isPiutang} onChange={handleChange}/>
                                         <div className="block bg-slate-300 dark:bg-neutral-600 w-12 h-7 rounded-full transition"></div>
                                         <div className="dot absolute left-1 top-1 bg-white w-5 h-5 rounded-full transition-transform peer-checked:translate-x-full peer-checked:bg-blue-300"></div>
                                     </div>

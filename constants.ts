@@ -1,5 +1,6 @@
 import { Wallet, Transaction, TransactionType } from './types';
 
+// Data awal untuk dompet, digunakan untuk inisialisasi atau pengembangan.
 export const INITIAL_WALLETS: Wallet[] = [
     { id: 'CASH', name: 'Cash', balance: 2000000, icon: '' },
     { id: 'BRILINK', name: 'BRILink', balance: 2000000, icon: '' },
@@ -9,6 +10,7 @@ export const INITIAL_WALLETS: Wallet[] = [
     { id: 'SHOPEEPAY', name: 'ShopeePay', balance: 2000000, icon: '' },
 ];
 
+// Daftar kategori transaksi awal.
 export const INITIAL_CATEGORIES: string[] = [
     'Tarik Tunai',
     'Transfer',
@@ -18,6 +20,7 @@ export const INITIAL_CATEGORIES: string[] = [
     'Lainnya'
 ];
 
+// Data transaksi tiruan (mock) untuk tujuan pengembangan dan pengujian.
 export const MOCK_TRANSACTIONS: Transaction[] = [
     {
         id: 'TXN1001',

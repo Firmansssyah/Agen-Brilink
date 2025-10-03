@@ -1,45 +1,57 @@
 import React, { useState } from 'react';
-// Fix: Removed WalletId as it is no longer exported from types.
+// Hapus import WalletId karena sudah tidak digunakan dan diganti string.
 import { Transaction, TransactionType, Wallet } from '../types';
 import { ChevronDownIcon } from '../components/icons/Icons';
 
+// Properti untuk komponen AddTransactionPage.
 interface AddTransactionPageProps {
     onAddTransaction: (newTransaction: Omit<Transaction, 'id' | 'date'>) => void;
     wallets: Wallet[];
     categories: string[];
 }
 
+/**
+ * Komponen AddTransactionPage adalah halaman terpisah (standalone) untuk menambahkan transaksi baru.
+ * (Catatan: Komponen ini tampaknya sudah tidak digunakan lagi dan digantikan oleh TransactionModal).
+ */
 const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransaction, wallets, categories }) => {
+    // Kelas CSS umum untuk input form.
     const formInputClass = "w-full bg-[#3C3A42] border border-slate-600 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-lg p-3 text-sm text-white transition outline-none";
     const formSelectClass = `${formInputClass} appearance-none`;
     
+    // Data awal untuk form.
     const initialData = {
         description: categories.length > 0 ? categories[0] : '',
         customer: '',
         type: TransactionType.OUT,
         amount: 0,
         margin: 0,
-        // Fix: Changed default wallet from non-existent enum to the first wallet's ID.
+        // Gunakan ID dompet pertama sebagai default.
         wallet: wallets.length > 0 ? wallets[0].id : '',
         isPiutang: false,
     };
 
+    // Fungsi untuk memformat nilai angka untuk ditampilkan di input.
     const formatInputValue = (value: number) => {
         if (value === 0) return '';
         return new Intl.NumberFormat('id-ID').format(value);
     };
 
+    // Fungsi untuk mengubah string input kembali menjadi angka.
     const parseInputValue = (value: string): number => {
         return Number(value.replace(/\./g, '')) || 0;
     };
     
+    // State untuk menyimpan data form saat ini.
     const [newData, setNewData] = useState(initialData);
 
+    // Handler untuk setiap perubahan pada input form.
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
         
         let processedValue: string | number | boolean = value;
 
+        // Proses nilai input berdasarkan tipenya.
         if (name === 'amount' || name === 'margin') {
             processedValue = parseInputValue(value);
         } else if (e.target instanceof HTMLInputElement && e.target.type === 'checkbox') {
@@ -49,8 +61,10 @@ const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransactio
         setNewData(prev => ({ ...prev, [name]: processedValue }));
     };
     
+    // Handler saat form disubmit.
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // Validasi sederhana.
         if (!newData.description || newData.amount <= 0) {
             alert('Deskripsi dan Jumlah harus diisi dan lebih besar dari 0.');
             return;
@@ -62,11 +76,11 @@ const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransactio
         <main className="p-4 sm:p-6 lg:p-8 flex-1">
            <div className="max-w-4xl mx-auto">
              <form onSubmit={handleSubmit} className="bg-slate-800/50 border border-slate-700/50 rounded-xl shadow-2xl">
-                {/* Form Body */}
+                {/* Bagian Body Form */}
                 <div className="p-6 sm:p-8 space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <label htmlFor="description" className="block text-sm font-medium text-slate-300 mb-2">Deskripsi</label>
+                            <label htmlFor="description" className="block text-sm font.medium text-slate-300 mb-2">Deskripsi</label>
                              <div className="relative">
                                 <select name="description" value={newData.description} onChange={handleChange} className={formSelectClass}>
                                     {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -77,13 +91,13 @@ const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransactio
                             </div>
                         </div>
                         <div>
-                            <label htmlFor="customer" className="block text-sm font-medium text-slate-300 mb-2">Pelanggan</label>
+                            <label htmlFor="customer" className="block text-sm font.medium text-slate-300 mb-2">Pelanggan</label>
                             <input type="text" name="customer" placeholder="Nama Pelanggan" value={newData.customer} onChange={handleChange} className={formInputClass} />
                         </div>
                     </div>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                            <label htmlFor="amount" className="block text-sm font-medium text-slate-300 mb-2">Jumlah (Rp)</label>
+                            <label htmlFor="amount" className="block text-sm font.medium text-slate-300 mb-2">Jumlah (Rp)</label>
                             <input 
                                 type="text"
                                 inputMode="numeric"
@@ -95,7 +109,7 @@ const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransactio
                             />
                         </div>
                          <div>
-                            <label htmlFor="margin" className="block text-sm font-medium text-slate-300 mb-2">Margin (Rp)</label>
+                            <label htmlFor="margin" className="block text-sm font.medium text-slate-300 mb-2">Margin (Rp)</label>
                             <input
                                 type="text"
                                 inputMode="numeric"
@@ -109,7 +123,7 @@ const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransactio
                     </div>
                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div>
-                             <label htmlFor="type" className="block text-sm font-medium text-slate-300 mb-2">Tipe</label>
+                             <label htmlFor="type" className="block text-sm font.medium text-slate-300 mb-2">Tipe</label>
                             <div className="relative">
                                 <select name="type" value={newData.type} onChange={handleChange} className={formSelectClass}>
                                     <option value={TransactionType.IN}>IN (Masuk)</option>
@@ -121,7 +135,7 @@ const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransactio
                             </div>
                         </div>
                          <div>
-                            <label htmlFor="wallet" className="block text-sm font-medium text-slate-300 mb-2">Dompet</label>
+                            <label htmlFor="wallet" className="block text-sm font.medium text-slate-300 mb-2">Dompet</label>
                             <div className="relative">
                                 <select name="wallet" value={newData.wallet} onChange={handleChange} className={formSelectClass}>
                                     {wallets.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
@@ -138,12 +152,12 @@ const AddTransactionPage: React.FC<AddTransactionPageProps> = ({ onAddTransactio
                     </div>
                 </div>
 
-                {/* Footer */}
+                {/* Bagian Footer Form */}
                 <div className="p-6 bg-slate-800/50 border-t border-slate-700/50 flex justify-end space-x-3 rounded-b-xl">
-                    <button type="button" onClick={() => setNewData(initialData)} className="bg-slate-700 hover:bg-slate-600 text-white font-semibold py-2 px-5 rounded-lg transition-colors duration-300 text-sm">
+                    <button type="button" onClick={() => setNewData(initialData)} className="bg-slate-700 hover:bg-slate-600 text-white font.semibold py-2 px-5 rounded-lg transition-colors duration-300 text-sm">
                         Reset
                     </button>
-                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-5 rounded-lg transition-colors duration-300 text-sm">
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font.semibold py-2 px-5 rounded-lg transition-colors duration-300 text-sm">
                         Simpan Transaksi
                     </button>
                 </div>

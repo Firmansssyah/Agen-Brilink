@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
-import WalletIconComponent from './WalletIconComponent';
+// FIX: Changed to named import
+import { WalletIconComponent } from './WalletIconComponent';
 import { CloseIcon } from './icons/Icons';
 
 interface DailyTransactionsModalProps {

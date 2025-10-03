@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import { Transaction, Wallet, TransactionType, Page } from './types';
+import { Transaction, Wallet, TransactionType, Page, Font } from './types';
 import Header from './components/Header';
 import DashboardPage from './pages/DashboardPage';
 import ManagementPage from './pages/ManagementPage';
@@ -9,52 +9,78 @@ import SettingsPage from './pages/SettingsPage';
 import { ToastProvider, useToastContext } from './contexts/ToastContext';
 import ToastContainer from './components/ToastContainer';
 
+// Mendefinisikan tipe untuk tema aplikasi.
 type Theme = 'light' | 'dark';
 
+/**
+ * Komponen inti aplikasi yang mengelola state utama, logika bisnis, dan perutean halaman.
+ */
 const MainApp: React.FC = () => {
+    // Menggunakan hook dari ToastContext untuk menampilkan notifikasi.
     const { addToast } = useToastContext();
+    // State untuk menyimpan daftar dompet.
     const [wallets, setWallets] = useState<Wallet[]>([]);
+    // State untuk menyimpan daftar transaksi.
     const [transactions, setTransactions] = useState<Transaction[]>([]);
+    // State untuk menyimpan daftar kategori transaksi.
     const [categories, setCategories] = useState<string[]>([]);
+    // State untuk menandai status loading data awal.
     const [isLoading, setIsLoading] = useState(true);
+    // State untuk menyimpan pesan error jika terjadi kegagalan fetch data.
     const [error, setError] = useState<string | null>(null);
     
+    // State untuk halaman yang sedang aktif.
     const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+    // State untuk nama aplikasi, diambil dari localStorage atau default.
     const [appName, setAppName] = useState<string>(() => localStorage.getItem('appName') || 'Agen BRILink');
+    // State untuk tema aplikasi, disesuaikan dengan preferensi sistem atau localStorage.
     const [theme, setTheme] = useState<Theme>(
         (localStorage.getItem('theme') as Theme) ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     );
+    // State untuk jenis huruf aplikasi, diambil dari localStorage atau default.
+    const [font, setFont] = useState<Font>(
+        () => (localStorage.getItem('fontFamily') as Font) || 'font-sans'
+    );
 
+
+    // useMemo untuk mendefinisikan URL dasar API, agar tidak dihitung ulang pada setiap render.
     const API_BASE_URL = useMemo(() => {
         const hostname = window.location.hostname || 'localhost';
         return `http://${hostname}:3001`;
     }, []);
 
+    // useEffect untuk mengambil data awal (dompet, transaksi, kategori) saat komponen dimuat.
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Mengambil semua data secara paralel untuk efisiensi.
                 const [walletsRes, transactionsRes, categoriesRes] = await Promise.all([
                     fetch(`${API_BASE_URL}/wallets`),
                     fetch(`${API_BASE_URL}/transactions?_sort=date&_order=desc`),
                     fetch(`${API_BASE_URL}/categories/1`)
                 ]);
 
+                // Memeriksa apakah semua request berhasil.
                 if (!walletsRes.ok || !transactionsRes.ok || !categoriesRes.ok) {
                     throw new Error('Failed to fetch data from the server. Is json-server running?');
                 }
 
+                // Mengubah respons menjadi JSON.
                 const walletsData = await walletsRes.json();
                 const transactionsData = await transactionsRes.json();
                 const categoriesObject = await categoriesRes.json();
 
+                // Memperbarui state dengan data yang diterima.
                 setWallets(walletsData);
                 setTransactions(transactionsData);
                 setCategories(categoriesObject.values || []);
             } catch (err) {
+                // Menangani error jika pengambilan data gagal.
                 setError(err instanceof Error ? err.message : 'An unknown error occurred.');
                 console.error(err);
             } finally {
+                // Menghentikan status loading setelah selesai (baik berhasil maupun gagal).
                 setIsLoading(false);
             }
         };
@@ -63,6 +89,7 @@ const MainApp: React.FC = () => {
     }, [API_BASE_URL]);
 
 
+    // useEffect untuk mengubah tema (light/dark) pada elemen HTML dan menyimpannya di localStorage.
     useEffect(() => {
         const root = window.document.documentElement;
         if (theme === 'dark') {
@@ -73,10 +100,28 @@ const MainApp: React.FC = () => {
         localStorage.setItem('theme', theme);
     }, [theme]);
     
+    // useEffect untuk menyimpan nama aplikasi ke localStorage setiap kali berubah.
     useEffect(() => {
         localStorage.setItem('appName', appName);
     }, [appName]);
 
+    // useEffect untuk mengubah jenis huruf aplikasi dan menyimpannya di localStorage.
+    useEffect(() => {
+        const body = window.document.body;
+        // Hapus kelas font lama
+        body.classList.remove('font-sans', 'font-inter', 'font-poppins', 'font-roboto-flex');
+        // Tambahkan kelas font baru
+        body.classList.add(font);
+        // Simpan ke local storage
+        localStorage.setItem('fontFamily', font);
+    }, [font]);
+
+
+    /**
+     * Fungsi utilitas untuk memformat angka menjadi format mata uang Rupiah.
+     * @param amount - Angka yang akan diformat.
+     * @returns String dalam format Rupiah (e.g., "Rp 5.000").
+     */
     const formatRupiah = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
             style: 'currency',
@@ -85,39 +130,46 @@ const MainApp: React.FC = () => {
         }).format(amount);
     };
 
+    // useMemo untuk menghitung dan menyaring daftar piutang dari semua transaksi.
     const accountsReceivable = useMemo<Transaction[]>(() => {
         return transactions
             .filter(t => t.isPiutang)
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }, [transactions]);
     
+    // useMemo untuk menghitung total jumlah piutang.
     const totalPiutang = useMemo(() => {
       return accountsReceivable.reduce((sum, item) => sum + item.amount + item.margin, 0);
     }, [accountsReceivable]);
 
+    // useMemo untuk mengumpulkan dan mengurutkan nama pelanggan unik berdasarkan jumlah transaksi.
     const customers = useMemo(() => {
         const customerCounts = new Map<string, number>();
         transactions.forEach(t => {
             const customerName = t.customer?.trim();
             if (customerName) {
                 const lowerCaseName = customerName.toLowerCase();
-                // Filter out generic and internal names
+                // Menyaring nama generik atau internal.
                 if (lowerCaseName !== 'pelanggan' && lowerCaseName !== 'internal' && lowerCaseName !== 'brilink') {
                      customerCounts.set(customerName, (customerCounts.get(customerName) || 0) + 1);
                 }
             }
         });
 
-        // Convert map to array of [name, count]
+        // Mengubah map menjadi array, mengurutkan berdasarkan jumlah transaksi, lalu mengambil namanya.
         const sortedCustomers = Array.from(customerCounts.entries())
-            // Sort by count descending
             .sort(([, countA], [, countB]) => countB - countA)
-            // Extract just the name
             .map(([name]) => name);
 
         return sortedCustomers;
     }, [transactions]);
 
+    /**
+     * useCallback untuk mengaplikasikan perubahan saldo pada dompet setelah transaksi.
+     * Fungsi ini menangani berbagai skenario: pembuatan, pelunasan piutang, dan penghapusan transaksi.
+     * @param transaction - Objek transaksi yang memicu perubahan.
+     * @param action - Tipe aksi yang dilakukan ('create', 'settle', 'delete', dll.).
+     */
     const applyWalletChanges = useCallback(async (
         transaction: Transaction,
         action: 'create' | 'settle' | 'revert_settle' | 'delete'
@@ -131,6 +183,7 @@ const MainApp: React.FC = () => {
         let primaryWalletChange = 0;
         let cashWalletChange = 0;
 
+        // Logika untuk menentukan perubahan saldo berdasarkan tipe aksi dan transaksi.
         if (action === 'create') {
                 if (isInternalTransfer) {
                     primaryWalletChange = (type === TransactionType.OUT) ? -(amount + margin) : amount;
@@ -191,6 +244,7 @@ const MainApp: React.FC = () => {
             }
         }
 
+        // Mempersiapkan dan menjalankan promise untuk memperbarui saldo dompet di API.
         const updatePromises: Promise<any>[] = [];
         const updatedWalletsState = currentWallets.map(w => {
             if (w.id === primaryWalletId) {
@@ -212,15 +266,21 @@ const MainApp: React.FC = () => {
             return w;
         });
 
+        // Menunggu semua pembaruan API selesai, lalu memperbarui state dompet lokal.
         await Promise.all(updatePromises);
         setWallets(updatedWalletsState);
 
     }, [wallets, API_BASE_URL]);
 
+    /**
+     * useCallback untuk menangani penyimpanan transaksi (baik baru maupun editan).
+     * @param data - Data transaksi yang akan disimpan.
+     */
     const handleSaveTransaction = useCallback(async (data: Transaction | Omit<Transaction, 'id' | 'date'>) => {
         const isEditing = 'id' in data;
         try {
             if (isEditing) {
+                // Logika untuk mengedit transaksi yang sudah ada.
                 const updatedTransaction = data as Transaction;
                 const originalTransaction = transactions.find(t => t.id === updatedTransaction.id);
                 if (!originalTransaction) throw new Error("Transaction not found for update.");
@@ -234,12 +294,14 @@ const MainApp: React.FC = () => {
                 
                 setTransactions(prev => prev.map(t => (t.id === savedTransaction.id ? savedTransaction : t)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 
+                // Menangani perubahan status piutang.
                 if (originalTransaction.isPiutang && !updatedTransaction.isPiutang) {
                     await applyWalletChanges(updatedTransaction, 'settle');
                 } else if (!originalTransaction.isPiutang && updatedTransaction.isPiutang) {
                     await applyWalletChanges(updatedTransaction, 'revert_settle');
                 }
             } else {
+                // Logika untuk menambahkan transaksi baru.
                 const newTransactionData: Omit<Transaction, 'id'> = {
                     ...data,
                     date: new Date().toISOString(),
@@ -261,6 +323,10 @@ const MainApp: React.FC = () => {
         }
     }, [transactions, applyWalletChanges, addToast, API_BASE_URL]);
     
+    /**
+     * useCallback untuk melunasi piutang.
+     * @param transactionToSettle - Transaksi piutang yang akan dilunasi.
+     */
     const handleSettleReceivable = useCallback(async (transactionToSettle: Transaction) => {
         try {
             const updatedTransaction: Transaction = { ...transactionToSettle, isPiutang: false };
@@ -281,12 +347,17 @@ const MainApp: React.FC = () => {
         }
     }, [applyWalletChanges, addToast, API_BASE_URL]);
     
+    /**
+     * useCallback untuk menghapus transaksi dengan fitur "undo".
+     * @param transactionId - ID transaksi yang akan dihapus.
+     */
     const handleDeleteTransaction = useCallback((transactionId: string) => {
         const transactionToDelete = transactions.find(t => t.id === transactionId);
         if (!transactionToDelete) return;
 
         let deleteTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
+        // Fungsi yang akan dijalankan jika penghapusan dikonfirmasi (setelah 5 detik).
         const confirmDelete = async () => {
             if (deleteTimeoutId) clearTimeout(deleteTimeoutId);
             try {
@@ -299,27 +370,35 @@ const MainApp: React.FC = () => {
             } catch (err) {
                 console.error("Failed to delete transaction:", err);
                 addToast('Gagal menghapus transaksi.', 'error');
-                // Revert UI state on failure
+                // Mengembalikan state UI jika penghapusan gagal.
                 setTransactions(prev => prev.map(t => (t.id === transactionId ? { ...t, isDeleting: false } : t)));
             }
         };
 
+        // Fungsi untuk membatalkan penghapusan.
         const cancelDelete = () => {
             if (deleteTimeoutId) clearTimeout(deleteTimeoutId);
             setTransactions(prev => prev.map(t => (t.id === transactionId ? { ...t, isDeleting: false } : t)));
         };
 
-        // Hide the transaction immediately from the UI
+        // Menandai transaksi sebagai 'isDeleting' untuk menyembunyikannya dari UI secara langsung.
         setTransactions(prev => prev.map(t => (t.id === transactionId ? { ...t, isDeleting: true } : t)));
         
+        // Menjalankan timeout untuk penghapusan permanen.
         deleteTimeoutId = setTimeout(confirmDelete, 5000);
 
+        // Menampilkan notifikasi dengan tombol "Urungkan".
         addToast('Transaksi dihapus', 'info', { undoHandler: cancelDelete });
     }, [transactions, applyWalletChanges, addToast, API_BASE_URL]);
 
+    /**
+     * useCallback untuk menyimpan data dompet (baru atau editan).
+     * @param walletData - Data dompet yang akan disimpan.
+     */
     const handleSaveWallet = useCallback(async (walletData: Omit<Wallet, 'id'> | Wallet) => {
         try {
             if ('id' in walletData) {
+                // Logika edit dompet.
                 const res = await fetch(`${API_BASE_URL}/wallets/${walletData.id}`, {
                     method: 'PUT', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(walletData),
@@ -328,6 +407,7 @@ const MainApp: React.FC = () => {
                 const updatedWallet = await res.json();
                 setWallets(prev => prev.map(w => w.id === updatedWallet.id ? updatedWallet : w));
             } else {
+                // Logika tambah dompet baru.
                 const newWalletData = { ...walletData, id: walletData.name.toUpperCase().replace(/\s/g, '') + Date.now() };
                 const res = await fetch(`${API_BASE_URL}/wallets`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -344,6 +424,10 @@ const MainApp: React.FC = () => {
         }
     }, [addToast, API_BASE_URL]);
 
+    /**
+     * useCallback untuk menghapus dompet.
+     * @param walletId - ID dompet yang akan dihapus.
+     */
     const handleDeleteWallet = useCallback(async (walletId: string) => {
         try {
             const res = await fetch(`${API_BASE_URL}/wallets/${walletId}`, { method: 'DELETE' });
@@ -356,6 +440,10 @@ const MainApp: React.FC = () => {
         }
     }, [addToast, API_BASE_URL]);
 
+    /**
+     * useCallback untuk menyimpan daftar kategori.
+     * @param newCategories - Array string kategori baru.
+     */
     const handleSaveCategories = useCallback(async (newCategories: string[]) => {
         try {
             const res = await fetch(`${API_BASE_URL}/categories/1`, {
@@ -372,6 +460,11 @@ const MainApp: React.FC = () => {
         }
     }, [addToast, API_BASE_URL]);
 
+    /**
+     * useCallback untuk menangani transfer saldo antar dompet.
+     * Membuat dua transaksi: satu keluar (dengan biaya) dan satu masuk.
+     * @param transferData - Data transfer yang berisi dompet asal, tujuan, jumlah, dan biaya.
+     */
     const handleBalanceTransfer = useCallback(async (transferData: { fromWallet: string; toWallet: string; amount: number; fee: number; }) => {
         const { fromWallet, toWallet, amount, fee } = transferData;
         const fromWalletName = wallets.find(w => w.id === fromWallet)?.name;
@@ -382,8 +475,10 @@ const MainApp: React.FC = () => {
             return;
         }
 
+        // ID unik untuk menghubungkan dua transaksi transfer.
         const transferId = `transfer-${Date.now()}-${Math.random()}`;
 
+        // Transaksi keluar dari dompet sumber.
         const outTransactionData: Omit<Transaction, 'id'> = {
             date: new Date().toISOString(),
             description: `Pindah Saldo ke ${toWalletName}`,
@@ -397,6 +492,7 @@ const MainApp: React.FC = () => {
             transferId,
         };
 
+        // Transaksi masuk ke dompet tujuan.
         const inTransactionData: Omit<Transaction, 'id'> = {
             date: new Date().toISOString(),
             description: `Pindah Saldo dari ${fromWalletName}`,
@@ -411,6 +507,7 @@ const MainApp: React.FC = () => {
         };
 
         try {
+            // Mengirim kedua transaksi ke API.
             const outRes = await fetch(`${API_BASE_URL}/transactions`, {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(outTransactionData)
@@ -425,8 +522,10 @@ const MainApp: React.FC = () => {
             if (!inRes.ok) throw new Error('Gagal menyimpan transaksi masuk.');
             const savedInTransaction = await inRes.json();
             
+            // Memperbarui state transaksi lokal.
             setTransactions(prev => [savedInTransaction, savedOutTransaction, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
             
+            // Memperbarui saldo dompet secara manual untuk responsivitas UI.
             const updatedWalletsState = wallets.map(w => {
                 if (w.id === fromWallet) {
                     return { ...w, balance: w.balance - (amount + fee) };
@@ -437,6 +536,7 @@ const MainApp: React.FC = () => {
                 return w;
             });
             
+            // Mengirim pembaruan saldo dompet ke API.
             const fromWalletUpdate = updatedWalletsState.find(w => w.id === fromWallet);
             const toWalletUpdate = updatedWalletsState.find(w => w.id === toWallet);
             
@@ -460,8 +560,13 @@ const MainApp: React.FC = () => {
         }
     }, [wallets, addToast, API_BASE_URL]);
 
+    /**
+     * useCallback untuk memperbarui transaksi transfer saldo yang sudah ada.
+     * @param data - Data transfer yang diperbarui.
+     */
     const handleUpdateBalanceTransfer = useCallback(async (data: { fromWallet: string; toWallet: string; amount: number; fee: number; transferId: string; }) => {
         try {
+            // Mencari transaksi keluar dan masuk original berdasarkan transferId.
             const originalOutTx = transactions.find(t => t.transferId === data.transferId && t.type === 'OUT');
             const originalInTx = transactions.find(t => t.transferId === data.transferId && t.type === 'IN');
 
@@ -472,6 +577,7 @@ const MainApp: React.FC = () => {
             const toWalletName = wallets.find(w => w.id === data.toWallet)?.name || 'Unknown';
             const fromWalletName = wallets.find(w => w.id === data.fromWallet)?.name || 'Unknown';
 
+            // Membuat objek transaksi yang diperbarui.
             const updatedOutTx: Transaction = {
                 ...originalOutTx,
                 description: `Pindah Saldo ke ${toWalletName}`,
@@ -488,20 +594,21 @@ const MainApp: React.FC = () => {
                 margin: 0,
             };
 
+            // Menghitung perubahan bersih untuk setiap dompet.
             const walletChanges = new Map<string, number>();
             const addToMap = (walletId: string, value: number) => {
                 walletChanges.set(walletId, (walletChanges.get(walletId) || 0) + value);
             };
 
-            // Revert original transaction effects
+            // 1. Mengembalikan efek transaksi original.
             addToMap(originalOutTx.wallet, originalOutTx.amount);
             addToMap(originalInTx.wallet, -originalInTx.amount);
 
-            // Apply new transaction effects
+            // 2. Menerapkan efek transaksi baru.
             addToMap(updatedOutTx.wallet, -updatedOutTx.amount);
             addToMap(updatedInTx.wallet, updatedInTx.amount);
 
-            // API Calls for transactions
+            // Mengirim pembaruan transaksi ke API.
             const txUpdatePromises = [
                 fetch(`${API_BASE_URL}/transactions/${updatedOutTx.id}`, {
                     method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updatedOutTx)
@@ -517,7 +624,7 @@ const MainApp: React.FC = () => {
             }
             const [savedOut, savedIn] = await Promise.all(txResponses.map(r => r.json()));
 
-            // API Calls and state update for wallets
+            // Mengirim pembaruan saldo dompet ke API dan memperbarui state lokal.
             const walletUpdatePromises: Promise<any>[] = [];
             const updatedWalletsState = wallets.map(w => {
                 if (walletChanges.has(w.id)) {
@@ -533,7 +640,7 @@ const MainApp: React.FC = () => {
             
             await Promise.all(walletUpdatePromises);
             
-            // Update local state for wallets and transactions
+            // Memperbarui state lokal untuk dompet dan transaksi.
             setWallets(updatedWalletsState);
             setTransactions(prev => 
                 prev.map(t => {
@@ -551,6 +658,10 @@ const MainApp: React.FC = () => {
         }
     }, [transactions, wallets, addToast, API_BASE_URL]);
 
+    /**
+     * useCallback untuk menghapus kedua transaksi yang terkait dengan transfer saldo.
+     * @param transferId - ID transfer yang akan dihapus.
+     */
     const handleDeleteBalanceTransfer = useCallback(async (transferId: string) => {
         const originalOutTx = transactions.find(t => t.transferId === transferId && t.type === 'OUT');
         const originalInTx = transactions.find(t => t.transferId === transferId && t.type === 'IN');
@@ -561,7 +672,7 @@ const MainApp: React.FC = () => {
         }
 
         try {
-            // API Calls to delete transactions
+            // Menghapus kedua transaksi dari API.
             const deletePromises = [
                 fetch(`${API_BASE_URL}/transactions/${originalOutTx.id}`, { method: 'DELETE' }),
                 fetch(`${API_BASE_URL}/transactions/${originalInTx.id}`, { method: 'DELETE' })
@@ -571,17 +682,17 @@ const MainApp: React.FC = () => {
                 if (!res.ok) throw new Error('Gagal menghapus data transaksi.');
             }
 
-            // Calculate wallet changes
+            // Menghitung perubahan untuk mengembalikan saldo dompet.
             const walletChanges = new Map<string, number>();
             const addToMap = (walletId: string, value: number) => {
                 walletChanges.set(walletId, (walletChanges.get(walletId) || 0) + value);
             };
             
-            // Revert original transaction effects
-            addToMap(originalOutTx.wallet, originalOutTx.amount); // Add back amount for OUT transaction
-            addToMap(originalInTx.wallet, -originalInTx.amount); // Subtract amount for IN transaction
+            // Mengembalikan efek transaksi original.
+            addToMap(originalOutTx.wallet, originalOutTx.amount); // Tambahkan kembali jumlah untuk transaksi KELUAR.
+            addToMap(originalInTx.wallet, -originalInTx.amount); // Kurangi jumlah untuk transaksi MASUK.
 
-            // API Calls and state update for wallets
+            // Mengirim pembaruan saldo dompet ke API dan memperbarui state lokal.
             const walletUpdatePromises: Promise<any>[] = [];
             const updatedWalletsState = wallets.map(w => {
                 if (walletChanges.has(w.id)) {
@@ -596,7 +707,7 @@ const MainApp: React.FC = () => {
             });
             await Promise.all(walletUpdatePromises);
 
-            // Update local state
+            // Memperbarui state lokal.
             setWallets(updatedWalletsState);
             setTransactions(prev => prev.filter(t => t.transferId !== transferId));
             
@@ -609,6 +720,10 @@ const MainApp: React.FC = () => {
     }, [transactions, wallets, addToast, API_BASE_URL]);
 
 
+    /**
+     * Fungsi untuk me-render halaman yang sesuai berdasarkan state `currentPage`.
+     * @returns Komponen halaman yang akan di-render.
+     */
     const renderPage = () => {
         switch (currentPage) {
             case 'dashboard':
@@ -645,7 +760,12 @@ const MainApp: React.FC = () => {
                     categories={categories}
                 />;
             case 'settings':
-                return <SettingsPage appName={appName} onAppNameChange={setAppName} />;
+                return <SettingsPage 
+                    appName={appName} 
+                    onAppNameChange={setAppName}
+                    font={font}
+                    onFontChange={setFont}
+                />;
             default:
                 return <DashboardPage 
                     wallets={wallets}
@@ -665,6 +785,10 @@ const MainApp: React.FC = () => {
         }
     };
     
+    /**
+     * Fungsi untuk me-render konten utama, menangani status loading dan error.
+     * @returns Komponen yang sesuai: loading spinner, pesan error, atau halaman utama.
+     */
     const renderContent = () => {
         if (isLoading) {
             return (
@@ -676,7 +800,7 @@ const MainApp: React.FC = () => {
         if (error) {
             return (
                 <div className="flex flex-col justify-center items-center h-[calc(100vh-4rem)] text-center p-4">
-                    <h2 className="text-xl font-semibold text-red-500 mb-2">Terjadi Kesalahan</h2>
+                    <h2 className="text-xl font.semibold text-red-500 mb-2">Terjadi Kesalahan</h2>
                     <p className="text-slate-600 dark:text-neutral-400 max-w-md">{error}</p>
                     <p className="text-sm text-neutral-500 mt-4">Pastikan `json-server` sedang berjalan pada port 3001.</p>
                 </div>
@@ -685,6 +809,7 @@ const MainApp: React.FC = () => {
         return renderPage();
     }
 
+    // JSX untuk struktur utama aplikasi.
     return (
         <div className="bg-slate-50 dark:bg-[#191919] min-h-screen text-slate-800 dark:text-[#E6E1E5]">
             <Header 
@@ -700,6 +825,10 @@ const MainApp: React.FC = () => {
 };
 
 
+/**
+ * Komponen root aplikasi yang membungkus MainApp dengan ToastProvider.
+ * Ini memastikan bahwa seluruh aplikasi memiliki akses ke konteks notifikasi.
+ */
 const App: React.FC = () => {
     return (
         <ToastProvider>
