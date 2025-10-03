@@ -5,6 +5,7 @@ import DashboardPage from './pages/DashboardPage';
 import ManagementPage from './pages/ManagementPage';
 import CustomerManagementPage from './pages/CustomerManagementPage';
 import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
 import { ToastProvider, useToastContext } from './contexts/ToastContext';
 import ToastContainer from './components/ToastContainer';
 
@@ -19,6 +20,7 @@ const MainApp: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     
     const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+    const [appName, setAppName] = useState<string>(() => localStorage.getItem('appName') || 'Agen BRILink');
     const [theme, setTheme] = useState<Theme>(
         (localStorage.getItem('theme') as Theme) ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
@@ -70,6 +72,10 @@ const MainApp: React.FC = () => {
         }
         localStorage.setItem('theme', theme);
     }, [theme]);
+    
+    useEffect(() => {
+        localStorage.setItem('appName', appName);
+    }, [appName]);
 
     const formatRupiah = (amount: number) => {
         return new Intl.NumberFormat('id-ID', {
@@ -485,7 +491,7 @@ const MainApp: React.FC = () => {
                     categories={categories}
                 />;
             case 'settings':
-                return <div className="p-8 mx-auto max-w-7xl"><h1 className="text-2xl">Pengaturan</h1><p>Halaman ini sedang dalam pengembangan.</p></div>;
+                return <SettingsPage appName={appName} onAppNameChange={setAppName} />;
             default:
                 return <DashboardPage 
                     wallets={wallets}
@@ -530,6 +536,7 @@ const MainApp: React.FC = () => {
                 setCurrentPage={setCurrentPage}
                 theme={theme}
                 setTheme={setTheme}
+                appName={appName}
             />
             {renderContent()}
         </div>

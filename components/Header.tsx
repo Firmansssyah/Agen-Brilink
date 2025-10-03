@@ -61,9 +61,10 @@ interface HeaderProps {
     setCurrentPage: (page: Page) => void;
     theme: Theme;
     setTheme: React.Dispatch<React.SetStateAction<Theme>>;
+    appName: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, setTheme }) => {
+const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, setTheme, appName }) => {
     const [currentDateTime, setCurrentDateTime] = useState(new Date());
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -107,7 +108,7 @@ const Header: React.FC<HeaderProps> = ({ currentPage, setCurrentPage, theme, set
                         {/* Left Section: Logo/Title */}
                         <div className="flex-1 flex justify-start">
                              <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                                Agen BRILink
+                                {appName}
                             </h1>
                         </div>
 
