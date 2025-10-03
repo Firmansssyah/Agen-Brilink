@@ -89,7 +89,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     
     // Jumlah item per halaman untuk paginasi.
     const itemsPerPage = 10;
-
+    
     // useMemo untuk menghitung total margin pada bulan ini.
     const currentMonthMargin = useMemo(() => {
         const now = new Date();
@@ -491,32 +491,30 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                     <div className="flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font.medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
                                         <div className="hidden md:flex items-center space-x-2">
-                                            <div className="grid grid-flow-col gap-2">
-                                                 <button 
-                                                    onClick={handleOpenTransferModal}
-                                                    className="bg-sky-100 hover:bg-sky-200 text-sky-700 dark:bg-sky-400/10 dark:hover:bg-sky-400/20 dark:text-sky-200 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
-                                                    aria-label="Pindah saldo antar dompet"
-                                                >
-                                                    <TransferIcon className="h-4 w-4" />
-                                                    <span>Pindah Saldo</span>
-                                                </button>
-                                                <button 
-                                                    onClick={handleOpenFeeModal}
-                                                    className="bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-400/10 dark:hover:bg-blue-400/20 dark:text-blue-200 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
-                                                    aria-label="Tambah Fee Brilink"
-                                                >
-                                                    <PlusIcon className="h-4 w-4" />
-                                                    <span>Fee Brilink</span>
-                                                </button>
-                                                <button 
-                                                    onClick={handleOpenAddModal}
-                                                    className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    <PlusIcon className="h-4 w-4" />
-                                                    <span>Tambah Transaksi</span>
-                                                    <kbd className="hidden sm:inline-block ml-2 bg-slate-100/30 dark:bg-neutral-700/80 border border-slate-300 dark:border-neutral-600 rounded px-1.5 py-0.5 text-xs font.mono text-white dark:text-neutral-300">/</kbd>
-                                                </button>
-                                            </div>
+                                            <button 
+                                                onClick={handleOpenTransferModal}
+                                                className="bg-sky-100 hover:bg-sky-200 text-sky-700 dark:bg-sky-400/10 dark:hover:bg-sky-400/20 dark:text-sky-200 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
+                                                aria-label="Pindah saldo antar dompet"
+                                            >
+                                                <TransferIcon className="h-4 w-4" />
+                                                <span>Pindah Saldo</span>
+                                            </button>
+                                            <button 
+                                                onClick={handleOpenFeeModal}
+                                                className="bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-400/10 dark:hover:bg-blue-400/20 dark:text-blue-200 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
+                                                aria-label="Tambah Fee Brilink"
+                                            >
+                                                <PlusIcon className="h-4 w-4" />
+                                                <span>Fee Brilink</span>
+                                            </button>
+                                            <button 
+                                                onClick={handleOpenAddModal}
+                                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                <PlusIcon className="h-4 w-4" />
+                                                <span>Tambah Transaksi</span>
+                                                <kbd className="hidden sm:inline-block ml-2 bg-slate-100/30 dark:bg-neutral-700/80 border border-slate-300 dark:border-neutral-600 rounded px-1.5 py-0.5 text-xs font.mono text-white dark:text-neutral-300">/</kbd>
+                                            </button>
                                         </div>
                                     </div>
                                     <TransactionFilterControls 
