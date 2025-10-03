@@ -593,7 +593,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                     {/* Tombol FAB Utama */}
                     <button
                         onClick={() => setIsFabMenuOpen(!isFabMenuOpen)}
-                        className="w-16 h-16 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:bg-blue-600 transition-transform duration-300"
+                        className="w-14 h-14 rounded-full bg-blue-500 text-white flex items-center justify-center shadow-lg hover:bg-blue-600 transition-transform duration-300"
                         style={{ transform: isFabMenuOpen ? 'rotate(45deg)' : 'none' }}
                         aria-expanded={isFabMenuOpen}
                         aria-label={isFabMenuOpen ? "Tutup menu aksi" : "Buka menu aksi"}
