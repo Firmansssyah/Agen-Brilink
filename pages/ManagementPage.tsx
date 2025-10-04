@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Wallet } from '../types';
-import { EditIcon, DeleteIcon, PlusIcon } from '../components/icons/Icons';
+import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon } from '../components/icons/Icons';
 import AddEditWalletModal from '../components/AddEditWalletModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
+import InitialBalanceModal from '../components/InitialBalanceModal';
 
 interface ManagementPageProps {
     wallets: Wallet[];
@@ -11,6 +12,7 @@ interface ManagementPageProps {
     onDeleteWallet: (walletId: string) => Promise<void>;
     categories: string[];
     onSaveCategories: (newCategories: string[]) => Promise<void>;
+    onSaveInitialBalances: (updatedWallets: { id: string; initialBalance: number }[]) => Promise<void>;
     formatRupiah: (amount: number) => string;
 }
 
@@ -20,6 +22,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     onDeleteWallet,
     categories,
     onSaveCategories,
+    onSaveInitialBalances,
     formatRupiah,
 }) => {
     // State from WalletManagementPage
@@ -27,6 +30,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     const [isDeleteWalletModalOpen, setIsDeleteWalletModalOpen] = useState(false);
     const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
     const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
+    const [isInitialBalanceModalOpen, setIsInitialBalanceModalOpen] = useState(false);
 
     // State from TransactionCategoryPage
     const [isAddEditCategoryModalOpen, setIsAddEditCategoryModalOpen] = useState(false);
@@ -108,13 +112,23 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex justify-between items-center mb-4 px-2">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Daftar Dompet</h3>
-                            <button 
-                                onClick={handleOpenAddWalletModal}
-                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
-                            >
-                                <PlusIcon />
-                                <span>Tambah Dompet</span>
-                            </button>
+                            <div className="flex items-center space-x-2">
+                                <button
+                                    onClick={() => setIsInitialBalanceModalOpen(true)}
+                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-neutral-700/50 dark:hover:bg-neutral-700 dark:text-neutral-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                    aria-label="Atur modal awal dompet"
+                                >
+                                    <SettingsIcon className="h-4 w-4" />
+                                    <span>Atur Modal</span>
+                                </button>
+                                <button 
+                                    onClick={handleOpenAddWalletModal}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                >
+                                    <PlusIcon />
+                                    <span>Tambah Dompet</span>
+                                </button>
+                            </div>
                         </div>
                         <div className="overflow-x-auto">
                            <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
@@ -211,6 +225,12 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     onConfirm={handleDeleteCategory}
                     title="Hapus Kategori"
                     message={`Apakah Anda yakin ingin menghapus kategori "${categoryToDelete?.name}"?`}
+                />
+                <InitialBalanceModal
+                    isOpen={isInitialBalanceModalOpen}
+                    onClose={() => setIsInitialBalanceModalOpen(false)}
+                    onSave={onSaveInitialBalances}
+                    wallets={wallets}
                 />
             </div>
         </main>

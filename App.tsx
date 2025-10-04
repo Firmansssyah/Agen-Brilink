@@ -758,6 +758,43 @@ const MainApp: React.FC = () => {
         }
     }, [transactions, wallets, addToast, API_BASE_URL]);
 
+    /**
+     * useCallback untuk menyimpan modal awal untuk semua dompet.
+     * @param updatedWallets - Array berisi objek dompet dengan ID dan initialBalance baru.
+     */
+    const handleSaveInitialBalances = useCallback(async (updatedWallets: { id: string; initialBalance: number }[]) => {
+        try {
+            const updatePromises = updatedWallets.map(wallet => 
+                fetch(`${API_BASE_URL}/wallets/${wallet.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ initialBalance: wallet.initialBalance })
+                })
+            );
+
+            const responses = await Promise.all(updatePromises);
+            for (const res of responses) {
+                if (!res.ok) throw new Error(`Server merespon dengan status ${res.status} saat menyimpan modal awal.`);
+            }
+
+            // Update state lokal setelah berhasil
+            setWallets(currentWallets => 
+                currentWallets.map(currentWallet => {
+                    const updatedInfo = updatedWallets.find(uw => uw.id === currentWallet.id);
+                    if (updatedInfo) {
+                        return { ...currentWallet, initialBalance: updatedInfo.initialBalance };
+                    }
+                    return currentWallet;
+                })
+            );
+
+            addToast('Modal awal dompet berhasil disimpan', 'success');
+        } catch (err) {
+            console.error("Gagal menyimpan modal awal dompet:", err);
+            addToast('Gagal menyimpan modal awal dompet.', 'error');
+        }
+    }, [addToast, API_BASE_URL]);
+
 
     /**
      * Fungsi untuk me-render halaman yang sesuai berdasarkan state `currentPage`.
@@ -788,6 +825,7 @@ const MainApp: React.FC = () => {
                     onDeleteWallet={handleDeleteWallet}
                     categories={categories}
                     onSaveCategories={handleSaveCategories}
+                    onSaveInitialBalances={handleSaveInitialBalances}
                     formatRupiah={formatRupiah}
                 />;
             case 'customers':

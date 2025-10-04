@@ -10,6 +10,7 @@ export interface Wallet {
     name: string; // Nama dompet yang ditampilkan, contoh: 'Cash', 'BRI'.
     balance: number; // Saldo saat ini dalam dompet.
     icon: string; // URL atau path ke ikon dompet (opsional).
+    initialBalance?: number; // Modal awal dompet (opsional).
 }
 
 // Interface untuk mendefinisikan struktur data sebuah transaksi.
