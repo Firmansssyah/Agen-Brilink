@@ -795,6 +795,56 @@ const MainApp: React.FC = () => {
         }
     }, [addToast, API_BASE_URL]);
 
+    const handleSaveCapitalTransaction = useCallback(async (data: { walletId: string, amount: number }) => {
+        const { walletId, amount } = data;
+        const targetWallet = wallets.find(w => w.id === walletId);
+        if (!targetWallet) {
+            addToast('Dompet tidak ditemukan', 'error');
+            return;
+        }
+
+        const capitalTransaction: Omit<Transaction, 'id'> = {
+            date: new Date().toISOString(),
+            description: 'Tambah Modal',
+            customer: 'Internal',
+            type: TransactionType.IN,
+            amount: amount,
+            margin: 0,
+            wallet: walletId,
+            isPiutang: false,
+        };
+
+        try {
+            // 1. Post new transaction
+            const txRes = await fetch(`${API_BASE_URL}/transactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(capitalTransaction)
+            });
+            if (!txRes.ok) throw new Error('Gagal menyimpan transaksi tambah modal.');
+            const savedTransaction = await txRes.json();
+
+            // 2. Update wallet balance
+            const newBalance = targetWallet.balance + amount;
+            const walletRes = await fetch(`${API_BASE_URL}/wallets/${walletId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ balance: newBalance })
+            });
+            if (!walletRes.ok) throw new Error('Gagal memperbarui saldo dompet.');
+            const updatedWallet = await walletRes.json();
+
+            // 3. Update local state
+            setTransactions(prev => [savedTransaction, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+            setWallets(prev => prev.map(w => w.id === walletId ? updatedWallet : w));
+
+            addToast('Modal berhasil ditambahkan', 'success');
+        } catch (err) {
+            console.error("Gagal menambah modal:", err);
+            addToast(err instanceof Error ? err.message : 'Gagal menambah modal.', 'error');
+        }
+    }, [wallets, addToast, API_BASE_URL]);
+
 
     /**
      * Fungsi untuk me-render halaman yang sesuai berdasarkan state `currentPage`.
@@ -826,6 +876,7 @@ const MainApp: React.FC = () => {
                     categories={categories}
                     onSaveCategories={handleSaveCategories}
                     onSaveInitialBalances={handleSaveInitialBalances}
+                    onSaveCapital={handleSaveCapitalTransaction}
                     formatRupiah={formatRupiah}
                 />;
             case 'customers':

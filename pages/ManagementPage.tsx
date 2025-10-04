@@ -5,6 +5,7 @@ import AddEditWalletModal from '../components/AddEditWalletModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
 import InitialBalanceModal from '../components/InitialBalanceModal';
+import AddCapitalModal from '../components/AddCapitalModal';
 
 interface ManagementPageProps {
     wallets: Wallet[];
@@ -13,6 +14,7 @@ interface ManagementPageProps {
     categories: string[];
     onSaveCategories: (newCategories: string[]) => Promise<void>;
     onSaveInitialBalances: (updatedWallets: { id: string; initialBalance: number }[]) => Promise<void>;
+    onSaveCapital: (data: { walletId: string; amount: number; }) => Promise<void>;
     formatRupiah: (amount: number) => string;
 }
 
@@ -23,6 +25,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     categories,
     onSaveCategories,
     onSaveInitialBalances,
+    onSaveCapital,
     formatRupiah,
 }) => {
     // State from WalletManagementPage
@@ -31,6 +34,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     const [selectedWallet, setSelectedWallet] = useState<Wallet | null>(null);
     const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
     const [isInitialBalanceModalOpen, setIsInitialBalanceModalOpen] = useState(false);
+    const [isAddCapitalModalOpen, setIsAddCapitalModalOpen] = useState(false);
 
     // State from TransactionCategoryPage
     const [isAddEditCategoryModalOpen, setIsAddEditCategoryModalOpen] = useState(false);
@@ -66,6 +70,11 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
             setWalletToDelete(null);
         }
     };
+
+    const handleSaveCapital = async (data: { walletId: string; amount: number; }) => {
+        await onSaveCapital(data);
+        setIsAddCapitalModalOpen(false);
+    }
 
     // Handlers from TransactionCategoryPage
     const handleOpenAddCategoryModal = () => {
@@ -112,7 +121,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex justify-between items-center mb-4 px-2">
                             <h3 className="text-lg font-medium text-slate-800 dark:text-white">Daftar Dompet</h3>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 flex-wrap gap-2 justify-end">
                                 <button
                                     onClick={() => setIsInitialBalanceModalOpen(true)}
                                     className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-neutral-700/50 dark:hover:bg-neutral-700 dark:text-neutral-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
@@ -120,6 +129,14 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                 >
                                     <SettingsIcon className="h-4 w-4" />
                                     <span>Atur Modal</span>
+                                </button>
+                                 <button
+                                    onClick={() => setIsAddCapitalModalOpen(true)}
+                                    className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 dark:bg-emerald-400/10 dark:hover:bg-emerald-400/20 dark:text-emerald-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                    aria-label="Tambah modal ke dompet"
+                                >
+                                    <PlusIcon className="h-4 w-4" />
+                                    <span>Tambah Modal</span>
                                 </button>
                                 <button 
                                     onClick={handleOpenAddWalletModal}
@@ -136,6 +153,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                     <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                                         <tr>
                                             <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Dompet</th>
+                                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Modal Awal</th>
                                             <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Saldo</th>
                                             <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                         </tr>
@@ -144,6 +162,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                         {wallets.map(wallet => (
                                             <tr key={wallet.id} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200">
                                                 <td className="p-3 text-sm text-slate-800 dark:text-white">{wallet.name}</td>
+                                                <td className="p-3 text-sm text-slate-500 dark:text-neutral-400">{formatRupiah(wallet.initialBalance ?? 0)}</td>
                                                 <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(wallet.balance)}</td>
                                                 <td className="p-3 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
@@ -230,6 +249,12 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     isOpen={isInitialBalanceModalOpen}
                     onClose={() => setIsInitialBalanceModalOpen(false)}
                     onSave={onSaveInitialBalances}
+                    wallets={wallets}
+                />
+                <AddCapitalModal
+                    isOpen={isAddCapitalModalOpen}
+                    onClose={() => setIsAddCapitalModalOpen(false)}
+                    onSave={handleSaveCapital}
                     wallets={wallets}
                 />
             </div>

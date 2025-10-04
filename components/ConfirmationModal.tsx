@@ -14,7 +14,7 @@ interface ConfirmationModalProps {
 /**
  * Komponen ConfirmationModal adalah modal generik yang digunakan untuk meminta
  * konfirmasi dari pengguna sebelum melakukan aksi yang berpotensi merusak,
- * seperti penghapusan data.
+ * seperti penghapusan data
  */
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ 
     isOpen, 
