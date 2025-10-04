@@ -163,10 +163,64 @@ const MainApp: React.FC = () => {
 
         return sortedCustomers;
     }, [transactions]);
+    
+    /**
+     * Fungsi murni untuk menghitung perubahan saldo pada dompet utama dan kas tunai
+     * berdasarkan sebuah transaksi dan aksi yang dilakukan.
+     * @param transaction - Objek transaksi.
+     * @param action - Tipe aksi: 'create' (menerapkan) atau 'delete' (membalikkan).
+     * @returns Objek yang berisi perubahan untuk dompet primer dan kas.
+     */
+    const calculateWalletChanges = (transaction: Transaction, action: 'create' | 'delete'): { primaryWalletId: string | null, primaryWalletChange: number, cashWalletChange: number } => {
+        const { wallet: primaryWalletId, amount, margin, type, description, marginType, isInternalTransfer, isPiutang } = transaction;
+
+        if (!primaryWalletId) return { primaryWalletId: null, primaryWalletChange: 0, cashWalletChange: 0 };
+
+        let primaryWalletChange = 0;
+        let cashWalletChange = 0;
+        
+        // Logika ini dihitung seolah-olah untuk aksi 'create'.
+        if (isInternalTransfer) {
+            primaryWalletChange = (type === TransactionType.OUT) ? -(amount + margin) : amount;
+        } else if (description.startsWith('Pindah Saldo')) { // Kompatibilitas mundur
+            primaryWalletChange = (type === TransactionType.IN) ? amount : -amount;
+        } else if (description === 'Fee Brilink') {
+            primaryWalletChange = margin;
+        } else if (description.startsWith('Penarikan Margin')) {
+            cashWalletChange = -amount;
+        } else if (description === 'Tarik Tunai') {
+            if (marginType === 'luar') {
+                primaryWalletChange = amount;
+                if (!isPiutang) cashWalletChange = -amount + margin;
+                else cashWalletChange = -amount;
+            } else {
+                primaryWalletChange = amount + margin;
+                cashWalletChange = -amount;
+            }
+        } else { // Transfer IN/OUT dan lainnya
+            if (type === TransactionType.IN) {
+                primaryWalletChange = amount + margin;
+                if (!isPiutang) cashWalletChange = -amount;
+            } else { // OUT
+                primaryWalletChange = -amount;
+                if (!isPiutang) cashWalletChange = amount + margin;
+            }
+        }
+
+        // Jika aksi adalah 'delete', balikkan semua nilainya.
+        const multiplier = action === 'create' ? 1 : -1;
+
+        return {
+            primaryWalletId,
+            primaryWalletChange: primaryWalletChange * multiplier,
+            cashWalletChange: cashWalletChange * multiplier,
+        };
+    };
+
 
     /**
      * useCallback untuk mengaplikasikan perubahan saldo pada dompet setelah transaksi.
-     * Fungsi ini menangani berbagai skenario: pembuatan, pelunasan piutang, dan penghapusan transaksi.
+     * Fungsi ini menangani skenario sederhana seperti pembuatan, pelunasan piutang, dan penghapusan.
      * @param transaction - Objek transaksi yang memicu perubahan.
      * @param action - Tipe aksi yang dilakukan ('create', 'settle', 'delete', dll.).
      */
@@ -174,103 +228,55 @@ const MainApp: React.FC = () => {
         transaction: Transaction,
         action: 'create' | 'settle' | 'revert_settle' | 'delete'
     ) => {
-        const currentWallets = [...wallets];
-        const { wallet: primaryWalletId, amount, margin, type, description, marginType, isInternalTransfer } = transaction;
+        let changes: { primaryWalletId: string | null, primaryWalletChange: number, cashWalletChange: number };
+        
+        if (action === 'create' || action === 'delete') {
+            changes = calculateWalletChanges(transaction, action);
+        } else {
+            // Logika spesifik untuk 'settle' (melunasi) dan 'revert_settle' (membatalkan pelunasan).
+            const { amount, margin } = transaction;
+            changes = {
+                primaryWalletId: null,
+                primaryWalletChange: 0,
+                cashWalletChange: action === 'settle' ? amount + margin : -(amount + margin),
+            };
+        }
+        
+        const { primaryWalletId, primaryWalletChange, cashWalletChange } = changes;
+        if (primaryWalletChange === 0 && cashWalletChange === 0) return;
+
         const cashWalletId = 'CASH';
         
-        if (!primaryWalletId) return;
-
-        let primaryWalletChange = 0;
-        let cashWalletChange = 0;
-
-        // Logika untuk menentukan perubahan saldo berdasarkan tipe aksi dan transaksi.
-        if (action === 'create') {
-                if (isInternalTransfer) {
-                    primaryWalletChange = (type === TransactionType.OUT) ? -(amount + margin) : amount;
-                } else if (description.startsWith('Pindah Saldo')) { // backward compatibility
-                    primaryWalletChange = (type === TransactionType.IN) ? amount : -amount;
-                } else if (description === 'Fee Brilink') {
-                    primaryWalletChange = margin;
-                } else if (description.startsWith('Penarikan Margin')) {
-                    cashWalletChange = -amount;
-                } else if (description === 'Tarik Tunai') {
-                    if (marginType === 'luar') {
-                        primaryWalletChange = amount;
-                        if (!transaction.isPiutang) cashWalletChange = -amount + margin;
-                        else cashWalletChange = -amount;
-                    } else {
-                        primaryWalletChange = amount + margin;
-                        cashWalletChange = -amount;
-                    }
-                } else {
-                    if (type === TransactionType.IN) {
-                        primaryWalletChange = amount + margin;
-                        if (!transaction.isPiutang) cashWalletChange = -amount;
-                    } else {
-                        primaryWalletChange = -amount;
-                        if (!transaction.isPiutang) cashWalletChange = amount + margin;
-                    }
-                }
-        } else if (action === 'settle') {
-            cashWalletChange = amount + margin;
-        } else if (action === 'revert_settle') {
-            cashWalletChange = -(amount + margin);
-        } else if (action === 'delete') {
-            if (isInternalTransfer) {
-                primaryWalletChange = (type === TransactionType.OUT) ? (amount + margin) : -amount;
-            } else if (description.startsWith('Pindah Saldo')) { // backward compatibility
-                primaryWalletChange = (type === TransactionType.IN) ? -amount : amount;
-            } else if (description === 'Fee Brilink') {
-                primaryWalletChange = -margin;
-            } else if (description.startsWith('Penarikan Margin')) {
-                cashWalletChange = amount;
-            } else if (description === 'Tarik Tunai') {
-                    if (marginType === 'luar') {
-                    primaryWalletChange = -amount;
-                    if (!transaction.isPiutang) cashWalletChange = amount - margin;
-                    else cashWalletChange = amount;
-                } else {
-                    primaryWalletChange = -(amount + margin);
-                    cashWalletChange = amount;
-                }
-            } else {
-                if (type === TransactionType.IN) {
-                    primaryWalletChange = -(amount + margin);
-                    if (!transaction.isPiutang) cashWalletChange = amount;
-                } else {
-                    primaryWalletChange = amount;
-                    if (!transaction.isPiutang) cashWalletChange = -(amount + margin);
-                }
-            }
-        }
-
-        // Mempersiapkan dan menjalankan promise untuk memperbarui saldo dompet di API.
         const updatePromises: Promise<any>[] = [];
-        const updatedWalletsState = currentWallets.map(w => {
-            if (w.id === primaryWalletId) {
-                const newBalance = w.balance + primaryWalletChange;
-                updatePromises.push(fetch(`${API_BASE_URL}/wallets/${w.id}`, {
-                    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ balance: newBalance })
-                }));
-                return { ...w, balance: newBalance };
-            }
-            if (w.id === cashWalletId) {
-                const newBalance = w.balance + cashWalletChange;
-                 updatePromises.push(fetch(`${API_BASE_URL}/wallets/${w.id}`, {
-                    method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ balance: newBalance })
-                }));
-                return { ...w, balance: newBalance };
-            }
-            return w;
+        // Menggunakan state callback untuk memastikan data dompet terbaru yang digunakan.
+        setWallets(currentWallets => {
+            const updatedWalletsState = currentWallets.map(w => {
+                let newBalance = w.balance;
+                let hasChanged = false;
+                if (w.id === primaryWalletId && primaryWalletChange !== 0) {
+                    newBalance += primaryWalletChange;
+                    hasChanged = true;
+                }
+                if (w.id === cashWalletId && cashWalletChange !== 0) {
+                     newBalance += cashWalletChange;
+                     hasChanged = true;
+                }
+
+                if (hasChanged) {
+                    updatePromises.push(fetch(`${API_BASE_URL}/wallets/${w.id}`, {
+                        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ balance: newBalance })
+                    }));
+                    return { ...w, balance: newBalance };
+                }
+                return w;
+            });
+            return updatedWalletsState;
         });
 
-        // Menunggu semua pembaruan API selesai, lalu memperbarui state dompet lokal.
         await Promise.all(updatePromises);
-        setWallets(updatedWalletsState);
 
-    }, [wallets, API_BASE_URL]);
+    }, [API_BASE_URL]);
 
     /**
      * useCallback untuk menangani penyimpanan transaksi (baik baru maupun editan).
@@ -280,26 +286,59 @@ const MainApp: React.FC = () => {
         const isEditing = 'id' in data;
         try {
             if (isEditing) {
-                // Logika untuk mengedit transaksi yang sudah ada.
+                // Logika untuk mengedit transaksi yang sudah ada dengan strategi "Revert and Apply".
                 const updatedTransaction = data as Transaction;
                 const originalTransaction = transactions.find(t => t.id === updatedTransaction.id);
-                if (!originalTransaction) throw new Error("Transaction not found for update.");
+                if (!originalTransaction) throw new Error("Transaksi original tidak ditemukan untuk diperbarui.");
 
+                // 1. Hitung efek pembalikan dari transaksi lama.
+                const revertChanges = calculateWalletChanges(originalTransaction, 'delete');
+                // 2. Hitung efek penerapan dari transaksi baru.
+                const applyChanges = calculateWalletChanges(updatedTransaction, 'create');
+                
+                // 3. Gabungkan semua perubahan untuk mendapatkan perubahan bersih per dompet.
+                const netChanges = new Map<string, number>();
+                const addToMap = (walletId: string | null, value: number) => {
+                    if (walletId && value !== 0) {
+                        netChanges.set(walletId, (netChanges.get(walletId) || 0) + value);
+                    }
+                };
+
+                addToMap(revertChanges.primaryWalletId, revertChanges.primaryWalletChange);
+                addToMap('CASH', revertChanges.cashWalletChange);
+                addToMap(applyChanges.primaryWalletId, applyChanges.primaryWalletChange);
+                addToMap('CASH', applyChanges.cashWalletChange);
+
+                // 4. Kirim pembaruan data transaksi ke server.
                 const res = await fetch(`${API_BASE_URL}/transactions/${updatedTransaction.id}`, {
                     method: 'PUT', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(updatedTransaction)
                 });
-                if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+                if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
                 const savedTransaction = await res.json();
                 
+                // 5. Jika berhasil, perbarui saldo dompet di server dan state lokal.
+                const walletUpdatePromises: Promise<any>[] = [];
+                const updatedWalletsState = wallets.map(w => {
+                    if (netChanges.has(w.id)) {
+                        const change = netChanges.get(w.id) || 0;
+                        const newBalance = w.balance + change;
+                        walletUpdatePromises.push(fetch(`${API_BASE_URL}/wallets/${w.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ balance: newBalance })
+                        }));
+                        return { ...w, balance: newBalance };
+                    }
+                    return w;
+                });
+                
+                await Promise.all(walletUpdatePromises);
+                
+                // 6. Perbarui state lokal untuk dompet dan transaksi.
+                setWallets(updatedWalletsState);
                 setTransactions(prev => prev.map(t => (t.id === savedTransaction.id ? savedTransaction : t)).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
 
-                // Menangani perubahan status piutang.
-                if (originalTransaction.isPiutang && !updatedTransaction.isPiutang) {
-                    await applyWalletChanges(updatedTransaction, 'settle');
-                } else if (!originalTransaction.isPiutang && updatedTransaction.isPiutang) {
-                    await applyWalletChanges(updatedTransaction, 'revert_settle');
-                }
             } else {
                 // Logika untuk menambahkan transaksi baru.
                 const newTransactionData: Omit<Transaction, 'id'> = {
@@ -310,7 +349,7 @@ const MainApp: React.FC = () => {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newTransactionData)
                 });
-                if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+                if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
                 const savedTransaction = await res.json();
                 
                 setTransactions(prev => [savedTransaction, ...prev]);
@@ -318,10 +357,10 @@ const MainApp: React.FC = () => {
             }
             addToast(isEditing ? 'Transaksi berhasil diperbarui' : 'Transaksi berhasil ditambahkan', 'success');
         } catch(err) {
-            console.error("Failed to save transaction:", err);
+            console.error("Gagal menyimpan transaksi:", err);
             addToast('Gagal menyimpan transaksi.', 'error');
         }
-    }, [transactions, applyWalletChanges, addToast, API_BASE_URL]);
+    }, [transactions, wallets, addToast, API_BASE_URL]);
     
     /**
      * useCallback untuk melunasi piutang.
@@ -335,14 +374,14 @@ const MainApp: React.FC = () => {
                 method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ isPiutang: false })
             });
-            if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+            if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
             const savedTransaction = await res.json();
             
             setTransactions(prev => prev.map(t => (t.id === savedTransaction.id ? savedTransaction : t)));
             await applyWalletChanges(savedTransaction, 'settle');
             addToast(`Piutang untuk ${savedTransaction.customer} lunas`, 'success');
         } catch(err) {
-            console.error("Failed to settle receivable:", err);
+            console.error("Gagal melunasi piutang:", err);
             addToast('Gagal melunasi piutang.', 'error');
         }
     }, [applyWalletChanges, addToast, API_BASE_URL]);
@@ -362,13 +401,13 @@ const MainApp: React.FC = () => {
             if (deleteTimeoutId) clearTimeout(deleteTimeoutId);
             try {
                 const res = await fetch(`${API_BASE_URL}/transactions/${transactionId}`, { method: 'DELETE' });
-                if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+                if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
 
                 await applyWalletChanges(transactionToDelete, 'delete');
                 setTransactions(prev => prev.filter(t => t.id !== transactionId));
                 addToast('Transaksi dihapus permanen', 'success');
             } catch (err) {
-                console.error("Failed to delete transaction:", err);
+                console.error("Gagal menghapus transaksi:", err);
                 addToast('Gagal menghapus transaksi.', 'error');
                 // Mengembalikan state UI jika penghapusan gagal.
                 setTransactions(prev => prev.map(t => (t.id === transactionId ? { ...t, isDeleting: false } : t)));
@@ -403,7 +442,7 @@ const MainApp: React.FC = () => {
                     method: 'PUT', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(walletData),
                 });
-                if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+                if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
                 const updatedWallet = await res.json();
                 setWallets(prev => prev.map(w => w.id === updatedWallet.id ? updatedWallet : w));
             } else {
@@ -413,13 +452,13 @@ const MainApp: React.FC = () => {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newWalletData),
                 });
-                if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+                if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
                 const newWallet = await res.json();
                 setWallets(prev => [...prev, newWallet]);
             }
             addToast('Dompet berhasil disimpan', 'success');
         } catch (err) {
-            console.error("Failed to save wallet:", err);
+            console.error("Gagal menyimpan dompet:", err);
             addToast('Gagal menyimpan dompet.', 'error');
         }
     }, [addToast, API_BASE_URL]);
@@ -431,11 +470,11 @@ const MainApp: React.FC = () => {
     const handleDeleteWallet = useCallback(async (walletId: string) => {
         try {
             const res = await fetch(`${API_BASE_URL}/wallets/${walletId}`, { method: 'DELETE' });
-            if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+            if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
             setWallets(prev => prev.filter(w => w.id !== walletId));
             addToast('Dompet berhasil dihapus', 'success');
         } catch (err) {
-            console.error("Failed to delete wallet:", err);
+            console.error("Gagal menghapus dompet:", err);
             addToast('Gagal menghapus dompet.', 'error');
         }
     }, [addToast, API_BASE_URL]);
@@ -451,11 +490,11 @@ const MainApp: React.FC = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: 1, values: newCategories }),
             });
-            if (!res.ok) throw new Error(`Server responded with status ${res.status}`);
+            if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
             setCategories(newCategories);
             addToast('Kategori berhasil disimpan', 'success');
         } catch(err) {
-            console.error("Failed to save categories:", err);
+            console.error("Gagal menyimpan kategori:", err);
             addToast('Gagal menyimpan kategori.', 'error');
         }
     }, [addToast, API_BASE_URL]);

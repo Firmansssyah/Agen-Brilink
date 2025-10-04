@@ -459,7 +459,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                         {/* Tata letak grid utama */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Kolom Kanan (Ringkasan), menjadi yang pertama di mobile */}
-                            <div className="lg:col-span-1 space-y-6 lg:order-2">
+                            <div className="lg:col-span-1 space-y-6 lg:order-1">
                                  <section>
                                     <WalletsSummaryCard 
                                         wallets={wallets}
