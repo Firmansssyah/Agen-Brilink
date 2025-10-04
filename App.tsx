@@ -904,7 +904,7 @@ const MainApp: React.FC = () => {
 
 /**
  * Komponen root aplikasi yang membungkus MainApp dengan ToastProvider.
- * Ini memastikan bahwa seluruh aplikasi memiliki akses ke konteks notifikasi.
+ * Ini memastikan bahwa seluruh aplikasi memiliki akses ke konteks notifikasi
  */
 const App: React.FC = () => {
     return (
