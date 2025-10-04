@@ -35,7 +35,7 @@ interface DashboardPageProps {
 /**
  * DashboardPage adalah komponen utama yang menampilkan ringkasan finansial,
  * daftar transaksi, daftar piutang, dan menyediakan kontrol untuk menambah
- * atau memfilter data.
+ * atau memfilter data
  */
 const DashboardPage: React.FC<DashboardPageProps> = ({
     wallets,

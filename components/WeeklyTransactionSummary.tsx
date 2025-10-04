@@ -75,7 +75,9 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
     }, [transactions]);
 
     const maxCount = useMemo(() => {
-        return Math.max(...weeklyData.map(d => d.count), 1); // Avoid division by zero
+        const max = Math.max(...weeklyData.map(d => d.count));
+        // Use a minimum of 1 to avoid division by zero if all counts are 0.
+        return Math.max(max, 1);
     }, [weeklyData]);
 
     const weekDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
@@ -85,7 +87,8 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
             <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-4">Aktivitas 7 Hari Terakhir</h3>
             <div className="flex justify-around items-end gap-2 h-40">
                 {weeklyData.map((dayData, index) => {
-                    const barHeight = dayData.count > 0 ? (dayData.count / maxCount) * 100 : 0;
+                    // Calculate bar height as a percentage of the max count.
+                    const barHeight = (dayData.count / maxCount) * 100;
                     const dateStr = `${dayData.date.getFullYear()}-${String(dayData.date.getMonth() + 1).padStart(2, '0')}-${String(dayData.date.getDate()).padStart(2, '0')}`;
                     const isToday = new Date().toDateString() === dayData.date.toDateString();
                     const isClickable = dayData.count > 0;
