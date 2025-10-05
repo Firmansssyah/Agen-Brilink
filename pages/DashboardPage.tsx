@@ -459,7 +459,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                         {/* Tata letak grid utama */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Kolom Kanan (Ringkasan), menjadi yang pertama di mobile */}
-                            <div className="lg:col-span-1 space-y-6 lg:order-1">
+                            <div className="lg:col-span-1 space-y-6 lg:order-2">
                                  <section>
                                     <WalletsSummaryCard 
                                         wallets={wallets}
@@ -486,7 +486,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                             </div>
 
                             {/* Konten Utama (Tabel Transaksi), menjadi yang kedua di mobile */}
-                            <div className="lg:col-span-2 space-y-6 lg:order-2">
+                            <div className="lg:col-span-2 space-y-6 lg:order-1">
                                 <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
                                     <div className="flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font.medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
