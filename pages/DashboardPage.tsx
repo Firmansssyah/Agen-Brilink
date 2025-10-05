@@ -451,6 +451,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                     <WeeklyTransactionSummary 
                                         transactions={transactions}
                                         onDayClick={handleDayClick}
+                                        formatRupiah={formatRupiah}
                                     />
                                 </section>                                
                                 <section className="flex-grow min-h-0">
