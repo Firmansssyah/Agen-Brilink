@@ -11,9 +11,9 @@ if (!rootElement) {
   throw new Error("Could not find root element to mount to");
 }
 
-// Membuat root React untuk render aplikasi secara concurrent.
+// Membuat root React untuk render aplikasi secara concurrent
 const root = ReactDOM.createRoot(rootElement);
-// Me-render komponen App di dalam StrictMode untuk menyoroti potensi masalah dalam aplikasi.
+// Me-render komponen App di dalam StrictMode untuk menyoroti potensi masalah dalam aplikasi
 root.render(
   <React.StrictMode>
     <App />

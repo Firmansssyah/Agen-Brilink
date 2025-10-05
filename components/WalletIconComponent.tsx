@@ -1,5 +1,5 @@
 import React from 'react';
-import { WalletIcon } from './icons/Icons';
+import { WalletIcon, CashIcon } from './icons/Icons';
 
 // --- Mendefinisikan komponen ikon SVG secara langsung di dalam file ---
 // Ini memungkinkan kustomisasi SVG yang lebih baik dan mengurangi ketergantungan pada file eksternal.
@@ -59,7 +59,10 @@ export const WalletIconComponent: React.FC<WalletIconComponentProps> = ({ wallet
     // Pemetaan ID dompet ke komponen ikon SVG internal.
     // Menggunakan toLowerCase() untuk pencocokan yang tidak case-sensitive.
     const lowerCaseId = walletId.toLowerCase();
-    
+
+    if (lowerCaseId.includes('cash')) {
+        return <CashIcon className={className} />;
+    }
     if (lowerCaseId.includes('bri') && !lowerCaseId.includes('brilink')) {
         return <BRIcon className={className} />;
     }
