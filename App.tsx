@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Transaction, Wallet, TransactionType, Page, Font } from './types';
-import Header from './components/Header';
+import Sidebar from './components/Header';
 import DashboardPage from './pages/DashboardPage';
 import ManagementPage from './pages/ManagementPage';
 import CustomerManagementPage from './pages/CustomerManagementPage';
@@ -8,9 +8,18 @@ import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import { ToastProvider, useToastContext } from './contexts/ToastContext';
 import ToastContainer from './components/ToastContainer';
+import { MenuIcon } from './components/icons/Icons';
 
 // Mendefinisikan tipe untuk tema aplikasi.
 type Theme = 'light' | 'dark';
+
+const pageTitles: Record<Page, string> = {
+    dashboard: 'Dashboard',
+    management: 'Manajemen',
+    customers: 'Pelanggan',
+    reports: 'Laporan',
+    settings: 'Pengaturan'
+};
 
 /**
  * Komponen inti aplikasi yang mengelola state utama, logika bisnis, dan perutean halaman.
@@ -42,6 +51,8 @@ const MainApp: React.FC = () => {
     const [font, setFont] = useState<Font>(
         () => (localStorage.getItem('fontFamily') as Font) || 'font-sans'
     );
+    // State untuk visibilitas sidebar di mobile.
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
 
     // useMemo untuk mendefinisikan URL dasar API, agar tidak dihitung ulang pada setiap render.
@@ -222,7 +233,7 @@ const MainApp: React.FC = () => {
      * useCallback untuk mengaplikasikan perubahan saldo pada dompet setelah transaksi.
      * Fungsi ini menangani skenario sederhana seperti pembuatan, pelunasan piutang, dan penghapusan.
      * @param transaction - Objek transaksi yang memicu perubahan.
-     * @param action - Tipe aksi yang dilakukan ('create', 'settle', 'delete', dll.).
+     * @param action - Tipe aksi yang dilakukan ('create', 'settle', 'revert_settle', 'delete', dll.).
      */
     const applyWalletChanges = useCallback(async (
         transaction: Transaction,
@@ -920,14 +931,14 @@ const MainApp: React.FC = () => {
     const renderContent = () => {
         if (isLoading) {
             return (
-                <div className="flex justify-center items-center h-[calc(100vh-4rem)]">
+                <div className="flex justify-center items-center h-full">
                     <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
                 </div>
             );
         }
         if (error) {
             return (
-                <div className="flex flex-col justify-center items-center h-[calc(100vh-4rem)] text-center p-4">
+                <div className="flex flex-col justify-center items-center h-full text-center p-4">
                     <h2 className="text-xl font.semibold text-red-500 mb-2">Terjadi Kesalahan</h2>
                     <p className="text-slate-600 dark:text-neutral-400 max-w-md">{error}</p>
                     <p className="text-sm text-neutral-500 mt-4">Pastikan `json-server` sedang berjalan pada port 3001.</p>
@@ -939,15 +950,32 @@ const MainApp: React.FC = () => {
 
     // JSX untuk struktur utama aplikasi.
     return (
-        <div className="bg-slate-50 dark:bg-[#191919] min-h-screen text-slate-800 dark:text-[#E6E1E5]">
-            <Header 
+        <div className="flex h-screen bg-slate-50 dark:bg-[#191919] text-slate-800 dark:text-[#E6E1E5]">
+            <Sidebar 
                 currentPage={currentPage} 
                 setCurrentPage={setCurrentPage}
                 theme={theme}
                 setTheme={setTheme}
                 appName={appName}
+                isOpen={isSidebarOpen}
+                setIsOpen={setIsSidebarOpen}
             />
-            {renderContent()}
+            <div className="flex-1 flex flex-col overflow-hidden">
+                <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 md:hidden border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#191919]/80 backdrop-blur-sm">
+                    <button 
+                        onClick={() => setIsSidebarOpen(true)}
+                        className="p-2 rounded-full text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10"
+                        aria-label="Buka menu"
+                    >
+                        <MenuIcon />
+                    </button>
+                    <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitles[currentPage]}</h1>
+                    <div className="w-8"></div> {/* Spacer to center the title */}
+                </header>
+                <main className="flex-1 overflow-y-auto">
+                    {renderContent()}
+                </main>
+            </div>
         </div>
     );
 };
