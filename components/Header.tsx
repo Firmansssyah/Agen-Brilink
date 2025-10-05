@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page } from '../types';
 import { CloseIcon, DashboardIcon, CustomersIcon, WalletIcon, ReportIcon, SettingsIcon } from './icons/Icons';
+import ClockCard from './ClockCard';
 
 // Mendefinisikan tipe untuk tema aplikasi.
 type Theme = 'light' | 'dark';
@@ -115,7 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, theme, s
                     </button>
                 </div>
 
-                <nav className="flex-1 p-4 overflow-y-auto">
+                <nav className="flex-1 p-4 overflow-y-auto flex flex-col">
                     <ul className="space-y-2">
                         {navItems.map(item => (
                             <li key={item.page}>
@@ -129,6 +130,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, theme, s
                             </li>
                         ))}
                     </ul>
+                    <div className="mt-auto">
+                        <ClockCard />
+                    </div>
                 </nav>
 
                 <div className="p-4 border-t border-slate-200 dark:border-white/10 flex-shrink-0">
