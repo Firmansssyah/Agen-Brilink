@@ -52,8 +52,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     onDeleteBalanceTransfer,
     formatRupiah,
 }) => {
-    // State untuk paginasi tabel transaksi.
-    const [transactionTablePage, setTransactionTablePage] = useState(1);
     // State untuk visibilitas modal tambah/edit transaksi.
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
     // State untuk visibilitas modal transfer saldo.
@@ -86,9 +84,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [isDeleteTransferConfirmOpen, setIsDeleteTransferConfirmOpen] = useState(false);
     const [transferToDeleteId, setTransferToDeleteId] = useState<string | null>(null);
 
-    
-    // Jumlah item per halaman untuk paginasi.
-    const itemsPerPage = 10;
     
     // useMemo untuk menghitung total margin pada bulan ini.
     const currentMonthMargin = useMemo(() => {
@@ -214,14 +209,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         return items;
     }, [displayTransactions, searchTerm, filterType, filterStartDate, filterEndDate, sortKey, sortDirection, formatRupiah]);
     
-    const totalPages = Math.ceil(filteredAndSortedTransactions.length / itemsPerPage) || 1;
-
-    // useMemo untuk mengambil data transaksi pada halaman saat ini.
-    const paginatedTransactions = useMemo(() => {
-        const startIndex = (transactionTablePage - 1) * itemsPerPage;
-        return filteredAndSortedTransactions.slice(startIndex, startIndex + itemsPerPage);
-    }, [filteredAndSortedTransactions, transactionTablePage]);
-    
     // useCallback untuk membuka modal tambah transaksi.
     const handleOpenAddModal = useCallback(() => {
         setTransactionToEdit(null);
@@ -287,7 +274,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             setSortKey(key);
             setSortDirection(key === 'date' ? 'desc' : 'asc');
         }
-        setTransactionTablePage(1);
     };
     
     // Handler untuk membuka modal tambah fee.
@@ -352,19 +338,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setTransferToDeleteId(null);
     };
 
-    // Fungsi pembungkus untuk mereset paginasi ke halaman 1 setiap kali filter diubah.
-    const resetPage = (callback: (...args: any[]) => void) => (...args: any[]) => {
-        callback(...args);
-        setTransactionTablePage(1);
-    };
-
     // useCallback untuk membersihkan semua filter.
     const handleClearFilters = useCallback(() => {
         setSearchTerm('');
         setFilterType('all');
         setFilterStartDate('');
         setFilterEndDate('');
-        setTransactionTablePage(1);
     }, []);
 
     // Handler untuk membuka modal detail piutang pelanggan.
@@ -459,7 +438,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                         {/* Tata letak grid utama */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Kolom Kanan (Ringkasan), menjadi yang pertama di mobile */}
-                            <div className="lg:col-span-1 space-y-6 lg:order-2">
+                            <div className="lg:col-span-1 space-y-6 lg:order-2 lg:h-[calc(100vh-8rem)] flex flex-col">
                                  <section>
                                     <WalletsSummaryCard 
                                         wallets={wallets}
@@ -474,7 +453,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         onDayClick={handleDayClick}
                                     />
                                 </section>                                
-                                <section>
+                                <section className="flex-grow min-h-0">
                                     <AccountsReceivableCard 
                                         receivableTransactions={accountsReceivable} 
                                         totalPiutang={totalPiutang}
@@ -487,8 +466,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
 
                             {/* Konten Utama (Tabel Transaksi), menjadi yang kedua di mobile */}
                             <div className="lg:col-span-2 space-y-6 lg:order-1">
-                                <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
-                                    <div className="flex justify-between items-center mb-4 px-2">
+                                <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none lg:h-[calc(100vh-8rem)]">
+                                    <div className="flex-shrink-0 flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font.medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
                                         <div className="hidden md:flex items-center space-x-2">
                                             <button 
@@ -517,30 +496,31 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                             </button>
                                         </div>
                                     </div>
-                                    <TransactionFilterControls 
-                                        searchTerm={searchTerm}
-                                        onSearchChange={resetPage(setSearchTerm)}
-                                        filterType={filterType}
-                                        onFilterTypeChange={resetPage(setFilterType)}
-                                        startDate={filterStartDate}
-                                        onStartDateChange={resetPage(setFilterStartDate)}
-                                        endDate={filterEndDate}
-                                        onEndDateChange={resetPage(setFilterEndDate)}
-                                        onClearFilters={handleClearFilters}
-                                    />
-                                    <TransactionTable 
-                                        wallets={wallets}
-                                        transactions={paginatedTransactions} 
-                                        formatRupiah={formatRupiah} 
-                                        currentPage={transactionTablePage}
-                                        totalPages={totalPages}
-                                        setCurrentPage={setTransactionTablePage}
-                                        onEditTransaction={handleOpenEditModal}
-                                        onEditTransfer={handleOpenEditTransferModal}
-                                        sortKey={sortKey}
-                                        sortDirection={sortDirection}
-                                        onSort={handleSort}
-                                    />
+                                    <div className="flex-shrink-0">
+                                        <TransactionFilterControls 
+                                            searchTerm={searchTerm}
+                                            onSearchChange={setSearchTerm}
+                                            filterType={filterType}
+                                            onFilterTypeChange={setFilterType}
+                                            startDate={filterStartDate}
+                                            onStartDateChange={setFilterStartDate}
+                                            endDate={filterEndDate}
+                                            onEndDateChange={setFilterEndDate}
+                                            onClearFilters={handleClearFilters}
+                                        />
+                                    </div>
+                                    <div className="flex-grow min-h-0">
+                                        <TransactionTable 
+                                            wallets={wallets}
+                                            transactions={filteredAndSortedTransactions} 
+                                            formatRupiah={formatRupiah} 
+                                            onEditTransaction={handleOpenEditModal}
+                                            onEditTransfer={handleOpenEditTransferModal}
+                                            sortKey={sortKey}
+                                            sortDirection={sortDirection}
+                                            onSort={handleSort}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>

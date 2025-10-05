@@ -84,16 +84,16 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
     };
     
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none h-full">
             {/* Header Kartu */}
-            <div className="p-4">
+            <div className="p-4 flex-shrink-0">
                 <div className="flex items-center justify-between">
                     <h3 className="text-lg font.medium text-slate-800 dark:text-white">Daftar Piutang</h3>
                 </div>
             </div>
             
             {/* Body Kartu (Daftar Piutang) */}
-            <div className="px-2 pb-2">
+            <div className="px-2 pb-2 flex-grow min-h-0 overflow-y-auto">
                 {groupedReceivables.length > 0 ? (
                     <div className="space-y-2">
                         {groupedReceivables.map((item) => {
@@ -132,7 +132,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
                     </div>
                 ) : (
                     // Tampilan jika tidak ada piutang.
-                    <div className="flex items-center justify-center py-4 px-4">
+                    <div className="flex items-center justify-center h-full">
                         <p className="text-slate-400 dark:text-neutral-500 text-sm">Tidak ada piutang.</p>
                     </div>
                 )}
@@ -140,7 +140,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
             
             {/* Footer Kartu (Total Piutang) */}
             {receivableTransactions.length > 0 && (
-                <div className="p-4 border-t border-slate-200 dark:border-white/10">
+                <div className="p-4 border-t border-slate-200 dark:border-white/10 flex-shrink-0">
                     <div className="flex justify-between items-center">
                         <span className="text-sm font.medium text-slate-600 dark:text-neutral-300">Total Piutang</span>
                         <span className="text-xl font.bold text-yellow-500 dark:text-yellow-400">{formatRupiah(totalPiutang)}</span>

@@ -9,9 +9,6 @@ interface TransactionTableProps {
     transactions: Transaction[]; // Daftar transaksi yang akan ditampilkan di halaman ini.
     wallets: Wallet[]; // Daftar semua dompet untuk mencari ikon dan nama.
     formatRupiah: (amount: number) => string; // Fungsi untuk format Rupiah.
-    currentPage: number; // Nomor halaman saat ini.
-    totalPages: number; // Jumlah total halaman.
-    setCurrentPage: (page: number) => void; // Callback untuk mengubah halaman.
     onEditTransaction: (transaction: Transaction) => void; // Callback saat transaksi biasa di-klik untuk diedit.
     onEditTransfer?: (transaction: Transaction) => void; // Callback saat transaksi transfer di-klik untuk diedit.
     sortKey: SortKey; // Kunci pengurutan saat ini.
@@ -55,9 +52,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     transactions, 
     wallets, 
     formatRupiah, 
-    currentPage, 
-    totalPages, 
-    setCurrentPage,
     onEditTransaction,
     onEditTransfer,
     sortKey,
@@ -89,21 +83,21 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     return (
         <>
              {/* Tampilan Tabel untuk Desktop (disembunyikan di mobile) */}
-            <div className="overflow-x-auto flex-grow hidden md:block">
-                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-white/10">
-                    <table className="w-full text-left">
-                        <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
-                            <tr>
-                                <SortableHeader columnKey="date" title="Tanggal" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                <SortableHeader columnKey="description" title="Deskripsi" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {transactions.length > 0 ? (
-                                transactions.map(transaction => (
+            <div className="hidden md:block h-full">
+                <div className="relative h-full w-full overflow-auto rounded-xl border border-slate-200 dark:border-white/10">
+                    {transactions.length > 0 ? (
+                        <table className="w-full text-left">
+                            <thead className="sticky top-0 z-10 border-b border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-neutral-800/80 backdrop-blur-sm">
+                                <tr>
+                                    <SortableHeader columnKey="date" title="Tanggal" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                    <SortableHeader columnKey="description" title="Deskripsi" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                    <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                    <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                    <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-200 dark:divide-white/10">
+                                {transactions.map(transaction => (
                                     <tr 
                                         key={transaction.id} 
                                         onClick={() => {
@@ -114,7 +108,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                 onEditTransaction(transaction);
                                             }
                                         }}
-                                        className={`border-b border-slate-200 dark:border-white/10 last:border-b-0 transition-colors duration-200 cursor-pointer ${
+                                        className={`transition-colors duration-200 cursor-pointer ${
                                             transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                         }`}
                                     >
@@ -178,17 +172,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         </td>
                                         <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
                                     </tr>
-                                ))
-                             ) : (
-                                // Tampilan jika tidak ada transaksi.
-                                <tr>
-                                    <td colSpan={5} className="text-center py-20 text-slate-400 dark:text-neutral-500">
-                                        Tidak ada transaksi yang cocok.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <div className="flex items-center justify-center h-full">
+                             <p className="text-slate-400 dark:text-neutral-500">
+                                Tidak ada transaksi yang cocok.
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -272,29 +265,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                     </div>
                 )}
             </div>
-
-            {/* Kontrol Paginasi */}
-            {totalPages > 1 && (
-                 <div className="flex justify-between items-center pt-4 mt-2">
-                    <button
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        disabled={currentPage <= 1}
-                        className="px-4 py-2 text-sm font.medium text-slate-700 dark:text-white border border-slate-300 dark:border-white/20 rounded-full disabled:opacity-50 hover:enabled:bg-slate-100 dark:hover:enabled:bg-white/10 transition-colors"
-                    >
-                        Sebelumnya
-                    </button>
-                    <span className="text-sm text-slate-500 dark:text-neutral-400">
-                        Halaman {currentPage} dari {totalPages}
-                    </span>
-                    <button
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        disabled={currentPage >= totalPages}
-                        className="px-4 py-2 text-sm font.medium text-slate-700 dark:text-white border border-slate-300 dark:border-white/20 rounded-full disabled:opacity-50 hover:enabled:bg-slate-100 dark:hover:enabled:bg-white/10 transition-colors"
-                    >
-                        Berikutnya
-                    </button>
-                </div>
-            )}
         </>
     );
 };
