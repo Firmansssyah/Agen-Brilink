@@ -86,7 +86,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none h-full">
             {/* Header Kartu */}
-            <div className="p-4 flex-shrink-0">
+            <div className="p-4 flex-shrink-0 border-b border-slate-200 dark:border-white/10">
                 <div className="flex items-center justify-between">
                     <h3 className="text-lg font.medium text-slate-800 dark:text-white">Daftar Piutang</h3>
                 </div>
@@ -102,7 +102,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
                                 <button 
                                     key={item.customer} 
                                     onClick={() => onOpenDetail(item.customer)}
-                                    className="group w-full flex justify-between items-center px-4 py-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-200 text-left"
+                                    className="group w-full flex justify-between mt-2 items-center px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-200 text-left"
                                 >
                                     <div className="flex flex-col min-w-0 flex-1">
                                         <span className="text-sm text-slate-700 dark:text-neutral-200 truncate font.medium">{item.customer}</span>
@@ -113,7 +113,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
                                           <span className="text-sm font.medium text-yellow-500 dark:text-yellow-400">{formatRupiah(item.totalAmount)}</span>
                                           <span className="text-xs text-red-500 dark:text-red-300">{daysAgo}</span>
                                         </div>
-                                        {/* Tombol untuk melunasi piutang terlama dari pelanggan ini */}
+                                        {/* Tombol untuk melunasi piutang tertua dari pelanggan ini */}
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Mencegah tombol detail ikut ter-klik.
@@ -132,8 +132,12 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
                     </div>
                 ) : (
                     // Tampilan jika tidak ada piutang.
-                    <div className="flex items-center justify-center h-full">
-                        <p className="text-slate-400 dark:text-neutral-500 text-sm">Tidak ada piutang.</p>
+                    <div className="flex flex-col items-center justify-center h-full text-center p-4">
+                        <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center mb-4">
+                           <CheckIcon className="w-8 h-8 text-emerald-500 dark:text-emerald-400" />
+                        </div>
+                        <p className="text-slate-600 dark:text-neutral-300 font-medium">Lunas!</p>
+                        <p className="text-slate-400 dark:text-neutral-500 text-sm mt-1">Tidak ada piutang saat ini.</p>
                     </div>
                 )}
             </div>
