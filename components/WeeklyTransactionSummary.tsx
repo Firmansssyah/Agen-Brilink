@@ -62,8 +62,8 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
     const weekDays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
     return (
-        <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
-            <div className="flex justify-between items-center mb-4">
+        <div className="bg-white dark:bg-neutral-800 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+            <div className="flex justify-between items-center p-4 border-b border-slate-200 dark:border-white/10">
                 <h3 className="text-lg font-medium text-slate-800 dark:text-white">Ringkasan Mingguan</h3>
                 <div className="flex items-center space-x-3 text-xs">
                     <div className="flex items-center space-x-1.5">
@@ -76,7 +76,7 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
                     </div>
                 </div>
             </div>
-            <div className="flex justify-around items-end gap-3 h-40">
+            <div className="flex justify-around items-end gap-3 h-40 p-4">
                 {weeklyData.map((dayData, index) => {
                     const countBarHeight = (dayData.count / maxCount) * 100;
                     const marginBarHeight = (dayData.totalMargin / maxMargin) * 100;

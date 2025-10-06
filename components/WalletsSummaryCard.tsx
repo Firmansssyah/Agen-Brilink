@@ -19,9 +19,14 @@ interface WalletsSummaryCardProps {
 const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, formatRupiah, totalAssets, totalMargin }) => {
     
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-3xl p-4 flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+        <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
+             {/* Desktop Header */}
+            <div className="hidden lg:flex items-center justify-between p-4 border-b border-slate-200 dark:border-white/10">
+                <h3 className="text-lg font-medium text-slate-800 dark:text-white">Dompet</h3>
+            </div>
+            
             {/* Financial Highlights for mobile/tablet view */}
-            <div className="lg:hidden mb-4 grid grid-cols-2 gap-4">
+            <div className="lg:hidden p-4 grid grid-cols-2 gap-4">
                 {/* Total Aset */}
                 <div>
                     <div className="flex items-center space-x-1 has-tooltip relative">
@@ -40,8 +45,8 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
                 </div>
             </div>
 
-            {/* Grid untuk menampilkan daftar saldo per dompet, with separator for mobile */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 px-1 pt-4 lg:pt-0 border-t lg:border-t-0 border-slate-200 dark:border-white/10">
+            {/* Grid for displaying wallet balances, with separator for mobile */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 p-4 border-t lg:border-t-0 border-slate-200 dark:border-white/10">
                 {wallets.map(wallet => (
                     <div 
                         key={wallet.id} 
