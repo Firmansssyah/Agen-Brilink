@@ -64,7 +64,7 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
     return (
         <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-slate-800 dark:text-white">Aktivitas 7 Hari Terakhir</h3>
+                <h3 className="text-lg font-medium text-slate-800 dark:text-white">Ringkasan Mingguan</h3>
                 <div className="flex items-center space-x-3 text-xs">
                     <div className="flex items-center space-x-1.5">
                         <div className="w-3 h-3 rounded-sm bg-blue-500"></div>

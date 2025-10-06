@@ -13,6 +13,7 @@ import TransferModal from '../components/TransferModal';
 import DailyTransactionsModal from '../components/DailyTransactionsModal';
 import ReceivableDetailModal from '../components/ReceivableDetailModal';
 import ConfirmationModal from '../components/ConfirmationModal';
+import FinancialHighlightsCard from '../components/FinancialHighlightsCard';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -52,40 +53,40 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     onDeleteBalanceTransfer,
     formatRupiah,
 }) => {
-    // State untuk visibilitas modal tambah/edit transaksi.
+    // State for visibilitas modal tambah/edit transaksi.
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
-    // State untuk visibilitas modal transfer saldo.
+    // State for visibilitas modal transfer saldo.
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
-    // State untuk menyimpan data transaksi yang akan diedit.
+    // State for menyimpan data transaksi yang akan diedit.
     const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
-    // State untuk menyimpan data transfer yang akan diedit.
+    // State for menyimpan data transfer yang akan diedit.
     const [transferToEdit, setTransferToEdit] = useState<Transaction | null>(null);
-    // State untuk pengurutan tabel.
+    // State for pengurutan tabel.
     const [sortKey, setSortKey] = useState<SortKey>('date');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-    // State untuk visibilitas modal tambah fee.
+    // State for visibilitas modal tambah fee.
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
-    // State untuk visibilitas modal edit fee.
+    // State for visibilitas modal edit fee.
     const [isEditFeeModalOpen, setIsEditFeeModalOpen] = useState(false);
-    // State untuk menyimpan tanggal yang dipilih untuk modal detail harian.
+    // State for menyimpan tanggal yang dipilih untuk modal detail harian.
     const [dailyModalDate, setDailyModalDate] = useState<string | null>(null);
-    // State untuk filter.
+    // State for filter.
     const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<'all' | TransactionType>('all');
     const [filterStartDate, setFilterStartDate] = useState('');
     const [filterEndDate, setFilterEndDate] = useState('');
-    // State untuk menu Floating Action Button (FAB) di mobile.
+    // State for menu Floating Action Button (FAB) di mobile.
     const [isFabMenuOpen, setIsFabMenuOpen] = useState(false);
-    // State untuk visibilitas modal detail piutang.
+    // State for visibilitas modal detail piutang.
     const [isReceivableDetailModalOpen, setIsReceivableDetailModalOpen] = useState(false);
-    // State untuk menyimpan nama pelanggan yang piutangnya akan dilihat.
+    // State for menyimpan nama pelanggan yang piutangnya akan dilihat.
     const [selectedCustomerForReceivables, setSelectedCustomerForReceivables] = useState<string | null>(null);
-    // State untuk modal konfirmasi penghapusan transfer.
+    // State for modal konfirmasi penghapusan transfer.
     const [isDeleteTransferConfirmOpen, setIsDeleteTransferConfirmOpen] = useState(false);
     const [transferToDeleteId, setTransferToDeleteId] = useState<string | null>(null);
 
     
-    // useMemo untuk menghitung total margin pada bulan ini.
+    // useMemo for menghitung total margin pada bulan ini.
     const currentMonthMargin = useMemo(() => {
         const now = new Date();
         const currentMonth = now.getMonth();
@@ -99,7 +100,23 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             .reduce((acc, curr) => acc + curr.margin, 0);
     }, [transactions]);
 
-    // useMemo untuk memproses daftar transaksi yang akan ditampilkan.
+    // useMemo for menghitung total aset. Dihitung ulang hanya jika dompet atau piutang berubah.
+    const totalAssets = useMemo(() => {
+        // Menjumlahkan saldo semua dompet.
+        const walletsTotal = wallets.reduce((sum, wallet) => {
+            let usableBalance = wallet.balance;
+            // Saldo BRI dan BRILink dikurangi Rp50.000 karena biasanya tidak dapat digunakan.
+            if (wallet.id === 'BRI' || wallet.id === 'BRILINK') {
+                usableBalance = Math.max(0, wallet.balance - 50000);
+            }
+            return sum + usableBalance;
+        }, 0);
+        // Total aset adalah total saldo dompet yang dapat digunakan ditambah total piutang.
+        return walletsTotal + totalPiutang;
+    }, [wallets, totalPiutang]);
+
+
+    // useMemo for memproses daftar transaksi yang akan ditampilkan.
     // Ini menggabungkan dua entri transfer saldo menjadi satu baris.
     const displayTransactions = useMemo(() => {
         const transfers = new Map<string, { in?: Transaction, out?: Transaction }>();
@@ -147,7 +164,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         return [...otherTransactions, ...combinedTransferTransactions];
     }, [transactions]);
 
-    // useMemo untuk menyaring dan mengurutkan transaksi berdasarkan input pengguna.
+    // useMemo for menyaring dan mengurutkan transaksi berdasarkan input pengguna.
     const filteredAndSortedTransactions = useMemo(() => {
         let items = displayTransactions.filter(t => !t.isDeleting);
 
@@ -209,14 +226,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         return items;
     }, [displayTransactions, searchTerm, filterType, filterStartDate, filterEndDate, sortKey, sortDirection, formatRupiah]);
     
-    // useCallback untuk membuka modal tambah transaksi.
+    // useCallback for membuka modal tambah transaksi.
     const handleOpenAddModal = useCallback(() => {
         setTransactionToEdit(null);
         setIsTransactionModalOpen(true);
         setIsFabMenuOpen(false);
     }, []);
 
-    // Handler untuk membuka modal edit transaksi.
+    // Handler for membuka modal edit transaksi.
     const handleOpenEditModal = (transaction: Transaction) => {
         if (transaction.description === 'Fee Brilink') {
             setTransactionToEdit(transaction);
@@ -227,18 +244,18 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         }
     };
 
-    // Handler untuk membuka modal edit transfer.
+    // Handler for membuka modal edit transfer.
     const handleOpenEditTransferModal = (transfer: Transaction) => {
         setTransferToEdit(transfer);
         setIsTransferModalOpen(true);
     };
     
-    // useCallback untuk membuka modal detail transaksi harian.
+    // useCallback for membuka modal detail transaksi harian.
     const handleDayClick = useCallback((date: string) => {
         setDailyModalDate(date);
     }, []);
 
-    // useMemo untuk menyaring transaksi harian yang akan ditampilkan di modal.
+    // useMemo for menyaring transaksi harian yang akan ditampilkan di modal.
     const dailyTransactions = useMemo(() => {
         if (!dailyModalDate) return [];
         const [year, month, day] = dailyModalDate.split('-').map(Number);
@@ -255,18 +272,18 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     }, [dailyModalDate, transactions]);
 
 
-    // Handler untuk menutup modal transaksi.
+    // Handler for menutup modal transaksi.
     const handleCloseModal = () => {
         setIsTransactionModalOpen(false);
     };
 
-    // Handler untuk menyimpan data dari modal transaksi.
+    // Handler for menyimpan data dari modal transaksi.
     const handleSaveFromModal = (data: Transaction | Omit<Transaction, 'id' | 'date'>) => {
         onSaveTransaction(data);
         setIsTransactionModalOpen(false);
     };
     
-    // Handler untuk mengubah pengurutan tabel.
+    // Handler for mengubah pengurutan tabel.
     const handleSort = (key: SortKey) => {
         if (sortKey === key) {
             setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
@@ -276,13 +293,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         }
     };
     
-    // Handler untuk membuka modal tambah fee.
+    // Handler for membuka modal tambah fee.
     const handleOpenFeeModal = () => {
         setIsFeeModalOpen(true);
         setIsFabMenuOpen(false);
     };
 
-    // Handler untuk menyimpan transaksi fee.
+    // Handler for menyimpan transaksi fee.
     const handleSaveFee = (amount: number) => {
         const feeTransaction: Omit<Transaction, 'id' | 'date'> = {
             description: 'Fee Brilink',
@@ -297,20 +314,20 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsFeeModalOpen(false);
     };
     
-    // Handler untuk memperbarui transaksi fee.
+    // Handler for memperbarui transaksi fee.
     const handleUpdateFee = (updatedTransaction: Transaction) => {
         onSaveTransaction(updatedTransaction);
         setIsEditFeeModalOpen(false);
     };
 
-    // Handler untuk membuka modal transfer.
+    // Handler for membuka modal transfer.
     const handleOpenTransferModal = () => {
         setTransferToEdit(null);
         setIsTransferModalOpen(true);
         setIsFabMenuOpen(false);
     };
     
-    // useCallback untuk menyimpan data dari modal transfer (baru atau editan).
+    // useCallback for menyimpan data dari modal transfer (baru atau editan).
     const handleSaveTransfer = useCallback((data: { fromWallet: string; toWallet: string; amount: number; fee: number; transferId?: string; }) => {
         if (data.transferId) {
             onUpdateBalanceTransfer(data as { fromWallet: string; toWallet: string; amount: number; fee: number; transferId: string; });
@@ -321,7 +338,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setTransferToEdit(null);
     }, [onBalanceTransfer, onUpdateBalanceTransfer]);
 
-    // Handler untuk membuka modal konfirmasi hapus transfer.
+    // Handler for membuka modal konfirmasi hapus transfer.
     const handleOpenDeleteTransferConfirm = (transferId: string) => {
         setIsTransferModalOpen(false);
         setTransferToEdit(null);
@@ -329,7 +346,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsDeleteTransferConfirmOpen(true);
     };
 
-    // Handler untuk mengonfirmasi penghapusan transfer.
+    // Handler for mengonfirmasi penghapusan transfer.
     const handleConfirmDeleteTransfer = () => {
         if (transferToDeleteId) {
             onDeleteBalanceTransfer(transferToDeleteId);
@@ -338,7 +355,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setTransferToDeleteId(null);
     };
 
-    // useCallback untuk membersihkan semua filter.
+    // useCallback for membersihkan semua filter.
     const handleClearFilters = useCallback(() => {
         setSearchTerm('');
         setFilterType('all');
@@ -346,13 +363,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setFilterEndDate('');
     }, []);
 
-    // Handler untuk membuka modal detail piutang pelanggan.
+    // Handler for membuka modal detail piutang pelanggan.
     const handleOpenReceivableDetail = (customerName: string) => {
         setSelectedCustomerForReceivables(customerName);
         setIsReceivableDetailModalOpen(true);
     };
 
-    // useEffect untuk menambahkan shortcut keyboard '/' untuk membuka modal tambah transaksi.
+    // useEffect for menambahkan shortcut keyboard '/' untuk membuka modal tambah transaksi.
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             const target = event.target as HTMLElement;
@@ -442,8 +459,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                  <section>
                                     <WalletsSummaryCard 
                                         wallets={wallets}
-                                        totalMargin={currentMonthMargin}
-                                        totalPiutang={totalPiutang}
                                         formatRupiah={formatRupiah}
                                     />
                                 </section>
@@ -467,7 +482,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
 
                             {/* Konten Utama (Tabel Transaksi), menjadi yang kedua di mobile */}
                             <div className="lg:col-span-2 space-y-6 lg:order-1">
-                                <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none lg:h-[calc(100vh-3rem)]">
+                                <FinancialHighlightsCard
+                                    totalAssets={totalAssets}
+                                    totalMargin={currentMonthMargin}
+                                    formatRupiah={formatRupiah}
+                                />
+                                <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none lg:h-[calc(100vh-11rem)]">
                                     <div className="flex-shrink-0 flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font.medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
                                         <div className="hidden md:flex items-center space-x-2">
