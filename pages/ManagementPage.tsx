@@ -12,7 +12,8 @@ interface ManagementPageProps {
     onSaveWallet: (walletData: Omit<Wallet, 'id'> | Wallet) => Promise<void>;
     onDeleteWallet: (walletId: string) => Promise<void>;
     categories: string[];
-    onSaveCategories: (newCategories: string[]) => Promise<void>;
+    onSaveCategory: (newName: string, originalName?: string) => Promise<void>;
+    onDeleteCategory: (categoryName: string) => Promise<void>;
     onSaveInitialBalances: (updatedWallets: { id: string; initialBalance: number }[]) => Promise<void>;
     onSaveCapital: (data: { walletId: string; amount: number; }) => Promise<void>;
     formatRupiah: (amount: number) => string;
@@ -23,7 +24,8 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     onSaveWallet,
     onDeleteWallet,
     categories,
-    onSaveCategories,
+    onSaveCategory,
+    onDeleteCategory,
     onSaveInitialBalances,
     onSaveCapital,
     formatRupiah,
@@ -39,8 +41,8 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     // State from TransactionCategoryPage
     const [isAddEditCategoryModalOpen, setIsAddEditCategoryModalOpen] = useState(false);
     const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState<{name: string, index: number} | null>(null);
-    const [categoryToDelete, setCategoryToDelete] = useState<{name: string, index: number} | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
     // Handlers from WalletManagementPage
     const handleOpenAddWalletModal = () => {
@@ -82,31 +84,24 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
         setIsAddEditCategoryModalOpen(true);
     };
 
-    const handleOpenEditCategoryModal = (category: string, index: number) => {
-        setSelectedCategory({ name: category, index: index });
+    const handleOpenEditCategoryModal = (category: string) => {
+        setSelectedCategory(category);
         setIsAddEditCategoryModalOpen(true);
     };
 
-    const handleOpenDeleteCategoryModal = (category: string, index: number) => {
-        setCategoryToDelete({ name: category, index: index });
+    const handleOpenDeleteCategoryModal = (category: string) => {
+        setCategoryToDelete(category);
         setIsDeleteCategoryModalOpen(true);
     };
 
-    const handleSaveCategory = async (categoryName: string) => {
-        let newCategories;
-        if (selectedCategory) {
-            newCategories = categories.map((cat, i) => i === selectedCategory.index ? categoryName : cat);
-        } else {
-            newCategories = [...categories, categoryName];
-        }
-        await onSaveCategories(newCategories);
+    const handleSaveCategory = async (newName: string, originalName?: string) => {
+        await onSaveCategory(newName, originalName);
         setIsAddEditCategoryModalOpen(false);
     };
 
     const handleDeleteCategory = async () => {
         if (categoryToDelete) {
-            const newCategories = categories.filter((_, i) => i !== categoryToDelete.index);
-            await onSaveCategories(newCategories);
+            await onDeleteCategory(categoryToDelete);
             setIsDeleteCategoryModalOpen(false);
             setCategoryToDelete(null);
         }
@@ -205,8 +200,8 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                                 <td className="p-3 text-sm text-slate-800 dark:text-white">{category}</td>
                                                 <td className="p-3 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
-                                                        <button onClick={() => handleOpenEditCategoryModal(category, index)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit kategori ${category}`}><EditIcon /></button>
-                                                        <button onClick={() => handleOpenDeleteCategoryModal(category, index)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus kategori ${category}`}><DeleteIcon /></button>
+                                                        <button onClick={() => handleOpenEditCategoryModal(category)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit kategori ${category}`}><EditIcon /></button>
+                                                        <button onClick={() => handleOpenDeleteCategoryModal(category)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus kategori ${category}`}><DeleteIcon /></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -236,14 +231,14 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     isOpen={isAddEditCategoryModalOpen}
                     onClose={() => setIsAddEditCategoryModalOpen(false)}
                     onSave={handleSaveCategory}
-                    categoryToEdit={selectedCategory?.name}
+                    categoryToEdit={selectedCategory}
                 />
                 <ConfirmationModal 
                     isOpen={isDeleteCategoryModalOpen}
                     onClose={() => setIsDeleteCategoryModalOpen(false)}
                     onConfirm={handleDeleteCategory}
                     title="Hapus Kategori"
-                    message={`Apakah Anda yakin ingin menghapus kategori "${categoryToDelete?.name}"?`}
+                    message={`Apakah Anda yakin ingin menghapus kategori "${categoryToDelete}"?`}
                 />
                 <InitialBalanceModal
                     isOpen={isInitialBalanceModalOpen}

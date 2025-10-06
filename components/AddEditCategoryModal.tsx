@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 interface AddEditCategoryModalProps {
     isOpen: boolean; // Status apakah modal terbuka atau tertutup.
     onClose: () => void; // Fungsi callback untuk menutup modal.
-    onSave: (categoryName: string) => void; // Fungsi callback untuk menyimpan nama kategori.
-    categoryToEdit?: string; // Nama kategori yang akan diedit, undefined jika menambah baru.
+    onSave: (categoryName: string, originalName?: string) => void; // Fungsi callback untuk menyimpan nama kategori.
+    categoryToEdit?: string | null; // Nama kategori yang akan diedit, undefined jika menambah baru.
 }
 
 /**
@@ -40,7 +40,7 @@ const AddEditCategoryModal: React.FC<AddEditCategoryModalProps> = ({ isOpen, onC
         e.preventDefault();
         // Validasi sederhana: pastikan nama tidak kosong setelah di-trim.
         if (name.trim()) {
-            onSave(name.trim());
+            onSave(name.trim(), categoryToEdit || undefined);
         }
     };
 

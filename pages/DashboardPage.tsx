@@ -483,7 +483,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                             </div>
 
                             {/* Konten Utama (Tabel Transaksi), menjadi yang kedua di mobile */}
-                            <div className="lg:col-span-2 space-y-6 lg:order-1">
+                            <div className="lg:col-span-2 lg:space-y-6 lg:order-1">
                                 <div className="hidden lg:block">
                                     <FinancialHighlightsCard
                                         totalAssets={totalAssets}

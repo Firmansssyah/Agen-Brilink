@@ -371,7 +371,7 @@ const MainApp: React.FC = () => {
             console.error("Gagal menyimpan transaksi:", err);
             addToast('Gagal menyimpan transaksi.', 'error');
         }
-    }, [transactions, wallets, addToast, API_BASE_URL]);
+    }, [transactions, wallets, addToast, API_BASE_URL, applyWalletChanges]);
     
     /**
      * useCallback untuk melunasi piutang.
@@ -490,12 +490,55 @@ const MainApp: React.FC = () => {
         }
     }, [addToast, API_BASE_URL]);
 
-    /**
-     * useCallback untuk menyimpan daftar kategori.
-     * @param newCategories - Array string kategori baru.
-     */
-    const handleSaveCategories = useCallback(async (newCategories: string[]) => {
+    const handleSaveCategory = useCallback(async (newName: string, originalName?: string) => {
         try {
+            const newCategories = originalName 
+                ? categories.map(c => c === originalName ? newName : c)
+                : [...categories, newName];
+
+            const res = await fetch(`${API_BASE_URL}/categories/1`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: 1, values: newCategories }),
+            });
+            if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
+            
+            setCategories(newCategories);
+
+            // Jika ini adalah edit, update transaksi yang relevan
+            if (originalName && originalName !== newName) {
+                const transactionsToUpdate = transactions.filter(t => t.description === originalName);
+                if (transactionsToUpdate.length > 0) {
+                    const updatePromises = transactionsToUpdate.map(t => 
+                        fetch(`${API_BASE_URL}/transactions/${t.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ description: newName }),
+                        })
+                    );
+                    await Promise.all(updatePromises);
+                    // Update state lokal transaksi
+                    setTransactions(prev => 
+                        prev.map(t => 
+                            t.description === originalName ? { ...t, description: newName } : t
+                        )
+                    );
+                    addToast(`Kategori dan ${transactionsToUpdate.length} transaksi berhasil diperbarui`, 'success');
+                } else {
+                     addToast('Kategori berhasil diperbarui', 'success');
+                }
+            } else {
+                addToast('Kategori berhasil disimpan', 'success');
+            }
+        } catch(err) {
+            console.error("Gagal menyimpan kategori:", err);
+            addToast('Gagal menyimpan kategori.', 'error');
+        }
+    }, [categories, transactions, addToast, API_BASE_URL]);
+
+    const handleDeleteCategory = useCallback(async (categoryNameToDelete: string) => {
+        try {
+            const newCategories = categories.filter(c => c !== categoryNameToDelete);
             const res = await fetch(`${API_BASE_URL}/categories/1`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -503,12 +546,12 @@ const MainApp: React.FC = () => {
             });
             if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
             setCategories(newCategories);
-            addToast('Kategori berhasil disimpan', 'success');
+            addToast('Kategori berhasil dihapus', 'success');
         } catch(err) {
-            console.error("Gagal menyimpan kategori:", err);
-            addToast('Gagal menyimpan kategori.', 'error');
+            console.error("Gagal menghapus kategori:", err);
+            addToast('Gagal menghapus kategori.', 'error');
         }
-    }, [addToast, API_BASE_URL]);
+    }, [categories, addToast, API_BASE_URL]);
 
     /**
      * useCallback untuk menangani transfer saldo antar dompet.
@@ -885,7 +928,8 @@ const MainApp: React.FC = () => {
                     onSaveWallet={handleSaveWallet}
                     onDeleteWallet={handleDeleteWallet}
                     categories={categories}
-                    onSaveCategories={handleSaveCategories}
+                    onSaveCategory={handleSaveCategory}
+                    onDeleteCategory={handleDeleteCategory}
                     onSaveInitialBalances={handleSaveInitialBalances}
                     onSaveCapital={handleSaveCapitalTransaction}
                     formatRupiah={formatRupiah}
@@ -969,7 +1013,7 @@ const MainApp: React.FC = () => {
                     >
                         <MenuIcon />
                     </button>
-                    <h1 className="text-lg font-bold text-slate-900 dark:text-white">{pageTitles[currentPage]}</h1>
+                    <h1 className="text-lg font.bold text-slate-900 dark:text-white">{pageTitles[currentPage]}</h1>
                     <div className="w-8"></div> {/* Spacer to center the title */}
                 </header>
                 <main className="flex-1 overflow-y-auto">
