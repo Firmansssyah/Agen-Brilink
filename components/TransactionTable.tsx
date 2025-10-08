@@ -2,13 +2,14 @@ import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 // FIX: Changed to named import
 import { WalletIconComponent } from './WalletIconComponent';
-import { ChevronDownIcon, ChevronUpIcon } from './icons/Icons';
+import { ChevronDownIcon, ChevronUpIcon, EditIcon, InfoIcon } from './icons/Icons';
 
 // Interface untuk properti komponen TransactionTable.
 interface TransactionTableProps {
     transactions: Transaction[]; // Daftar transaksi yang akan ditampilkan di halaman ini.
     wallets: Wallet[]; // Daftar semua dompet untuk mencari ikon dan nama.
     formatRupiah: (amount: number) => string; // Fungsi untuk format Rupiah.
+    onInfoTransaction: (transaction: Transaction) => void; // Callback saat tombol info di-klik.
     onEditTransaction: (transaction: Transaction) => void; // Callback saat transaksi biasa di-klik untuk diedit.
     onEditTransfer?: (transaction: Transaction) => void; // Callback saat transaksi transfer di-klik untuk diedit.
     sortKey: SortKey; // Kunci pengurutan saat ini.
@@ -51,7 +52,8 @@ const SortableHeader: React.FC<{
 const TransactionTable: React.FC<TransactionTableProps> = ({ 
     transactions, 
     wallets, 
-    formatRupiah, 
+    formatRupiah,
+    onInfoTransaction,
     onEditTransaction,
     onEditTransfer,
     sortKey,
@@ -94,21 +96,14 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                                     <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                                     <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                    <th className="p-3 text-xs font.medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-right">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-white/10">
                                 {transactions.map(transaction => (
                                     <tr 
                                         key={transaction.id} 
-                                        onClick={() => {
-                                            // Membedakan aksi klik untuk transfer dan transaksi biasa.
-                                            if (transaction.isInternalTransfer && transaction.toWallet) {
-                                                onEditTransfer?.(transaction);
-                                            } else {
-                                                onEditTransaction(transaction);
-                                            }
-                                        }}
-                                        className={`transition-colors duration-200 cursor-pointer ${
+                                        className={`transition-colors duration-200 ${
                                             transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                         }`}
                                     >
@@ -171,6 +166,30 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             )}
                                         </td>
                                         <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
+                                        <td className="p-3 text-sm text-right">
+                                            <div className="flex items-center justify-end space-x-1">
+                                                <button
+                                                    onClick={() => onInfoTransaction(transaction)}
+                                                    className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
+                                                    aria-label="Info transaksi"
+                                                >
+                                                    <InfoIcon className="h-4 w-4" />
+                                                </button>
+                                                <button 
+                                                    onClick={() => {
+                                                        if (transaction.isInternalTransfer && transaction.toWallet) {
+                                                            onEditTransfer?.(transaction);
+                                                        } else {
+                                                            onEditTransaction(transaction);
+                                                        }
+                                                    }}
+                                                    className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
+                                                    aria-label="Edit transaksi"
+                                                >
+                                                    <EditIcon className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -191,15 +210,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                     transactions.map(transaction => {
                         return (
                             <div 
-                                key={transaction.id} 
-                                onClick={() => {
-                                    if (transaction.isInternalTransfer && transaction.toWallet) {
-                                        onEditTransfer?.(transaction);
-                                    } else {
-                                        onEditTransaction(transaction);
-                                    }
-                                }}
-                                className={`p-4 rounded-2xl border transition-colors duration-200 cursor-pointer ${
+                                key={transaction.id}
+                                className={`p-4 rounded-2xl border transition-colors duration-200 ${
                                     transaction.isPiutang 
                                         ? 'bg-yellow-100 border-yellow-200 dark:bg-yellow-400/10 dark:border-yellow-400/20 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20 border-l-4 border-l-yellow-400 dark:border-l-yellow-500' 
                                         : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10'
@@ -219,7 +231,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         <div className="ml-2 flex-shrink-0 text-xs font.bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">{calculateDaysAgo(transaction.date)}</div>
                                     )}
                                 </div>
-                                <div className="mt-3 flex justify-between items-end">
+                                <div className="mt-3 flex justify-between items-center">
                                      {/* Tampilan khusus transfer di mobile */}
                                      {transaction.toWallet ? (
                                         <div className="flex-1 min-w-0">
@@ -254,7 +266,29 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             </div>
                                         </div>
                                     )}
-                                    <p className="text-xs text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
+                                    <div className="flex items-center gap-1">
+                                        <p className="text-xs text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
+                                        <button 
+                                            onClick={() => onInfoTransaction(transaction)}
+                                            className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
+                                            aria-label="Info transaksi"
+                                        >
+                                            <InfoIcon className="h-4 w-4" />
+                                        </button>
+                                        <button 
+                                            onClick={() => {
+                                                if (transaction.isInternalTransfer && transaction.toWallet) {
+                                                    onEditTransfer?.(transaction);
+                                                } else {
+                                                    onEditTransaction(transaction);
+                                                }
+                                            }}
+                                            className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
+                                            aria-label="Edit transaksi"
+                                        >
+                                            <EditIcon className="h-4 w-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )

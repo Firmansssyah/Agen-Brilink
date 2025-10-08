@@ -9,23 +9,16 @@ const ClockCard: React.FC = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
 
     useEffect(() => {
-        // Memperbarui waktu setiap menit untuk menghindari update yang tidak perlu per detik.
+        // Memperbarui waktu setiap detik untuk jam real-time.
         const timerId = setInterval(() => {
             setCurrentDate(new Date());
-        }, 60000); // 60000ms = 1 menit
+        }, 1000);
 
         // Membersihkan interval saat komponen di-unmount untuk mencegah memory leak.
         return () => {
             clearInterval(timerId);
         };
     }, []);
-
-    // Opsi format untuk waktu (format 12 jam, tanpa detik).
-    const timeOptions: Intl.DateTimeFormatOptions = {
-        hour: 'numeric',
-        minute: 'numeric',
-        hour12: true,
-    };
 
     // Opsi format untuk tanggal (nama hari, tanggal, dan bulan).
     const dateOptions: Intl.DateTimeFormatOptions = {
@@ -34,14 +27,16 @@ const ClockCard: React.FC = () => {
         month: 'long',
     };
 
-    // Memformat waktu dan tanggal menggunakan lokal Bahasa Indonesia.
-    const formattedTime = new Intl.DateTimeFormat('id-ID', timeOptions).format(currentDate);
+    // Memformat waktu dan tanggal.
+    const hours = String(currentDate.getHours()).padStart(2, '0');
+    const minutes = String(currentDate.getMinutes()).padStart(2, '0');
     const formattedDate = new Intl.DateTimeFormat('id-ID', dateOptions).format(currentDate);
 
     return (
-        <div className="bg-slate-100 dark:bg-neutral-700/50 p-4 rounded-xl text-center">
-            <p className="text-3xl font-bold text-slate-800 dark:text-white tracking-wider">
-                {formattedTime}
+        // Layout baru: tanpa background, teks di tengah, dan tipografi yang lebih bersih.
+        <div className="p-4 text-center">
+            <p className="text-xl font-semibold text-slate-800 dark:text-white">
+                {hours}:{minutes}
             </p>
             <p className="text-sm text-slate-500 dark:text-neutral-400 mt-1">
                 {formattedDate}

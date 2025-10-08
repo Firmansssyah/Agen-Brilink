@@ -14,6 +14,7 @@ import DailyTransactionsModal from '../components/DailyTransactionsModal';
 import ReceivableDetailModal from '../components/ReceivableDetailModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import FinancialHighlightsCard from '../components/FinancialHighlightsCard';
+import TransactionDetailModal from '../components/TransactionDetailModal';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -84,6 +85,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     // State for modal konfirmasi penghapusan transfer.
     const [isDeleteTransferConfirmOpen, setIsDeleteTransferConfirmOpen] = useState(false);
     const [transferToDeleteId, setTransferToDeleteId] = useState<string | null>(null);
+    // State for visibilitas modal info transaksi.
+    const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+    const [transactionForInfo, setTransactionForInfo] = useState<Transaction | null>(null);
 
     
     // useMemo for menghitung total margin pada bulan ini.
@@ -243,6 +247,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
             setIsTransactionModalOpen(true);
         }
     };
+
+    // Handler for membuka modal info transaksi.
+    const handleOpenInfoModal = useCallback((transaction: Transaction) => {
+        setTransactionForInfo(transaction);
+        setIsInfoModalOpen(true);
+    }, []);
+
 
     // Handler for membuka modal edit transfer.
     const handleOpenEditTransferModal = (transfer: Transaction) => {
@@ -412,6 +423,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 customers={customers}
                 formatRupiah={formatRupiah}
             />
+            <TransactionDetailModal
+                isOpen={isInfoModalOpen}
+                onClose={() => setIsInfoModalOpen(false)}
+                transaction={transactionForInfo}
+                wallets={wallets}
+                formatRupiah={formatRupiah}
+            />
             <DailyTransactionsModal
                 isOpen={!!dailyModalDate}
                 onClose={() => setDailyModalDate(null)}
@@ -539,6 +557,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                             wallets={wallets}
                                             transactions={filteredAndSortedTransactions} 
                                             formatRupiah={formatRupiah} 
+                                            onInfoTransaction={handleOpenInfoModal}
                                             onEditTransaction={handleOpenEditModal}
                                             onEditTransfer={handleOpenEditTransferModal}
                                             sortKey={sortKey}
