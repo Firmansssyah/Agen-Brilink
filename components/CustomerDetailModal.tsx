@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Transaction, Wallet, TransactionType } from '../types';
-import { CloseIcon } from './icons/Icons';
+import { CloseIcon, GiftIcon } from './icons/Icons';
 // FIX: Changed to named import
 import { WalletIconComponent } from './WalletIconComponent';
 
@@ -140,27 +140,33 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {transactions.map(t => (
-                                            <tr key={t.id} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100/50 dark:hover:bg-white/5 transition-colors duration-200">
-                                                <td className="p-3 text-slate-600 dark:text-neutral-300 whitespace-nowrap">
-                                                    {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
-                                                </td>
-                                                <td className="p-3 text-slate-800 dark:text-white">
-                                                    <div>
-                                                        {t.description}
-                                                        {t.notes && (
-                                                            <p className="text-xs text-slate-500 dark:text-neutral-400 truncate italic">
-                                                                "{t.notes}"
-                                                            </p>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                                <td className={`p-3 font-medium text-right ${t.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
-                                                    {formatRupiah(t.amount)}
-                                                </td>
-                                                <td className="p-3 text-sky-600 dark:text-sky-300 text-right">{formatRupiah(t.margin)}</td>
-                                            </tr>
-                                        ))}
+                                        {transactions.map(t => {
+                                            const isReward = t.description.startsWith('Reward:');
+                                            return (
+                                                <tr key={t.id} className={`border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100/50 dark:hover:bg-white/5 transition-colors duration-200 ${isReward ? 'bg-amber-50 dark:bg-amber-500/10' : ''}`}>
+                                                    <td className="p-3 text-slate-600 dark:text-neutral-300 whitespace-nowrap">
+                                                        {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
+                                                    </td>
+                                                    <td className="p-3 text-slate-800 dark:text-white">
+                                                        <div className="flex items-center gap-2">
+                                                            {isReward && <GiftIcon className="h-4 w-4 text-amber-500 flex-shrink-0" />}
+                                                            <div>
+                                                                {t.description}
+                                                                {t.notes && (
+                                                                    <p className="text-xs text-slate-500 dark:text-neutral-400 truncate italic">
+                                                                        "{t.notes}"
+                                                                    </p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className={`p-3 font-medium text-right ${t.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                        {formatRupiah(t.amount)}
+                                                    </td>
+                                                    <td className="p-3 text-sky-600 dark:text-sky-300 text-right">{formatRupiah(t.margin)}</td>
+                                                </tr>
+                                            )
+                                        })}
                                     </tbody>
                                 </table>
                                 </div>

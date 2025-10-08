@@ -2,7 +2,7 @@ import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 // FIX: Changed to named import
 import { WalletIconComponent } from './WalletIconComponent';
-import { ChevronDownIcon, ChevronUpIcon, EditIcon, InfoIcon } from './icons/Icons';
+import { ChevronDownIcon, ChevronUpIcon, EditIcon, InfoIcon, DeleteIcon } from './icons/Icons';
 
 // Interface untuk properti komponen TransactionTable.
 interface TransactionTableProps {
@@ -11,7 +11,9 @@ interface TransactionTableProps {
     formatRupiah: (amount: number) => string; // Fungsi untuk format Rupiah.
     onInfoTransaction: (transaction: Transaction) => void; // Callback saat tombol info di-klik.
     onEditTransaction: (transaction: Transaction) => void; // Callback saat transaksi biasa di-klik untuk diedit.
+    onDeleteTransactionConfirm: (transactionId: string) => void; // Callback untuk membuka konfirmasi hapus.
     onEditTransfer?: (transaction: Transaction) => void; // Callback saat transaksi transfer di-klik untuk diedit.
+    onDeleteTransferConfirm: (transferId: string) => void; // Callback untuk membuka konfirmasi hapus transfer.
     sortKey: SortKey; // Kunci pengurutan saat ini.
     sortDirection: SortDirection; // Arah pengurutan saat ini.
     onSort: (key: SortKey) => void; // Callback untuk mengubah pengurutan.
@@ -55,11 +57,28 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     formatRupiah,
     onInfoTransaction,
     onEditTransaction,
+    onDeleteTransactionConfirm,
     onEditTransfer,
+    onDeleteTransferConfirm,
     sortKey,
     sortDirection,
     onSort
 }) => {
+
+    /**
+     * Menangani klik tombol hapus dan memanggil handler konfirmasi yang sesuai
+     * berdasarkan jenis transaksi.
+     * @param transaction - Objek transaksi yang akan dihapus.
+     */
+    const handleDeleteClick = (transaction: Transaction) => {
+        // Untuk transfer, gunakan handler konfirmasi khusus dengan transferId.
+        if (transaction.isInternalTransfer && transaction.transferId) {
+            onDeleteTransferConfirm(transaction.transferId);
+        } else {
+            // Untuk transaksi lain, buka konfirmasi hapus standar.
+            onDeleteTransactionConfirm(transaction.id);
+        }
+    };
     
     /**
      * Menghitung umur piutang dalam hari.
@@ -170,7 +189,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             <div className="inline-flex items-center rounded-full bg-slate-100 dark:bg-neutral-700/60">
                                                 <button
                                                     onClick={() => onInfoTransaction(transaction)}
-                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-200/70 dark:hover:bg-neutral-600/70 rounded-l-full transition-colors duration-200"
+                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-500 dark:hover:text-blue-400 rounded-l-full transition-colors duration-200"
                                                     aria-label="Info transaksi"
                                                 >
                                                     <InfoIcon className="h-4 w-4" />
@@ -178,16 +197,24 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                 <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
                                                 <button 
                                                     onClick={() => {
-                                                        if (transaction.isInternalTransfer && transaction.toWallet) {
+                                                        if (transaction.isInternalTransfer) {
                                                             onEditTransfer?.(transaction);
                                                         } else {
                                                             onEditTransaction(transaction);
                                                         }
                                                     }}
-                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-200/70 dark:hover:bg-neutral-600/70 rounded-r-full transition-colors duration-200"
+                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors duration-200"
                                                     aria-label="Edit transaksi"
                                                 >
                                                     <EditIcon className="h-4 w-4" />
+                                                </button>
+                                                <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
+                                                <button 
+                                                    onClick={() => handleDeleteClick(transaction)}
+                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 dark:hover:text-red-400 rounded-r-full transition-colors duration-200"
+                                                    aria-label="Hapus transaksi"
+                                                >
+                                                    <DeleteIcon className="h-4 w-4" />
                                                 </button>
                                             </div>
                                         </td>
@@ -272,7 +299,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         <div className="inline-flex items-center rounded-full bg-slate-200/70 dark:bg-neutral-700/60">
                                             <button 
                                                 onClick={() => onInfoTransaction(transaction)}
-                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-300/70 dark:hover:bg-neutral-600/70 rounded-l-full transition-colors duration-200"
+                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-500 dark:hover:text-blue-400 rounded-l-full transition-colors duration-200"
                                                 aria-label="Info transaksi"
                                             >
                                                 <InfoIcon className="h-4 w-4" />
@@ -280,16 +307,24 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
                                             <button 
                                                 onClick={() => {
-                                                    if (transaction.isInternalTransfer && transaction.toWallet) {
+                                                    if (transaction.isInternalTransfer) {
                                                         onEditTransfer?.(transaction);
                                                     } else {
                                                         onEditTransaction(transaction);
                                                     }
                                                 }}
-                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-300/70 dark:hover:bg-neutral-600/70 rounded-r-full transition-colors duration-200"
+                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors duration-200"
                                                 aria-label="Edit transaksi"
                                             >
                                                 <EditIcon className="h-4 w-4" />
+                                            </button>
+                                            <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
+                                            <button 
+                                                onClick={() => handleDeleteClick(transaction)}
+                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 dark:hover:text-red-400 rounded-r-full transition-colors duration-200"
+                                                aria-label="Hapus transaksi"
+                                            >
+                                                <DeleteIcon className="h-4 w-4" />
                                             </button>
                                         </div>
                                     </div>

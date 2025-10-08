@@ -1,6 +1,6 @@
 import React from 'react';
 import { Font } from '../types';
-import { WalletIcon, CashIcon, MarginIcon } from '../components/icons/Icons';
+import { WalletIcon, CashIcon, MarginIcon, ChevronDownIcon } from '../components/icons/Icons';
 
 interface SettingsPageProps {
     appName: string;
@@ -66,101 +66,109 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appName, onAppNameChange, f
         <main className="p-4 sm:p-6 flex-1">
             <div className="mx-auto max-w-4xl">
                 <div className="space-y-6">
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white px-2">Pengaturan Aplikasi</h1>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-white px-2">Pengaturan</h1>
                     
+                    {/* Appearance Settings Card */}
                     <div className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
-                        <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-1">Nama Aplikasi</h3>
-                        <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">Ubah nama yang ditampilkan di header aplikasi.</p>
-                        
-                        <input 
-                            type="text" 
-                            id="appName"
-                            value={appName}
-                            onChange={(e) => onAppNameChange(e.target.value)}
-                            className={formInputClass}
-                            maxLength={30}
-                        />
+                        <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">Tampilan</h2>
+                        <div className="space-y-6">
+                            <div>
+                                <label htmlFor="appName" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Nama Aplikasi</label>
+                                <input 
+                                    type="text" 
+                                    id="appName"
+                                    value={appName}
+                                    onChange={(e) => onAppNameChange(e.target.value)}
+                                    className={formInputClass}
+                                    maxLength={30}
+                                />
+                            </div>
+                            <div>
+                               <label className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Jenis Huruf</label>
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                    {fonts.map((fontOption) => (
+                                        <label 
+                                            key={fontOption.id} 
+                                            className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-colors duration-200 ${
+                                                font === fontOption.id 
+                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10' 
+                                                : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'
+                                            }`}
+                                        >
+                                            <input
+                                                type="radio"
+                                                name="fontFamily"
+                                                value={fontOption.id}
+                                                checked={font === fontOption.id}
+                                                onChange={() => onFontChange(fontOption.id)}
+                                                className="sr-only"
+                                            />
+                                            <span className={`text-3xl ${fontOption.className}`}>Ag</span>
+                                            <span className={`mt-2 text-sm ${fontOption.className}`}>{fontOption.name}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
-                        <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-1">Jenis Huruf (Typeface)</h3>
-                        <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">Pilih jenis huruf yang akan digunakan di seluruh aplikasi.</p>
-                        
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                            {fonts.map((fontOption) => (
-                                <label 
-                                    key={fontOption.id} 
-                                    className={`flex flex-col items-center justify-center p-4 border-2 rounded-xl cursor-pointer transition-colors duration-200 ${
-                                        font === fontOption.id 
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10' 
-                                        : 'border-slate-200 dark:border-neutral-700 hover:border-slate-300 dark:hover:border-neutral-600'
-                                    }`}
-                                >
-                                    <input
-                                        type="radio"
-                                        name="fontFamily"
-                                        value={fontOption.id}
-                                        checked={font === fontOption.id}
-                                        onChange={() => onFontChange(fontOption.id)}
-                                        className="sr-only"
+                    
+                    {/* Information Section */}
+                    <div className="bg-white dark:bg-neutral-800 p-4 sm:p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                        <details className="group">
+                            <summary className="flex justify-between items-center cursor-pointer list-none">
+                                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">Informasi Alur Kas</h2>
+                                <ChevronDownIcon className="h-5 w-5 text-slate-500 dark:text-neutral-400 transition-transform duration-300 group-open:rotate-180" />
+                            </summary>
+                            <div className="mt-4 animate-fade-in">
+                                <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">
+                                    Contoh perhitungan untuk transaksi <b className="font-semibold text-slate-600 dark:text-neutral-200">Rp 50.000</b> dengan margin <b className="font-semibold text-slate-600 dark:text-neutral-200">Rp 5.000</b>.
+                                </p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <FlowCard 
+                                        title="Transfer Keluar"
+                                        description="Pelanggan bayar tunai"
+                                        walletChange="-50.000"
+                                        cashChange="+55.000"
+                                        marginDestination="Kas Tunai"
                                     />
-                                    <span className={`text-3xl ${fontOption.className}`}>Ag</span>
-                                    <span className={`mt-2 text-sm ${fontOption.className}`}>{fontOption.name}</span>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
-                        <h3 className="text-lg font-medium text-slate-800 dark:text-white mb-1">Logika Alur Kas</h3>
-                        <p className="text-sm text-slate-500 dark:text-neutral-400 mb-4">
-                            Contoh perhitungan untuk transaksi <b className="font-semibold text-slate-600 dark:text-neutral-200">Rp 50.000</b> dengan margin <b className="font-semibold text-slate-600 dark:text-neutral-200">Rp 5.000</b>.
-                        </p>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                            <FlowCard 
-                                title="Transfer Keluar"
-                                description="Pelanggan bayar tunai"
-                                walletChange="-50.000"
-                                cashChange="+55.000"
-                                marginDestination="Kas Tunai"
-                            />
-                            <FlowCard 
-                                title="Transfer Masuk"
-                                description="Pelanggan terima tunai"
-                                walletChange="+55.000"
-                                cashChange="-50.000"
-                                marginDestination="Dompet Agen"
-                            />
-                            <FlowCard 
-                                title="Tarik Tunai (Admin Dalam)"
-                                description="Admin dari saldo pelanggan"
-                                walletChange="+55.000"
-                                cashChange="-50.000"
-                                marginDestination="Dompet Agen"
-                            />
-                             <FlowCard 
-                                title="Tarik Tunai (Admin Luar)"
-                                description="Admin dibayar tunai"
-                                walletChange="+50.000"
-                                cashChange="-45.000"
-                                marginDestination="Kas Tunai"
-                            />
-                            <FlowCard 
-                                title="Piutang"
-                                description="Hutang dibayar kemudian"
-                                walletChange="-50.000"
-                                cashChange="± 0"
-                                marginDestination="(Belum Ada)"
-                            />
-                            <FlowCard 
-                                title="Pelunasan Piutang"
-                                description="Pelanggan bayar tunai"
-                                walletChange="± 0"
-                                cashChange="+55.000"
-                                marginDestination="Kas Tunai"
-                            />
-                        </div>
+                                    <FlowCard 
+                                        title="Transfer Masuk"
+                                        description="Pelanggan terima tunai"
+                                        walletChange="+55.000"
+                                        cashChange="-50.000"
+                                        marginDestination="Dompet Agen"
+                                    />
+                                    <FlowCard 
+                                        title="Tarik Tunai (Admin Dalam)"
+                                        description="Admin dari saldo pelanggan"
+                                        walletChange="+55.000"
+                                        cashChange="-50.000"
+                                        marginDestination="Dompet Agen"
+                                    />
+                                     <FlowCard 
+                                        title="Tarik Tunai (Admin Luar)"
+                                        description="Admin dibayar tunai"
+                                        walletChange="+50.000"
+                                        cashChange="-45.000"
+                                        marginDestination="Kas Tunai"
+                                    />
+                                    <FlowCard 
+                                        title="Piutang"
+                                        description="Hutang dibayar kemudian"
+                                        walletChange="-50.000"
+                                        cashChange="± 0"
+                                        marginDestination="(Belum Ada)"
+                                    />
+                                    <FlowCard 
+                                        title="Pelunasan Piutang"
+                                        description="Pelanggan bayar tunai"
+                                        walletChange="± 0"
+                                        cashChange="+55.000"
+                                        marginDestination="Kas Tunai"
+                                    />
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
             </div>

@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from 'react';
-import { Transaction, Wallet, SortDirection } from '../types';
+import { Transaction, Wallet, SortDirection, TransactionType } from '../types';
 import CustomerDetailModal from '../components/CustomerDetailModal';
-import { ChevronDownIcon, ChevronUpIcon } from '../components/icons/Icons';
+import RewardModal from '../components/RewardModal';
+import { ChevronDownIcon, ChevronUpIcon, GiftIcon } from '../components/icons/Icons';
 
 // Properti untuk komponen CustomerManagementPage.
 interface CustomerManagementPageProps {
     transactions: Transaction[];
     formatRupiah: (amount: number) => string;
     wallets: Wallet[];
+    onSaveTransaction: (data: Transaction | Omit<Transaction, 'id' | 'date'>) => void;
 }
 
 // Struktur data untuk ringkasan per pelanggan.
@@ -55,13 +57,15 @@ const SortableHeader: React.FC<{
  * termasuk jumlah transaksi, total margin, dan total piutang.
  * Data dapat difilter berdasarkan periode waktu dan diurutkan.
  */
-const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transactions, formatRupiah, wallets }) => {
+const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transactions, formatRupiah, wallets, onSaveTransaction }) => {
     // State untuk periode filter (misal: 'all-time' atau '2023-10').
     const [selectedPeriod, setSelectedPeriod] = useState('all-time');
     // State untuk visibilitas modal detail pelanggan.
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isRewardModalOpen, setIsRewardModalOpen] = useState(false);
     // State untuk menyimpan nama pelanggan yang detailnya akan ditampilkan.
     const [selectedCustomerName, setSelectedCustomerName] = useState<string | null>(null);
+    const [customerForReward, setCustomerForReward] = useState<CustomerSummary | null>(null);
     // State untuk pengurutan tabel.
     const [sortKey, setSortKey] = useState<CustomerSortKey>('totalMargin');
     const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -138,6 +142,27 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         setIsDetailModalOpen(true);
     };
 
+    const handleOpenRewardModal = (customer: CustomerSummary) => {
+        setCustomerForReward(customer);
+        setIsRewardModalOpen(true);
+    };
+
+    const handleSaveReward = (data: { rewardName: string, cost: number, walletId: string }) => {
+        if (!customerForReward) return;
+
+        const rewardTransaction: Omit<Transaction, 'id' | 'date'> = {
+            description: `Reward: ${data.rewardName}`,
+            customer: customerForReward.name,
+            type: TransactionType.OUT,
+            amount: data.cost,
+            margin: 0,
+            wallet: data.walletId,
+            isPiutang: false,
+        };
+        onSaveTransaction(rewardTransaction);
+        setIsRewardModalOpen(false);
+    };
+
     // Handler untuk mengubah pengurutan tabel.
     const handleSort = (key: CustomerSortKey) => {
         if (sortKey === key) {
@@ -193,6 +218,7 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                             <SortableHeader columnKey="transactionCount" title="Jml. Transaksi" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} textAlignment="text-center" />
                                             <SortableHeader columnKey="totalMargin" title="Total Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
                                             <SortableHeader columnKey="totalPiutang" title="Total Piutang" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
+                                            <th className="p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -210,10 +236,22 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                                 <td className={`p-3 text-sm font.medium ${customer.totalPiutang > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
                                                     {formatRupiah(customer.totalPiutang)}
                                                 </td>
+                                                <td className="p-3 text-sm text-center">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleOpenRewardModal(customer);
+                                                        }}
+                                                        className="p-2 rounded-full text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors"
+                                                        aria-label={`Beri reward untuk ${customer.name}`}
+                                                    >
+                                                        <GiftIcon className="h-5 w-5" />
+                                                    </button>
+                                                </td>
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan={4} className="text-center py-10 text-slate-400 dark:text-neutral-500">
+                                                <td colSpan={5} className="text-center py-10 text-slate-400 dark:text-neutral-500">
                                                     Tidak ada data pelanggan untuk periode ini.
                                                 </td>
                                             </tr>
@@ -233,6 +271,12 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                 transactions={selectedCustomerTransactions}
                 wallets={wallets}
                 formatRupiah={formatRupiah}
+            />
+             <RewardModal
+                isOpen={isRewardModalOpen}
+                onClose={() => setIsRewardModalOpen(false)}
+                onSave={handleSaveReward}
+                customerName={customerForReward?.name || null}
             />
         </>
     );

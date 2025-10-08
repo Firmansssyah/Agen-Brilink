@@ -191,7 +191,9 @@ const MainApp: React.FC = () => {
         let cashWalletChange = 0;
         
         // Logika ini dihitung seolah-olah untuk aksi 'create'.
-        if (isInternalTransfer) {
+        if (description.startsWith('Reward:')) {
+            primaryWalletChange = -amount; // Reward is an expense from the wallet, no cash change
+        } else if (isInternalTransfer) {
             primaryWalletChange = (type === TransactionType.OUT) ? -(amount + margin) : amount;
         } else if (description.startsWith('Pindah Saldo')) { // Kompatibilitas mundur
             primaryWalletChange = (type === TransactionType.IN) ? amount : -amount;
@@ -413,47 +415,27 @@ const MainApp: React.FC = () => {
     }, [applyWalletChanges, addToast, API_BASE_URL]);
     
     /**
-     * useCallback untuk menghapus transaksi dengan fitur "undo".
+     * useCallback untuk menghapus transaksi setelah dikonfirmasi.
      * @param transactionId - ID transaksi yang akan dihapus.
      */
-    const handleDeleteTransaction = useCallback((transactionId: string) => {
+    const handleDeleteTransaction = useCallback(async (transactionId: string) => {
         const transactionToDelete = transactions.find(t => t.id === transactionId);
-        if (!transactionToDelete) return;
-
-        let deleteTimeoutId: ReturnType<typeof setTimeout> | null = null;
-
-        // Fungsi yang akan dijalankan jika penghapusan dikonfirmasi (setelah 5 detik).
-        const confirmDelete = async () => {
-            if (deleteTimeoutId) clearTimeout(deleteTimeoutId);
-            try {
-                const res = await fetch(`${API_BASE_URL}/transactions/${transactionId}`, { method: 'DELETE' });
-                if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
-
-                await applyWalletChanges(transactionToDelete, 'delete');
-                setTransactions(prev => prev.filter(t => t.id !== transactionId));
-                addToast('Transaksi dihapus permanen', 'success');
-            } catch (err) {
-                console.error("Gagal menghapus transaksi:", err);
-                addToast('Gagal menghapus transaksi.', 'error');
-                // Mengembalikan state UI jika penghapusan gagal.
-                setTransactions(prev => prev.map(t => (t.id === transactionId ? { ...t, isDeleting: false } : t)));
-            }
+        if (!transactionToDelete) {
+            addToast('Transaksi untuk dihapus tidak ditemukan.', 'error');
+            return;
         };
 
-        // Fungsi untuk membatalkan penghapusan.
-        const cancelDelete = () => {
-            if (deleteTimeoutId) clearTimeout(deleteTimeoutId);
-            setTransactions(prev => prev.map(t => (t.id === transactionId ? { ...t, isDeleting: false } : t)));
-        };
+        try {
+            const res = await fetch(`${API_BASE_URL}/transactions/${transactionId}`, { method: 'DELETE' });
+            if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
 
-        // Menandai transaksi sebagai 'isDeleting' untuk menyembunyikannya dari UI secara langsung.
-        setTransactions(prev => prev.map(t => (t.id === transactionId ? { ...t, isDeleting: true } : t)));
-        
-        // Menjalankan timeout untuk penghapusan permanen.
-        deleteTimeoutId = setTimeout(confirmDelete, 5000);
-
-        // Menampilkan notifikasi dengan tombol "Urungkan".
-        addToast('Transaksi dihapus', 'info', { undoHandler: cancelDelete });
+            await applyWalletChanges(transactionToDelete, 'delete');
+            setTransactions(prev => prev.filter(t => t.id !== transactionId));
+            addToast('Transaksi berhasil dihapus', 'success');
+        } catch (err) {
+            console.error("Gagal menghapus transaksi:", err);
+            addToast('Gagal menghapus transaksi.', 'error');
+        }
     }, [transactions, applyWalletChanges, addToast, API_BASE_URL]);
 
     /**
@@ -951,7 +933,12 @@ const MainApp: React.FC = () => {
                     formatRupiah={formatRupiah}
                 />;
             case 'customers':
-                return <CustomerManagementPage transactions={transactions} formatRupiah={formatRupiah} wallets={wallets} />;
+                return <CustomerManagementPage 
+                    transactions={transactions} 
+                    formatRupiah={formatRupiah} 
+                    wallets={wallets} 
+                    onSaveTransaction={handleSaveTransaction}
+                />;
             case 'reports':
                 return <ReportsPage 
                     transactions={transactions} 

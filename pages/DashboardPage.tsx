@@ -15,6 +15,7 @@ import ReceivableDetailModal from '../components/ReceivableDetailModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import FinancialHighlightsCard from '../components/FinancialHighlightsCard';
 import TransactionDetailModal from '../components/TransactionDetailModal';
+import EditRewardModal from '../components/EditRewardModal';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -69,6 +70,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
     // State for visibilitas modal edit fee.
     const [isEditFeeModalOpen, setIsEditFeeModalOpen] = useState(false);
+    // State for visibilitas modal edit reward.
+    const [isEditRewardModalOpen, setIsEditRewardModalOpen] = useState(false);
     // State for menyimpan tanggal yang dipilih untuk modal detail harian.
     const [dailyModalDate, setDailyModalDate] = useState<string | null>(null);
     // State for filter.
@@ -88,6 +91,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     // State for visibilitas modal info transaksi.
     const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
     const [transactionForInfo, setTransactionForInfo] = useState<Transaction | null>(null);
+    // State for modal konfirmasi penghapusan transaksi umum.
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [transactionToDeleteId, setTransactionToDeleteId] = useState<string | null>(null);
 
     
     // useMemo for menghitung total margin pada bulan ini.
@@ -242,6 +248,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         if (transaction.description === 'Fee Brilink') {
             setTransactionToEdit(transaction);
             setIsEditFeeModalOpen(true);
+        } else if (transaction.description.startsWith('Reward:')) {
+            setTransactionToEdit(transaction);
+            setIsEditRewardModalOpen(true);
         } else {
             setTransactionToEdit(transaction);
             setIsTransactionModalOpen(true);
@@ -331,6 +340,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsEditFeeModalOpen(false);
     };
 
+    // Handler for memperbarui transaksi reward.
+    const handleUpdateReward = (updatedTransaction: Transaction) => {
+        onSaveTransaction(updatedTransaction);
+        setIsEditRewardModalOpen(false);
+    };
+
     // Handler for membuka modal transfer.
     const handleOpenTransferModal = () => {
         setTransferToEdit(null);
@@ -349,10 +364,16 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setTransferToEdit(null);
     }, [onBalanceTransfer, onUpdateBalanceTransfer]);
 
-    // Handler for membuka modal konfirmasi hapus transfer.
-    const handleOpenDeleteTransferConfirm = (transferId: string) => {
+    // Handler for membuka modal konfirmasi hapus transfer dari modal edit.
+    const handleOpenDeleteTransferConfirmFromEdit = (transferId: string) => {
         setIsTransferModalOpen(false);
         setTransferToEdit(null);
+        setTransferToDeleteId(transferId);
+        setIsDeleteTransferConfirmOpen(true);
+    };
+
+    // Handler for membuka modal konfirmasi hapus transfer dari baris tabel.
+    const handleDeleteTransferConfirm = (transferId: string) => {
         setTransferToDeleteId(transferId);
         setIsDeleteTransferConfirmOpen(true);
     };
@@ -365,6 +386,22 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsDeleteTransferConfirmOpen(false);
         setTransferToDeleteId(null);
     };
+    
+    // Handler untuk membuka modal konfirmasi hapus transaksi umum.
+    const handleDeleteTransactionConfirm = (transactionId: string) => {
+        setTransactionToDeleteId(transactionId);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    // Handler untuk mengonfirmasi penghapusan transaksi umum.
+    const handleConfirmDeleteTransaction = () => {
+        if (transactionToDeleteId) {
+            onDeleteTransaction(transactionToDeleteId);
+        }
+        setIsDeleteConfirmOpen(false);
+        setTransactionToDeleteId(null);
+    };
+
 
     // useCallback for membersihkan semua filter.
     const handleClearFilters = useCallback(() => {
@@ -410,7 +447,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 onSave={handleSaveTransfer}
                 wallets={wallets}
                 transferToEdit={transferToEdit}
-                onDelete={handleOpenDeleteTransferConfirm}
+                onDelete={handleOpenDeleteTransferConfirmFromEdit}
             />
             <TransactionModal
                 isOpen={isTransactionModalOpen}
@@ -460,12 +497,31 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 transactionToEdit={transactionToEdit}
                 formatRupiah={formatRupiah}
             />
+            <EditRewardModal
+                isOpen={isEditRewardModalOpen}
+                onClose={() => setIsEditRewardModalOpen(false)}
+                onSave={handleUpdateReward}
+                onDelete={onDeleteTransaction}
+                transactionToEdit={transactionToEdit}
+                formatRupiah={formatRupiah}
+            />
             <ConfirmationModal 
                 isOpen={isDeleteTransferConfirmOpen}
                 onClose={() => setIsDeleteTransferConfirmOpen(false)}
                 onConfirm={handleConfirmDeleteTransfer}
                 title="Hapus Pindah Saldo"
                 message="Apakah Anda yakin ingin menghapus transaksi pindah saldo ini? Kedua transaksi (keluar dan masuk) akan dihapus secara permanen."
+                confirmText="Ya, Hapus"
+                confirmColor="bg-red-600 hover:bg-red-700"
+            />
+             <ConfirmationModal 
+                isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={handleConfirmDeleteTransaction}
+                title="Hapus Transaksi"
+                message="Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan."
+                confirmText="Ya, Hapus"
+                confirmColor="bg-red-600 hover:bg-red-700"
             />
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-7xl">
@@ -559,7 +615,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                             formatRupiah={formatRupiah} 
                                             onInfoTransaction={handleOpenInfoModal}
                                             onEditTransaction={handleOpenEditModal}
+                                            onDeleteTransactionConfirm={handleDeleteTransactionConfirm}
                                             onEditTransfer={handleOpenEditTransferModal}
+                                            onDeleteTransferConfirm={handleDeleteTransferConfirm}
                                             sortKey={sortKey}
                                             sortDirection={sortDirection}
                                             onSort={handleSort}

@@ -3,7 +3,7 @@ import { Transaction } from '../types';
 import DatePicker from './DatePicker';
 import ConfirmationModal from './ConfirmationModal';
 
-interface EditFeeModalProps {
+interface EditRewardModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (transaction: Transaction) => void;
@@ -19,14 +19,32 @@ const toYYYYMMDD = (date: Date): string => {
     return `${year}-${month}-${day}`;
 };
 
-const EditFeeModal: React.FC<EditFeeModalProps> = ({ isOpen, onClose, onSave, onDelete, transactionToEdit, formatRupiah }) => {
-    const [date, setDate] = useState('');
+const EditRewardModal: React.FC<EditRewardModalProps> = ({ isOpen, onClose, onSave, onDelete, transactionToEdit, formatRupiah }) => {
     const [isVisible, setIsVisible] = useState(false);
+    const [rewardName, setRewardName] = useState('');
+    const [cost, setCost] = useState<number | null>(null);
+    const [date, setDate] = useState('');
+    const [error, setError] = useState('');
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-    
+
+
+    const formatInputValue = (value: number | null) => {
+        if (value === null) return '';
+        return new Intl.NumberFormat('id-ID').format(value);
+    };
+
+    const parseInputValue = (value: string): number | null => {
+        if (value.trim() === '') return null;
+        const num = Number(value.replace(/\./g, ''));
+        return isNaN(num) ? null : num;
+    };
+
     useEffect(() => {
         if (isOpen && transactionToEdit) {
+            setRewardName(transactionToEdit.description.replace('Reward: ', ''));
+            setCost(transactionToEdit.amount);
             setDate(toYYYYMMDD(new Date(transactionToEdit.date)));
+            setError('');
             setIsVisible(true);
         } else {
             setIsVisible(false);
@@ -40,12 +58,26 @@ const EditFeeModal: React.FC<EditFeeModalProps> = ({ isOpen, onClose, onSave, on
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (transactionToEdit && date) {
+        setError('');
+        if (!rewardName.trim()) {
+            setError('Nama hadiah harus diisi.');
+            return;
+        }
+        if (cost === null || cost <= 0) {
+            setError('Biaya hadiah harus lebih besar dari 0.');
+            return;
+        }
+        if (transactionToEdit) {
             const originalDate = new Date(transactionToEdit.date);
             const [year, month, day] = date.split('-').map(Number);
             const newDate = new Date(year, month - 1, day, originalDate.getHours(), originalDate.getMinutes(), originalDate.getSeconds());
             
-            onSave({ ...transactionToEdit, date: newDate.toISOString() });
+            onSave({
+                ...transactionToEdit,
+                description: `Reward: ${rewardName}`,
+                amount: cost,
+                date: newDate.toISOString()
+            });
         }
     };
     
@@ -61,8 +93,11 @@ const EditFeeModal: React.FC<EditFeeModalProps> = ({ isOpen, onClose, onSave, on
         handleClose();
     };
 
+
     if (!isOpen || !transactionToEdit) return null;
 
+    const formInputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500";
+    
     return (
         <>
             <div 
@@ -70,32 +105,54 @@ const EditFeeModal: React.FC<EditFeeModalProps> = ({ isOpen, onClose, onSave, on
                 onClick={handleClose}
                 role="dialog"
                 aria-modal="true"
-                aria-labelledby="edit-fee-modal-title"
+                aria-labelledby="edit-reward-modal-title"
             >
                 <div 
                     className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-sm transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="p-6">
-                        <h2 id="edit-fee-modal-title" className="text-xl font-medium text-slate-800 dark:text-white">Edit Fee Brilink</h2>
+                        <h2 id="edit-reward-modal-title" className="text-xl font-medium text-slate-800 dark:text-white">Edit Reward</h2>
+                        <p className="text-sm text-slate-500 dark:text-neutral-400">Untuk: {transactionToEdit.customer}</p>
                     </div>
                     <form onSubmit={handleSubmit}>
                         <div className="p-6 space-y-5">
                             <div>
-                                <label className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Jumlah Fee</label>
-                                <div className="w-full bg-slate-100 dark:bg-neutral-700 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white">
-                                    {formatRupiah(transactionToEdit.margin)}
-                                </div>
+                                <label htmlFor="rewardNameEdit" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Nama Hadiah</label>
+                                <input
+                                    type="text"
+                                    id="rewardNameEdit"
+                                    value={rewardName}
+                                    onChange={(e) => setRewardName(e.target.value)}
+                                    placeholder="cth: Beras 5kg"
+                                    className={formInputClass}
+                                    required
+                                    autoFocus
+                                />
                             </div>
                             <div>
-                                <label htmlFor="date" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Tanggal</label>
+                                <label htmlFor="costEdit" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Biaya (Rp)</label>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    id="costEdit"
+                                    value={formatInputValue(cost)}
+                                    onChange={(e) => setCost(parseInputValue(e.target.value))}
+                                    placeholder="cth: 75.000"
+                                    className={formInputClass}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="dateEdit" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Tanggal</label>
                                 <DatePicker
                                     value={date}
                                     onChange={setDate}
                                 />
                             </div>
+                            {error && <p className="text-sm text-red-500 dark:text-red-400 text-center">{error}</p>}
                         </div>
-                        <div className="px-6 py-4 flex justify-between items-center">
+                        <div className="px-6 py-4 flex justify-between items-center border-t border-slate-200 dark:border-white/10">
                             <button 
                                 type="button" 
                                 onClick={handleDelete}
@@ -115,8 +172,8 @@ const EditFeeModal: React.FC<EditFeeModalProps> = ({ isOpen, onClose, onSave, on
                 isOpen={isDeleteConfirmOpen}
                 onClose={() => setIsDeleteConfirmOpen(false)}
                 onConfirm={handleConfirmDelete}
-                title="Hapus Fee"
-                message="Apakah Anda yakin ingin menghapus fee ini? Tindakan ini tidak dapat dibatalkan."
+                title="Hapus Reward"
+                message="Apakah Anda yakin ingin menghapus reward ini? Tindakan ini tidak dapat dibatalkan."
                 confirmText="Ya, Hapus"
                 confirmColor="bg-red-600 hover:bg-red-700"
             />
@@ -124,4 +181,4 @@ const EditFeeModal: React.FC<EditFeeModalProps> = ({ isOpen, onClose, onSave, on
     );
 };
 
-export default EditFeeModal;
+export default EditRewardModal;

@@ -4,6 +4,7 @@ import { ChevronDownIcon, CheckIcon, DeleteIcon } from './icons/Icons';
 // FIX: Changed to named import
 import { WalletIconComponent } from './WalletIconComponent';
 import DatePicker from './DatePicker';
+import ConfirmationModal from './ConfirmationModal';
 
 interface TransactionModalProps {
     isOpen: boolean;
@@ -58,6 +59,8 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [showMarginSuggestions, setShowMarginSuggestions] = useState(false);
     const [showNotes, setShowNotes] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
 
     const marginSuggestions = useMemo(() => {
         const specialCategories = ['Pulsa', 'Listrik', 'Lainnya'];
@@ -197,10 +200,15 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     };
 
     const handleDelete = () => {
+        setIsDeleteConfirmOpen(true);
+    };
+    
+    const handleConfirmDelete = () => {
         if (transactionToEdit) {
             onDeleteTransaction(transactionToEdit.id);
-            handleClose();
         }
+        setIsDeleteConfirmOpen(false);
+        handleClose();
     };
     
     const handleMarginSuggestionClick = (amount: number) => {
@@ -460,6 +468,17 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                     </form>
                 </div>
             </div>
+            {transactionToEdit && (
+                <ConfirmationModal
+                    isOpen={isDeleteConfirmOpen}
+                    onClose={() => setIsDeleteConfirmOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    title="Hapus Transaksi"
+                    message="Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan."
+                    confirmText="Ya, Hapus"
+                    confirmColor="bg-red-600 hover:bg-red-700"
+                />
+            )}
         </>
     );
 };
