@@ -197,6 +197,21 @@ const MainApp: React.FC = () => {
             primaryWalletChange = (type === TransactionType.IN) ? amount : -amount;
         } else if (description === 'Fee Brilink') {
             primaryWalletChange = margin;
+        } else if (description === 'Tambah Modal') {
+             // Menambah modal hanya mempengaruhi dompet utama, bukan kas.
+             // Jika yang dihapus adalah 'Tambah Modal', saldo dompet akan berkurang, tapi KAS tidak bertambah.
+            if (action === 'delete') {
+                primaryWalletChange = -amount;
+                cashWalletChange = 0;
+            } else { // 'create'
+                primaryWalletChange = amount;
+                cashWalletChange = 0;
+            }
+        } else if (description === 'Penyesuaian Kas') {
+            // Penyesuaian kas hanya mempengaruhi dompet utama (yang diset ke 'CASH')
+            // dan tidak ada efek ke dompet lain, jadi cashWalletChange = 0 untuk menghindari penghitungan ganda.
+            primaryWalletChange = (type === TransactionType.IN) ? amount : -amount;
+            cashWalletChange = 0;
         } else if (description.startsWith('Penarikan Margin')) {
             cashWalletChange = -amount;
         } else if (description === 'Tarik Tunai') {
@@ -218,8 +233,8 @@ const MainApp: React.FC = () => {
             }
         }
 
-        // Jika aksi adalah 'delete', balikkan semua nilainya.
-        const multiplier = action === 'create' ? 1 : -1;
+        // Jika aksi adalah 'delete', balikkan semua nilainya, kecuali untuk 'Tambah Modal' yang sudah ditangani secara spesifik.
+        const multiplier = (action === 'create' || description === 'Tambah Modal') ? 1 : -1;
 
         return {
             primaryWalletId,
@@ -287,7 +302,7 @@ const MainApp: React.FC = () => {
 
         await Promise.all(updatePromises);
 
-    }, [API_BASE_URL]);
+    }, [API_BASE_URL, wallets]);
 
     /**
      * useCallback untuk menangani penyimpanan transaksi (baik baru maupun editan).
@@ -363,7 +378,7 @@ const MainApp: React.FC = () => {
                 if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
                 const savedTransaction = await res.json();
                 
-                setTransactions(prev => [savedTransaction, ...prev]);
+                setTransactions(prev => [savedTransaction, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
                 await applyWalletChanges(savedTransaction, 'create');
             }
             addToast(isEditing ? 'Transaksi berhasil diperbarui' : 'Transaksi berhasil ditambahkan', 'success');
@@ -932,6 +947,7 @@ const MainApp: React.FC = () => {
                     onDeleteCategory={handleDeleteCategory}
                     onSaveInitialBalances={handleSaveInitialBalances}
                     onSaveCapital={handleSaveCapitalTransaction}
+                    onSaveTransaction={handleSaveTransaction}
                     formatRupiah={formatRupiah}
                 />;
             case 'customers':

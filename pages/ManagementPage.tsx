@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Wallet } from '../types';
-import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon } from '../components/icons/Icons';
+import { Transaction, TransactionType, Wallet } from '../types';
+import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon, TuneIcon } from '../components/icons/Icons';
 import AddEditWalletModal from '../components/AddEditWalletModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
 import InitialBalanceModal from '../components/InitialBalanceModal';
 import AddCapitalModal from '../components/AddCapitalModal';
+import AdjustCashModal from '../components/AdjustCashModal';
 
 interface ManagementPageProps {
     wallets: Wallet[];
@@ -16,6 +17,7 @@ interface ManagementPageProps {
     onDeleteCategory: (categoryName: string) => Promise<void>;
     onSaveInitialBalances: (updatedWallets: { id: string; initialBalance: number }[]) => Promise<void>;
     onSaveCapital: (data: { walletId: string; amount: number; }) => Promise<void>;
+    onSaveTransaction: (data: Omit<Transaction, 'id' | 'date'>) => Promise<void>;
     formatRupiah: (amount: number) => string;
 }
 
@@ -28,6 +30,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     onDeleteCategory,
     onSaveInitialBalances,
     onSaveCapital,
+    onSaveTransaction,
     formatRupiah,
 }) => {
     // State from WalletManagementPage
@@ -37,6 +40,8 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
     const [isInitialBalanceModalOpen, setIsInitialBalanceModalOpen] = useState(false);
     const [isAddCapitalModalOpen, setIsAddCapitalModalOpen] = useState(false);
+    const [isAdjustCashModalOpen, setIsAdjustCashModalOpen] = useState(false);
+
 
     // State from TransactionCategoryPage
     const [isAddEditCategoryModalOpen, setIsAddEditCategoryModalOpen] = useState(false);
@@ -77,6 +82,21 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
         await onSaveCapital(data);
         setIsAddCapitalModalOpen(false);
     }
+    
+    const handleSaveCashAdjustment = async (data: { type: TransactionType; amount: number; notes: string; }) => {
+        const adjustmentTransaction: Omit<Transaction, 'id' | 'date'> = {
+            description: 'Penyesuaian Kas',
+            customer: 'Internal',
+            type: data.type,
+            amount: data.amount,
+            margin: 0,
+            wallet: 'CASH', // Hardcoded to CASH wallet
+            isPiutang: false,
+            notes: data.notes,
+        };
+        await onSaveTransaction(adjustmentTransaction);
+        setIsAdjustCashModalOpen(false);
+    };
 
     // Handlers from TransactionCategoryPage
     const handleOpenAddCategoryModal = () => {
@@ -114,9 +134,9 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Wallet Management Section */}
                     <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
-                        <div className="flex justify-between items-center mb-4 px-2">
-                            <h3 className="text-lg font-medium text-slate-800 dark:text-white">Daftar Dompet</h3>
-                            <div className="flex items-center space-x-2 flex-wrap gap-2 justify-end">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 px-2">
+                            <h3 className="text-lg font.medium text-slate-800 dark:text-white flex-shrink-0">Daftar Dompet</h3>
+                            <div className="flex items-center flex-wrap gap-2 justify-start sm:justify-end">
                                 <button
                                     onClick={() => setIsInitialBalanceModalOpen(true)}
                                     className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-neutral-700/50 dark:hover:bg-neutral-700 dark:text-neutral-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
@@ -132,6 +152,14 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                 >
                                     <PlusIcon className="h-4 w-4" />
                                     <span>Tambah Modal</span>
+                                </button>
+                                <button
+                                    onClick={() => setIsAdjustCashModalOpen(true)}
+                                    className="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 dark:bg-yellow-400/10 dark:hover:bg-yellow-400/20 dark:text-yellow-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                    aria-label="Sesuaikan kas tunai"
+                                >
+                                    <TuneIcon className="h-4 w-4" />
+                                    <span>Sesuaikan Kas</span>
                                 </button>
                                 <button 
                                     onClick={handleOpenAddWalletModal}
@@ -175,11 +203,11 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
 
                     {/* Category Management Section */}
                     <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
-                        <div className="flex justify-between items-center mb-4 px-2">
-                            <h3 className="text-lg font-medium text-slate-800 dark:text-white">Jenis Transaksi</h3>
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 px-2">
+                            <h3 className="text-lg font.medium text-slate-800 dark:text-white">Jenis Transaksi</h3>
                             <button 
                                 onClick={handleOpenAddCategoryModal}
-                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm self-start sm:self-auto"
                             >
                                 <PlusIcon />
                                 <span>Tambah Kategori</span>
@@ -251,6 +279,11 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     onClose={() => setIsAddCapitalModalOpen(false)}
                     onSave={handleSaveCapital}
                     wallets={wallets}
+                />
+                <AdjustCashModal
+                    isOpen={isAdjustCashModalOpen}
+                    onClose={() => setIsAdjustCashModalOpen(false)}
+                    onSave={handleSaveCashAdjustment}
                 />
             </div>
         </main>
