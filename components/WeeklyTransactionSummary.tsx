@@ -25,7 +25,7 @@ const WeeklyTransactionSummary: React.FC<WeeklyTransactionSummaryProps> = ({ tra
 
         const transactionMap = new Map<string, { count: number; totalMargin: number }>();
         transactions
-            .filter(t => !t.isInternalTransfer && t.description !== 'Fee Brilink')
+            .filter(t => !t.isInternalTransfer && t.description !== 'Fee Brilink' && t.description !== 'Tambah Modal')
             .forEach(t => {
                 const transactionDate = new Date(t.date); 
                 const dateStr = getLocalDateString(transactionDate);
