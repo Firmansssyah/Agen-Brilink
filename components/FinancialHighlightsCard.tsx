@@ -10,7 +10,7 @@ interface FinancialHighlightsCardProps {
 const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ totalAssets, totalMargin, formatRupiah }) => {
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl p-3 shadow-lg shadow-slate-200/50 dark:shadow-none">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Total Aset */}
                 <div className="bg-blue-100 dark:bg-blue-500/10 p-4 rounded-2xl flex items-center gap-4">
                     <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white dark:bg-blue-400/20 flex items-center justify-center">
