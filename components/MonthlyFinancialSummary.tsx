@@ -66,21 +66,21 @@ const MonthlyFinancialSummary: React.FC<MonthlyFinancialSummaryProps> = ({ trans
                     <table className="w-full text-left">
                         <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                             <tr>
-                                <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Periode</th>
-                                <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Omzet</th>
-                                <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Margin</th>
-                                <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Jml. Transaksi</th>
-                                <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Piutang Baru</th>
+                                <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Periode</th>
+                                <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Omzet</th>
+                                <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Margin</th>
+                                <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Jml. Transaksi</th>
+                                <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Piutang Baru</th>
                             </tr>
                         </thead>
                         <tbody>
                             {monthlyData.length > 0 ? monthlyData.map(summary => (
                                 <tr key={`${summary.year}-${summary.month}`} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200">
-                                    <td className="p-3 text-sm text-slate-800 dark:text-white font-medium">{summary.month} {summary.year}</td>
-                                    <td className="p-3 text-sm text-slate-600 dark:text-neutral-300">{formatRupiah(summary.totalOmzet)}</td>
-                                    <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.totalMargin)}</td>
-                                    <td className="p-3 text-sm text-slate-600 dark:text-neutral-300 text-center">{summary.transactionCount}</td>
-                                    <td className={`p-3 text-sm font-medium ${summary.newReceivables > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
+                                    <td className="p-2 text-sm text-slate-800 dark:text-white font-medium">{summary.month} {summary.year}</td>
+                                    <td className="p-2 text-sm text-slate-600 dark:text-neutral-300">{formatRupiah(summary.totalOmzet)}</td>
+                                    <td className="p-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(summary.totalMargin)}</td>
+                                    <td className="p-2 text-sm text-slate-600 dark:text-neutral-300 text-center">{summary.transactionCount}</td>
+                                    <td className={`p-2 text-sm font-medium ${summary.newReceivables > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
                                         {formatRupiah(summary.newReceivables)}
                                     </td>
                                 </tr>

@@ -175,19 +175,19 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                 <table className="w-full text-left">
                                     <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                                         <tr>
-                                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Dompet</th>
-                                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Modal Awal</th>
-                                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Saldo</th>
-                                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
+                                            <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Dompet</th>
+                                            <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Modal Awal</th>
+                                            <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Saldo</th>
+                                            <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {wallets.map(wallet => (
                                             <tr key={wallet.id} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200">
-                                                <td className="p-3 text-sm text-slate-800 dark:text-white">{wallet.name}</td>
-                                                <td className="p-3 text-sm text-slate-500 dark:text-neutral-400">{formatRupiah(wallet.initialBalance ?? 0)}</td>
-                                                <td className="p-3 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(wallet.balance)}</td>
-                                                <td className="p-3 text-sm text-center">
+                                                <td className="p-2 text-sm text-slate-800 dark:text-white">{wallet.name}</td>
+                                                <td className="p-2 text-sm text-slate-500 dark:text-neutral-400">{formatRupiah(wallet.initialBalance ?? 0)}</td>
+                                                <td className="p-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(wallet.balance)}</td>
+                                                <td className="p-2 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
                                                         <button onClick={() => handleOpenEditWalletModal(wallet)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit dompet ${wallet.name}`}><EditIcon /></button>
                                                         <button onClick={() => handleOpenDeleteWalletModal(wallet)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus dompet ${wallet.name}`}><DeleteIcon /></button>
@@ -218,15 +218,15 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                 <table className="w-full text-left">
                                     <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                                         <tr>
-                                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Nama Kategori</th>
-                                            <th className="p-3 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
+                                            <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Nama Kategori</th>
+                                            <th className="p-2 text-xs font-medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {categories.map((category, index) => (
                                             <tr key={index} className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200">
-                                                <td className="p-3 text-sm text-slate-800 dark:text-white">{category}</td>
-                                                <td className="p-3 text-sm text-center">
+                                                <td className="p-2 text-sm text-slate-800 dark:text-white">{category}</td>
+                                                <td className="p-2 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
                                                         <button onClick={() => handleOpenEditCategoryModal(category)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit kategori ${category}`}><EditIcon /></button>
                                                         <button onClick={() => handleOpenDeleteCategoryModal(category)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus kategori ${category}`}><DeleteIcon /></button>

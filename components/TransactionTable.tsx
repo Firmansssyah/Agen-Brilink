@@ -34,7 +34,7 @@ const SortableHeader: React.FC<{
     const isActive = sortKey === columnKey; // Cek apakah ini kolom yang sedang aktif diurutkan.
     
     return (
-        <th className={`p-3 text-xs font.medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider ${className}`}>
+        <th className={`p-2 text-xs font.medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider ${className}`}>
             <button onClick={() => onSort(columnKey)} className="flex items-center space-x-1.5 group focus:outline-none">
                 <span className={isActive ? "text-slate-800 dark:text-white" : ""}>{title}</span>
                 {/* Menampilkan ikon panah naik/turun jika kolom ini aktif */}
@@ -94,7 +94,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                                     <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                                     <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                    <th className="p-3 text-xs font.medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
+                                    <th className="p-2 text-xs font.medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-white/10">
@@ -106,8 +106,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             transaction.isPiutang ? 'bg-red-100 dark:bg-red-500/10 hover:bg-red-200/60 dark:hover:bg-red-500/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                         }`}
                                     >
-                                        <td className="p-3 text-sm text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
-                                        <td className="p-3 text-sm text-slate-800 dark:text-white">
+                                        <td className="p-2 text-sm text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
+                                        <td className="p-2 text-sm text-slate-800 dark:text-white">
                                             <span>{transaction.description}</span>
                                             {/* Menampilkan catatan jika ada */}
                                             {transaction.notes && (
@@ -116,8 +116,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                 </p>
                                             )}
                                         </td>
-                                        <td className="p-3 text-sm text-slate-600 dark:text-neutral-300">{transaction.customer}</td>
-                                        <td className={`p-3 text-sm font.medium ${
+                                        <td className="p-2 text-sm text-slate-600 dark:text-neutral-300">{transaction.customer}</td>
+                                        <td className={`p-2 text-sm font.medium ${
                                                 // Logika pewarnaan dan tampilan untuk kolom Jumlah.
                                                 transaction.toWallet ? 'text-slate-800 dark:text-white' :
                                                 transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
@@ -156,8 +156,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                 </div>
                                             )}
                                         </td>
-                                        <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
-                                        <td className="p-3 text-sm text-center">
+                                        <td className="p-2 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
+                                        <td className="p-2 text-sm text-center">
                                             <div className="inline-flex items-center rounded-full bg-slate-100 dark:bg-neutral-700/60">
                                                 <button 
                                                     onClick={(e) => {

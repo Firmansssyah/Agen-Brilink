@@ -131,10 +131,10 @@ const BrilinkFeeDetailModal: React.FC<BrilinkFeeDetailModalProps> = ({
                                                         <tbody>
                                                             {transactions.map(t => (
                                                                  <tr key={t.id} className="border-b border-slate-200/50 dark:border-white/5 last:border-b-0">
-                                                                    <td className="py-1.5 px-3 pr-2 text-slate-600 dark:text-neutral-300">
+                                                                    <td className="py-1 px-2 text-slate-600 dark:text-neutral-300">
                                                                         {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                                     </td>
-                                                                    <td className="py-1.5 px-3 pl-2 text-right font-medium text-emerald-600 dark:text-emerald-400">
+                                                                    <td className="py-1 px-2 text-right font-medium text-emerald-600 dark:text-emerald-400">
                                                                         {formatRupiah(t.margin)}
                                                                     </td>
                                                                 </tr>

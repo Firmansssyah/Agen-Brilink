@@ -39,7 +39,7 @@ const SortableHeader: React.FC<{
     const isActive = sortKey === columnKey; // Cek apakah ini kolom yang sedang aktif diurutkan.
     
     return (
-        <th className={`p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider ${className} ${textAlignment}`}>
+        <th className={`p-2 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider ${className} ${textAlignment}`}>
             <button onClick={() => onSort(columnKey)} className={`flex items-center space-x-1.5 group focus:outline-none ${textAlignment === 'text-center' ? 'mx-auto' : ''}`}>
                 <span className={isActive ? "text-slate-800 dark:text-white" : ""}>{title}</span>
                 {/* Menampilkan ikon panah naik/turun jika kolom ini aktif */}
@@ -218,7 +218,7 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                             <SortableHeader columnKey="transactionCount" title="Jml. Transaksi" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} textAlignment="text-center" />
                                             <SortableHeader columnKey="totalMargin" title="Total Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
                                             <SortableHeader columnKey="totalPiutang" title="Total Piutang" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
-                                            <th className="p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
+                                            <th className="p-2 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -228,15 +228,15 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                                 className="border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors duration-200 cursor-pointer"
                                                 onClick={() => handleRowClick(customer.name)}
                                             >
-                                                <td className="p-3 text-sm text-slate-800 dark:text-white font.medium">{customer.name}</td>
-                                                <td className="p-3 text-sm text-slate-600 dark:text-neutral-300 text-center">{customer.transactionCount}</td>
-                                                <td className="p-3 text-sm font.medium text-emerald-600 dark:text-emerald-400">
+                                                <td className="p-2 text-sm text-slate-800 dark:text-white font.medium">{customer.name}</td>
+                                                <td className="p-2 text-sm text-slate-600 dark:text-neutral-300 text-center">{customer.transactionCount}</td>
+                                                <td className="p-2 text-sm font.medium text-emerald-600 dark:text-emerald-400">
                                                     {formatRupiah(customer.totalMargin)}
                                                 </td>
-                                                <td className={`p-3 text-sm font.medium ${customer.totalPiutang > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
+                                                <td className={`p-2 text-sm font.medium ${customer.totalPiutang > 0 ? 'text-yellow-500 dark:text-yellow-400' : 'text-slate-500 dark:text-neutral-400'}`}>
                                                     {formatRupiah(customer.totalPiutang)}
                                                 </td>
-                                                <td className="p-3 text-sm text-center">
+                                                <td className="p-2 text-sm text-center">
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();

@@ -133,10 +133,10 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-50 dark:bg-white/5 sticky top-0">
                                         <tr>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400">Tanggal</th>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400">Deskripsi</th>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400 text-right">Jumlah</th>
-                                            <th className="p-3 font-medium text-slate-500 dark:text-neutral-400 text-right">Margin</th>
+                                            <th className="p-2 font-medium text-slate-500 dark:text-neutral-400">Tanggal</th>
+                                            <th className="p-2 font-medium text-slate-500 dark:text-neutral-400">Deskripsi</th>
+                                            <th className="p-2 font-medium text-slate-500 dark:text-neutral-400 text-right">Jumlah</th>
+                                            <th className="p-2 font-medium text-slate-500 dark:text-neutral-400 text-right">Margin</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -144,10 +144,10 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                                             const isReward = t.description.startsWith('Reward:');
                                             return (
                                                 <tr key={t.id} className={`border-b border-slate-200 dark:border-white/10 last:border-b-0 hover:bg-slate-100/50 dark:hover:bg-white/5 transition-colors duration-200 ${isReward ? 'bg-amber-50 dark:bg-amber-500/10' : ''}`}>
-                                                    <td className="p-3 text-slate-600 dark:text-neutral-300 whitespace-nowrap">
+                                                    <td className="p-2 text-slate-600 dark:text-neutral-300 whitespace-nowrap">
                                                         {new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short' })}
                                                     </td>
-                                                    <td className="p-3 text-slate-800 dark:text-white">
+                                                    <td className="p-2 text-slate-800 dark:text-white">
                                                         <div className="flex items-center gap-2">
                                                             {isReward && <GiftIcon className="h-4 w-4 text-amber-500 flex-shrink-0" />}
                                                             <div>
@@ -160,10 +160,10 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className={`p-3 font-medium text-right ${t.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                                                    <td className={`p-2 font-medium text-right ${t.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
                                                         {formatRupiah(t.amount)}
                                                     </td>
-                                                    <td className="p-3 text-sky-600 dark:text-sky-300 text-right">{formatRupiah(t.margin)}</td>
+                                                    <td className="p-2 text-sky-600 dark:text-sky-300 text-right">{formatRupiah(t.margin)}</td>
                                                 </tr>
                                             )
                                         })}
