@@ -115,14 +115,15 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                                     <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
                                     <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                    <th className="p-3 text-xs font.medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-right">Aksi</th>
+                                    <th className="p-3 text-xs font.medium uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200 dark:divide-white/10">
                                 {transactions.map(transaction => (
                                     <tr 
-                                        key={transaction.id} 
-                                        className={`transition-colors duration-200 ${
+                                        key={transaction.id}
+                                        onClick={() => onInfoTransaction(transaction)}
+                                        className={`transition-colors duration-200 cursor-pointer ${
                                             transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                         }`}
                                     >
@@ -185,32 +186,28 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             )}
                                         </td>
                                         <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
-                                        <td className="p-3 text-sm text-right">
+                                        <td className="p-3 text-sm text-center">
                                             <div className="inline-flex items-center rounded-full bg-slate-100 dark:bg-neutral-700/60">
-                                                <button
-                                                    onClick={() => onInfoTransaction(transaction)}
-                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-500 dark:hover:text-blue-400 rounded-l-full transition-colors duration-200"
-                                                    aria-label="Info transaksi"
-                                                >
-                                                    <InfoIcon className="h-4 w-4" />
-                                                </button>
-                                                <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
                                                 <button 
-                                                    onClick={() => {
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         if (transaction.isInternalTransfer) {
                                                             onEditTransfer?.(transaction);
                                                         } else {
                                                             onEditTransaction(transaction);
                                                         }
                                                     }}
-                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors duration-200"
+                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-500 dark:hover:text-emerald-400 rounded-l-full transition-colors duration-200"
                                                     aria-label="Edit transaksi"
                                                 >
                                                     <EditIcon className="h-4 w-4" />
                                                 </button>
                                                 <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
                                                 <button 
-                                                    onClick={() => handleDeleteClick(transaction)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleDeleteClick(transaction);
+                                                    }}
                                                     className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 dark:hover:text-red-400 rounded-r-full transition-colors duration-200"
                                                     aria-label="Hapus transaksi"
                                                 >
@@ -239,7 +236,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                         return (
                             <div 
                                 key={transaction.id}
-                                className={`p-4 rounded-2xl border transition-colors duration-200 ${
+                                onClick={() => onInfoTransaction(transaction)}
+                                className={`p-4 rounded-2xl border transition-colors duration-200 cursor-pointer ${
                                     transaction.isPiutang 
                                         ? 'bg-yellow-100 border-yellow-200 dark:bg-yellow-400/10 dark:border-yellow-400/20 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20 border-l-4 border-l-yellow-400 dark:border-l-yellow-500' 
                                         : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10'
@@ -298,29 +296,25 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         <p className="text-xs text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
                                         <div className="inline-flex items-center rounded-full bg-slate-200/70 dark:bg-neutral-700/60">
                                             <button 
-                                                onClick={() => onInfoTransaction(transaction)}
-                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-blue-100 dark:hover:bg-blue-500/20 hover:text-blue-500 dark:hover:text-blue-400 rounded-l-full transition-colors duration-200"
-                                                aria-label="Info transaksi"
-                                            >
-                                                <InfoIcon className="h-4 w-4" />
-                                            </button>
-                                            <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
-                                            <button 
-                                                onClick={() => {
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
                                                     if (transaction.isInternalTransfer) {
                                                         onEditTransfer?.(transaction);
                                                     } else {
                                                         onEditTransaction(transaction);
                                                     }
                                                 }}
-                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors duration-200"
+                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:text-emerald-500 dark:hover:text-emerald-400 rounded-l-full transition-colors duration-200"
                                                 aria-label="Edit transaksi"
                                             >
                                                 <EditIcon className="h-4 w-4" />
                                             </button>
                                             <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
                                             <button 
-                                                onClick={() => handleDeleteClick(transaction)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleDeleteClick(transaction)
+                                                }}
                                                 className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-red-100 dark:hover:bg-red-500/20 hover:text-red-500 dark:hover:text-red-400 rounded-r-full transition-colors duration-200"
                                                 aria-label="Hapus transaksi"
                                             >
