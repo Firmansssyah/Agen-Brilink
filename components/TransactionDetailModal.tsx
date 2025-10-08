@@ -11,10 +11,10 @@ interface TransactionDetailModalProps {
     formatRupiah: (amount: number) => string;
 }
 
-const DetailRow: React.FC<{ label: string; value: React.ReactNode; isAmount?: boolean }> = ({ label, value, isAmount = false }) => (
-    <div className="flex justify-between items-start py-3 border-b border-slate-200 dark:border-white/10 last:border-b-0">
-        <span className="text-sm text-slate-500 dark:text-neutral-400 flex-shrink-0 pr-4">{label}</span>
-        <span className={`text-sm text-right font-medium text-slate-800 dark:text-white ${isAmount ? 'font-bold' : ''}`}>{value}</span>
+const DetailItem: React.FC<{ label: string; value: React.ReactNode; }> = ({ label, value }) => (
+    <div className="flex justify-between items-center py-2">
+        <span className="text-sm text-slate-500 dark:text-neutral-400">{label}</span>
+        <span className="text-sm text-right font-medium text-slate-800 dark:text-white">{value}</span>
     </div>
 );
 
@@ -42,12 +42,17 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     const toWallet = transaction.toWallet ? wallets.find(w => w.id === transaction.toWallet) : null;
 
     const formattedDate = new Date(transaction.date).toLocaleString('id-ID', {
-        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-        hour: '2-digit', minute: '2-digit'
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
     
-    const amountColor = transaction.type === TransactionType.IN ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400';
-    const amountPrefix = transaction.type === TransactionType.IN ? '+' : '-';
+    const isTransfer = !!toWallet;
+    
+    let amountColor = 'text-slate-800 dark:text-white';
+    if (!isTransfer) {
+        amountColor = transaction.type === TransactionType.IN ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400';
+    }
+    
+    const amountPrefix = !isTransfer && transaction.type === TransactionType.IN ? '+' : '';
 
     return (
         <div
@@ -59,63 +64,79 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 className={`bg-white dark:bg-neutral-800 rounded-3xl shadow-2xl w-full max-w-md transform transition-all duration-300 ease-in-out ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10">
-                    <h2 id="transaction-detail-title" className="text-xl font-medium text-slate-800 dark:text-white">Detail Transaksi</h2>
-                    <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-neutral-300 transition-colors" aria-label="Tutup">
+                <div className="p-6 flex justify-between items-center">
+                    <h2 id="transaction-detail-title" className="text-lg font-medium text-slate-800 dark:text-white">Detail Transaksi</h2>
+                    <button onClick={handleClose} className="p-2 -mr-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-neutral-300 transition-colors" aria-label="Tutup">
                         <CloseIcon />
                     </button>
                 </div>
-                <div className="p-6 no-scrollbar overflow-y-auto max-h-[60vh]">
-                    <DetailRow label="Tanggal" value={formattedDate} />
-                    <DetailRow label="Deskripsi" value={transaction.description} />
-                    <DetailRow label="Pelanggan" value={transaction.customer} />
-                    
-                    {toWallet && wallet ? ( // Transfer view
-                        <>
-                            <DetailRow label="Dari Dompet" value={
-                                <div className="flex items-center justify-end gap-2">
-                                    <WalletIconComponent walletId={wallet.id} iconUrl={wallet.icon} className="h-5 w-5" altText={wallet.name} />
-                                    <span>{wallet.name}</span>
-                                </div>
-                            } />
-                             <DetailRow label="Ke Dompet" value={
-                                <div className="flex items-center justify-end gap-2">
-                                    <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-5 w-5" altText={toWallet.name} />
-                                    <span>{toWallet.name}</span>
-                                </div>
-                            } />
-                            <DetailRow label="Jumlah Transfer" value={formatRupiah(transaction.amount)} isAmount />
-                            {transaction.margin > 0 && <DetailRow label="Biaya" value={<span className="text-sky-500 dark:text-sky-300">{formatRupiah(transaction.margin)}</span>} />}
-                        </>
-                    ) : ( // Normal transaction view
-                        <>
-                            <DetailRow label="Jumlah" value={<span className={amountColor}>{`${amountPrefix} ${formatRupiah(transaction.amount)}`}</span>} isAmount />
-                            {transaction.margin > 0 && <DetailRow label="Margin" value={<span className="text-sky-500 dark:text-sky-300">{formatRupiah(transaction.margin)}</span>} />}
-                            {wallet && <DetailRow label="Dompet" value={
-                                <div className="flex items-center justify-end gap-2">
-                                    <WalletIconComponent walletId={wallet.id} iconUrl={wallet.icon} className="h-5 w-5" altText={wallet.name} />
-                                    <span>{wallet.name}</span>
-                                </div>
-                            } />}
-                        </>
-                    )}
-                    
-                    <DetailRow label="Status Piutang" value={
-                        <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${transaction.isPiutang ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/10 dark:text-emerald-300'}`}>
-                            {transaction.isPiutang ? 'Ya' : 'Lunas'}
-                        </span>
-                    } />
-                    
-                    {transaction.description === 'Tarik Tunai' && (
-                        <DetailRow label="Tipe Margin" value={transaction.marginType === 'luar' ? 'Admin Luar (ke Kas)' : 'Admin Dalam (ke Dompet)'} />
-                    )}
+                <div className="px-6 pb-6 no-scrollbar overflow-y-auto max-h-[60vh]">
+                    {/* --- Ringkasan Utama --- */}
+                    <div className="text-center py-4">
+                        <p className={`text-4xl font-bold ${amountColor}`}>
+                            {`${amountPrefix} ${formatRupiah(transaction.amount)}`}
+                        </p>
+                        <p className="mt-2 text-lg font-medium text-slate-700 dark:text-neutral-200">{transaction.description}</p>
+                        <p className="text-sm text-slate-500 dark:text-neutral-400">{formattedDate}</p>
+                    </div>
 
-                    {transaction.notes && transaction.notes.trim() !== '' && (
-                        <DetailRow label="Catatan" value={<i className="text-slate-600 dark:text-neutral-300">"{transaction.notes}"</i>} />
-                    )}
-                </div>
-                <div className="px-6 py-4 flex justify-end border-t border-slate-200 dark:border-white/10">
-                    <button type="button" onClick={handleClose} className="text-blue-600 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-400/10 font-semibold py-2 px-5 rounded-full text-sm transition-colors">Tutup</button>
+                    <hr className="my-6 border-slate-200 dark:border-white/10" />
+                    
+                    {/* --- Detail Transaksi --- */}
+                    <div className="space-y-4">
+                        {/* Alur Dompet */}
+                        {isTransfer && wallet && toWallet ? (
+                             <div>
+                                <h3 className="text-sm font-semibold text-slate-600 dark:text-neutral-300 mb-2">Alur Dana</h3>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-black/20 rounded-lg">
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400">Dari</span>
+                                        <div className="flex items-center gap-2 font-medium text-slate-800 dark:text-white">
+                                            <WalletIconComponent walletId={wallet.id} iconUrl={wallet.icon} className="h-5 w-5" altText={wallet.name} />
+                                            <span>{wallet.name}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-black/20 rounded-lg">
+                                        <span className="text-xs text-slate-500 dark:text-neutral-400">Ke</span>
+                                        <div className="flex items-center gap-2 font-medium text-slate-800 dark:text-white">
+                                            <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-5 w-5" altText={toWallet.name} />
+                                            <span>{toWallet.name}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : wallet && (
+                             <DetailItem label="Dompet" value={
+                                <div className="flex items-center justify-end gap-2">
+                                    <WalletIconComponent walletId={wallet.id} iconUrl={wallet.icon} className="h-5 w-5" altText={wallet.name} />
+                                    <span>{wallet.name}</span>
+                                </div>
+                            } />
+                        )}
+                        
+                        {/* Detail Lainnya */}
+                        <div className="p-3 bg-slate-100 dark:bg-black/20 rounded-lg divide-y divide-slate-200 dark:divide-white/10">
+                            <DetailItem label="Pelanggan" value={transaction.customer} />
+                            {transaction.margin > 0 && <DetailItem label={isTransfer ? "Biaya" : "Margin"} value={<span className="text-sky-500 dark:text-sky-300">{formatRupiah(transaction.margin)}</span>} />}
+                            <DetailItem label="Status Piutang" value={
+                                <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${transaction.isPiutang ? 'bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-400/10 dark:text-emerald-300'}`}>
+                                    {transaction.isPiutang ? 'Ya' : 'Lunas'}
+                                </span>
+                            } />
+                            {transaction.description === 'Tarik Tunai' && (
+                                <DetailItem label="Tipe Margin" value={transaction.marginType === 'luar' ? 'Admin Luar' : 'Admin Dalam'} />
+                            )}
+                        </div>
+                        
+                         {transaction.notes && transaction.notes.trim() !== '' && (
+                            <div>
+                                <h3 className="text-sm font-semibold text-slate-600 dark:text-neutral-300 mb-2">Catatan</h3>
+                                <div className="p-3 bg-slate-100 dark:bg-black/20 rounded-lg">
+                                    <p className="text-sm italic text-slate-700 dark:text-neutral-300">"{transaction.notes}"</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

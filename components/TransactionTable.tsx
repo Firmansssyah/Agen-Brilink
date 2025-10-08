@@ -167,14 +167,15 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         </td>
                                         <td className="p-3 text-sm text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
                                         <td className="p-3 text-sm text-right">
-                                            <div className="flex items-center justify-end space-x-1">
+                                            <div className="inline-flex items-center rounded-full bg-slate-100 dark:bg-neutral-700/60">
                                                 <button
                                                     onClick={() => onInfoTransaction(transaction)}
-                                                    className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
+                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-200/70 dark:hover:bg-neutral-600/70 rounded-l-full transition-colors duration-200"
                                                     aria-label="Info transaksi"
                                                 >
                                                     <InfoIcon className="h-4 w-4" />
                                                 </button>
+                                                <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
                                                 <button 
                                                     onClick={() => {
                                                         if (transaction.isInternalTransfer && transaction.toWallet) {
@@ -183,7 +184,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                             onEditTransaction(transaction);
                                                         }
                                                     }}
-                                                    className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
+                                                    className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-200/70 dark:hover:bg-neutral-600/70 rounded-r-full transition-colors duration-200"
                                                     aria-label="Edit transaksi"
                                                 >
                                                     <EditIcon className="h-4 w-4" />
@@ -266,28 +267,31 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             </div>
                                         </div>
                                     )}
-                                    <div className="flex items-center gap-1">
+                                    <div className="flex items-center gap-2">
                                         <p className="text-xs text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short'})}</p>
-                                        <button 
-                                            onClick={() => onInfoTransaction(transaction)}
-                                            className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
-                                            aria-label="Info transaksi"
-                                        >
-                                            <InfoIcon className="h-4 w-4" />
-                                        </button>
-                                        <button 
-                                            onClick={() => {
-                                                if (transaction.isInternalTransfer && transaction.toWallet) {
-                                                    onEditTransfer?.(transaction);
-                                                } else {
-                                                    onEditTransaction(transaction);
-                                                }
-                                            }}
-                                            className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200"
-                                            aria-label="Edit transaksi"
-                                        >
-                                            <EditIcon className="h-4 w-4" />
-                                        </button>
+                                        <div className="inline-flex items-center rounded-full bg-slate-200/70 dark:bg-neutral-700/60">
+                                            <button 
+                                                onClick={() => onInfoTransaction(transaction)}
+                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-300/70 dark:hover:bg-neutral-600/70 rounded-l-full transition-colors duration-200"
+                                                aria-label="Info transaksi"
+                                            >
+                                                <InfoIcon className="h-4 w-4" />
+                                            </button>
+                                            <div className="w-px h-4 bg-slate-300 dark:bg-neutral-600"></div>
+                                            <button 
+                                                onClick={() => {
+                                                    if (transaction.isInternalTransfer && transaction.toWallet) {
+                                                        onEditTransfer?.(transaction);
+                                                    } else {
+                                                        onEditTransaction(transaction);
+                                                    }
+                                                }}
+                                                className="p-2 text-slate-500 dark:text-neutral-400 hover:bg-slate-300/70 dark:hover:bg-neutral-600/70 rounded-r-full transition-colors duration-200"
+                                                aria-label="Edit transaksi"
+                                            >
+                                                <EditIcon className="h-4 w-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
