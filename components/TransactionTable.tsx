@@ -79,27 +79,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
             onDeleteTransactionConfirm(transaction.id);
         }
     };
-    
-    /**
-     * Menghitung umur piutang dalam hari.
-     * @param dateString - Tanggal transaksi dalam format ISO.
-     * @returns String yang menyatakan umur piutang (misal: "Hari ini", "3 hari").
-     */
-    const calculateDaysAgo = (dateString: string): string => {
-        const piutangDate = new Date(dateString);
-        const today = new Date();
-        piutangDate.setHours(0, 0, 0, 0);
-        today.setHours(0, 0, 0, 0);
-
-        const diffTime = today.getTime() - piutangDate.getTime();
-        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays <= 0) {
-            return 'Hari ini';
-        }
-        return `${diffDays} hari`;
-    };
-
 
     return (
         <>
@@ -124,20 +103,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         key={transaction.id}
                                         onClick={() => onInfoTransaction(transaction)}
                                         className={`transition-colors duration-200 cursor-pointer ${
-                                            transaction.isPiutang ? 'bg-yellow-100 dark:bg-yellow-400/10 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
+                                            transaction.isPiutang ? 'bg-red-100 dark:bg-red-500/10 hover:bg-red-200/60 dark:hover:bg-red-500/20' : 'hover:bg-slate-100 dark:hover:bg-white/5'
                                         }`}
                                     >
                                         <td className="p-3 text-sm text-slate-500 dark:text-neutral-400">{new Date(transaction.date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric'})}</td>
                                         <td className="p-3 text-sm text-slate-800 dark:text-white">
-                                            {/* Menampilkan badge umur piutang jika transaksi adalah piutang */}
-                                            {transaction.isPiutang ? (
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <span>{transaction.description}</span>
-                                                    <span className="flex-shrink-0 text-xs font.bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">{calculateDaysAgo(transaction.date)}</span>
-                                                </div>
-                                            ) : (
-                                                <span>{transaction.description}</span>
-                                            )}
+                                            <span>{transaction.description}</span>
                                             {/* Menampilkan catatan jika ada */}
                                             {transaction.notes && (
                                                 <p className="text-xs text-slate-500 dark:text-neutral-400 truncate italic">
@@ -239,7 +210,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                 onClick={() => onInfoTransaction(transaction)}
                                 className={`p-4 rounded-2xl border transition-colors duration-200 cursor-pointer ${
                                     transaction.isPiutang 
-                                        ? 'bg-yellow-100 border-yellow-200 dark:bg-yellow-400/10 dark:border-yellow-400/20 hover:bg-yellow-200/60 dark:hover:bg-yellow-400/20 border-l-4 border-l-yellow-400 dark:border-l-yellow-500' 
+                                        ? 'bg-red-100 border-red-200 dark:bg-red-500/10 dark:border-red-500/20 hover:bg-red-200/60 dark:hover:bg-red-500/20 border-l-4 border-l-red-500 dark:border-l-red-500' 
                                         : 'bg-white border-slate-200 dark:bg-white/5 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/10'
                                 }`}
                             >
@@ -253,9 +224,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                             </p>
                                         )}
                                     </div>
-                                    {transaction.isPiutang && (
-                                        <div className="ml-2 flex-shrink-0 text-xs font.bold px-2 py-0.5 bg-yellow-200 text-yellow-800 dark:bg-yellow-400/20 dark:text-yellow-300 rounded-full">{calculateDaysAgo(transaction.date)}</div>
-                                    )}
                                 </div>
                                 <div className="mt-3 flex justify-between items-center">
                                      {/* Tampilan khusus transfer di mobile */}
