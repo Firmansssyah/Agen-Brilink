@@ -46,7 +46,7 @@ interface NavLinkProps {
  * Komponen NavLink adalah tautan navigasi yang digunakan di dalam sidebar.
  */
 const NavLink: React.FC<NavLinkProps> = ({ page, text, icon, active, onClick }) => {
-    const baseClasses = "flex items-center space-x-3 w-full px-4 py-3 rounded-xl transition-colors duration-200 cursor-pointer";
+    const baseClasses = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-full transition-colors duration-200 cursor-pointer";
     const activeClasses = "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200 font-semibold";
     const inactiveClasses = "text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-neutral-100";
     
