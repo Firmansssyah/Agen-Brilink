@@ -26,27 +26,27 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
             </div>
             
             {/* Financial Highlights for mobile/tablet view */}
-            <div className="lg:hidden p-4 grid grid-cols-2 gap-4">
+            <div className="lg:hidden p-3 grid grid-cols-2 gap-3">
                 {/* Total Aset */}
-                <div>
+                <div className="bg-blue-100 dark:bg-blue-500/10 p-3 rounded-xl">
                     <div className="flex items-center space-x-1 has-tooltip relative">
-                        <p className="text-xs text-slate-500 dark:text-[#CAC4D0]">Total Aset</p>
-                        <InfoIcon className="h-3 w-3 text-slate-400" />
+                        <p className="text-xs text-blue-800/80 dark:text-blue-200/80">Total Aset</p>
+                        <InfoIcon className="h-3 w-3 text-blue-800/60 dark:text-blue-200/60" />
                         <div className="tooltip absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-700 dark:bg-neutral-900 text-white text-xs px-2 py-1 rounded-md pointer-events-none w-52 text-center shadow-lg">
                             Saldo dompet (BRI & BRILink dikurangi Rp50rb) + Total Piutang
                         </div>
                     </div>
-                    <p className="text-xl font-bold text-slate-800 dark:text-white leading-tight">{formatRupiah(totalAssets)}</p>
+                    <p className="text-xl font-bold text-blue-900 dark:text-blue-200 leading-tight">{formatRupiah(totalAssets)}</p>
                 </div>
                 {/* Margin Bulan Ini */}
-                <div>
-                    <p className="text-xs text-slate-500 dark:text-[#CAC4D0]">Margin Bulan Ini</p>
-                    <p className="text-xl font-bold text-emerald-500 dark:text-emerald-400 leading-tight">{formatRupiah(totalMargin)}</p>
+                <div className="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl">
+                    <p className="text-xs text-emerald-800/80 dark:text-emerald-200/80">Margin Bulan Ini</p>
+                    <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 leading-tight">{formatRupiah(totalMargin)}</p>
                 </div>
             </div>
 
             {/* Grid for displaying wallet balances, with separator for mobile */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 p-4 border-t lg:border-t-0 border-slate-200 dark:border-white/10">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 p-3 border-t lg:border-t-0 border-slate-200 dark:border-white/10">
                 {wallets.map(wallet => (
                     <div 
                         key={wallet.id} 
