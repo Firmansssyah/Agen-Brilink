@@ -101,7 +101,7 @@ const BrilinkFeeDetailModal: React.FC<BrilinkFeeDetailModalProps> = ({
                     </button>
                 </div>
 
-                <div className="p-2 sm:p-4 overflow-y-auto flex-grow">
+                <div className="no-scrollbar p-2 sm:p-4 overflow-y-auto flex-grow">
                     {monthlyData.length > 0 ? (
                         <div className="space-y-2">
                             {monthlyData.map(({ key, monthName, totalFee, count, transactions }) => {

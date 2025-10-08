@@ -84,7 +84,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         <>
              {/* Tampilan Tabel untuk Desktop (disembunyikan di mobile) */}
             <div className="hidden md:block h-full">
-                <div className="relative h-full w-full overflow-auto rounded-xl border border-slate-200 dark:border-white/10">
+                <div className="no-scrollbar relative h-full w-full overflow-auto rounded-xl border border-slate-200 dark:border-white/10">
                     {transactions.length > 0 ? (
                         <table className="w-full text-left">
                             <thead className="sticky top-0 z-10 border-b border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-neutral-800/80 backdrop-blur-sm">

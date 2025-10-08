@@ -93,7 +93,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
             </div>
             
             {/* Body Kartu (Daftar Piutang) */}
-            <div className="px-2 pb-2 flex-grow min-h-0 overflow-y-auto">
+            <div className="no-scrollbar px-2 pb-2 flex-grow min-h-0 overflow-y-auto">
                 {groupedReceivables.length > 0 ? (
                     <div className="space-y-2">
                         {groupedReceivables.map((item) => {

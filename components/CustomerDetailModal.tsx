@@ -87,7 +87,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
             >
                 <div className="p-6 flex justify-between items-center border-b border-slate-200 dark:border-white/10 flex-shrink-0">
                     <div>
-                        <h2 id="customer-detail-title" className="text-xl font-medium text-slate-800 dark:text-white">{customerName}</h2>
+                        <h2 id="customer-detail-title" className="text-xl font.medium text-slate-800 dark:text-white">{customerName}</h2>
                         <p className="text-sm text-slate-500 dark:text-neutral-400">Detail Pelanggan</p>
                     </div>
                     <button onClick={handleClose} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 text-slate-500 dark:text-neutral-300 transition-colors" aria-label="Tutup">
@@ -129,7 +129,7 @@ const CustomerDetailModal: React.FC<CustomerDetailModalProps> = ({
                          <h3 className="text-md font-semibold text-slate-700 dark:text-neutral-200 mb-2">Riwayat Transaksi</h3>
                         {transactions.length > 0 ? (
                             <div className="border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden">
-                                <div className="max-h-[50vh] overflow-y-auto">
+                                <div className="max-h-[50vh] overflow-y-auto no-scrollbar">
                                 <table className="w-full text-left text-sm">
                                     <thead className="bg-slate-50 dark:bg-white/5 sticky top-0">
                                         <tr>

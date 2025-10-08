@@ -88,7 +88,7 @@ const InitialBalanceModal: React.FC<InitialBalanceModalProps> = ({ isOpen, onClo
                 </div>
                 
                 <form onSubmit={handleSubmit} className="flex flex-col flex-grow min-h-0">
-                    <div className="p-6 overflow-y-auto space-y-4">
+                    <div className="no-scrollbar p-6 overflow-y-auto space-y-4">
                         <p className="text-sm text-slate-500 dark:text-neutral-400">
                             Atur modal awal untuk setiap dompet. Nilai ini tidak akan mempengaruhi saldo Anda saat ini.
                         </p>

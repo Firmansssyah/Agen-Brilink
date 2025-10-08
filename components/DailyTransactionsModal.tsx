@@ -78,7 +78,7 @@ const DailyTransactionsModal: React.FC<DailyTransactionsModalProps> = ({
                     </button>
                 </div>
 
-                <div className="p-2 sm:p-4 overflow-y-auto flex-grow">
+                <div className="no-scrollbar p-2 sm:p-4 overflow-y-auto flex-grow">
                     {transactions.length > 0 ? (
                         <ul className="space-y-2">
                             {transactions.map(t => {

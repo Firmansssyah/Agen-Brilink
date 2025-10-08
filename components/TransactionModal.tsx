@@ -228,7 +228,7 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
                         <h2 className="text-xl font-medium text-slate-800 dark:text-white">{transactionToEdit ? 'Edit Transaksi' : 'Tambah Transaksi Baru'}</h2>
                     </div>
                     <form onSubmit={handleSubmit} className="flex flex-col flex-grow min-h-0">
-                        <div className="p-6 flex flex-col gap-5 overflow-y-auto">
+                        <div className="no-scrollbar p-6 flex flex-col gap-5 overflow-y-auto">
                             {/* Transaction Details */}
                             <div>
                                 <label htmlFor="description" className={formLabelClass}>Jenis Transaksi</label>
