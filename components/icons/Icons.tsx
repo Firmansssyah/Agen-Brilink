@@ -35,10 +35,10 @@ export const CashIcon: React.FC<{ className?: string }> = ({ className = "h-5 w-
     </svg>
 );
 
-// Komponen Ikon Margin (Koin)
+// Komponen Ikon Margin (Panah Atas)
 export const MarginIcon: React.FC<{ className?: string }> = ({ className = "h-5 w-5" }) => (
-     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11.25l-3-3m0 0-3 3m3-3v7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+     <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75" />
     </svg>
 );
 
