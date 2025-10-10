@@ -236,6 +236,34 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         return items;
     }, [displayTransactions, searchTerm, filterType, filterStartDate, filterEndDate, sortKey, sortDirection, formatRupiah]);
     
+    // useMemo for menghitung default "pintar" untuk modal transaksi.
+    const smartDefaults = useMemo(() => {
+        if (transactions.length === 0) {
+            return { mostFrequentDescription: null, mostFrequentWallet: null };
+        }
+
+        const descriptionCounts = new Map<string, number>();
+        const walletCounts = new Map<string, number>();
+
+        // Hanya hitung transaksi non-internal untuk mendapatkan preferensi pengguna yang sebenarnya.
+        transactions.filter(t => !t.isInternalTransfer).forEach(t => {
+            descriptionCounts.set(t.description, (descriptionCounts.get(t.description) || 0) + 1);
+            if (t.wallet !== 'CASH') { // Abaikan dompet KAS dari perhitungan frekuensi.
+                walletCounts.set(t.wallet, (walletCounts.get(t.wallet) || 0) + 1);
+            }
+        });
+        
+        const findMax = (map: Map<string, number>): string | null => {
+            if (map.size === 0) return null;
+            return [...map.entries()].reduce((a, e) => e[1] > a[1] ? e : a)[0];
+        };
+        
+        return {
+            mostFrequentDescription: findMax(descriptionCounts),
+            mostFrequentWallet: findMax(walletCounts)
+        };
+    }, [transactions]);
+    
     // useCallback for membuka modal tambah transaksi.
     const handleOpenAddModal = useCallback(() => {
         setTransactionToEdit(null);
@@ -459,6 +487,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 categories={categories}
                 customers={customers}
                 formatRupiah={formatRupiah}
+                mostFrequentDescription={smartDefaults.mostFrequentDescription}
+                mostFrequentWallet={smartDefaults.mostFrequentWallet}
             />
             <TransactionDetailModal
                 isOpen={isInfoModalOpen}

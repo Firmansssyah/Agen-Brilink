@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
 import { ChevronDownIcon, CheckIcon, DeleteIcon } from './icons/Icons';
@@ -16,6 +18,8 @@ interface TransactionModalProps {
     categories: string[];
     customers: string[];
     formatRupiah: (amount: number) => string;
+    mostFrequentDescription: string | null;
+    mostFrequentWallet: string | null;
 }
 
 const toYYYYMMDD = (date: Date): string => {
@@ -34,9 +38,10 @@ type FormDataType = Omit<Transaction, 'id' | 'date' | 'amount' | 'margin' | 'isD
 };
 
 
-const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, onSave, onDeleteTransaction, transactionToEdit, wallets, categories, customers, formatRupiah }) => {
+const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, onSave, onDeleteTransaction, transactionToEdit, wallets, categories, customers, formatRupiah, mostFrequentDescription, mostFrequentWallet }) => {
     const getInitialData = useCallback((): FormDataType => {
-        const defaultDescription = categories[0] || '';
+        const defaultDescription = mostFrequentDescription || categories[0] || '';
+        const defaultWallet = mostFrequentWallet || wallets.filter(w => w.id !== 'CASH')[0]?.id || '';
         const defaultType = defaultDescription === 'Tarik Tunai' ? TransactionType.IN : TransactionType.OUT;
         return {
             date: new Date().toISOString(),
@@ -45,13 +50,13 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             type: defaultType,
             amount: null,
             margin: null,
-            wallet: wallets.filter(w => w.id !== 'CASH')[0]?.id || '',
+            wallet: defaultWallet,
             isPiutang: false,
             marginType: 'dalam' as 'dalam' | 'luar',
             isInternalTransfer: false,
             notes: '',
         };
-    }, [categories, wallets]);
+    }, [categories, wallets, mostFrequentDescription, mostFrequentWallet]);
 
     const [formData, setFormData] = useState<FormDataType>(getInitialData());
     const [isVisible, setIsVisible] = useState(false);
@@ -60,7 +65,12 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
     const [showMarginSuggestions, setShowMarginSuggestions] = useState(false);
     const [showNotes, setShowNotes] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [paidAmount, setPaidAmount] = useState<number | null>(null);
 
+    const isBrilinkTransfer = useMemo(() => 
+        (formData.description.toLowerCase().includes('transfer')) && formData.wallet === 'BRILINK', 
+        [formData.description, formData.wallet]
+    );
 
     const marginSuggestions = useMemo(() => {
         const specialCategories = ['Pulsa', 'Listrik', 'Lainnya'];
@@ -86,12 +96,41 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
             const baseData = getInitialData();
             const mergedData = transactionToEdit ? { ...baseData, ...transactionToEdit } : baseData;
             setFormData(mergedData as FormDataType);
+            
+            const isEditingBrilinkTransfer = transactionToEdit && 
+                (transactionToEdit.description.toLowerCase().includes('transfer')) && 
+                transactionToEdit.wallet === 'BRILINK';
+
+            if (isEditingBrilinkTransfer) {
+                setPaidAmount(transactionToEdit.amount + transactionToEdit.margin);
+            } else {
+                setPaidAmount(null);
+            }
+
             setShowNotes(!!transactionToEdit?.notes && transactionToEdit.notes.trim() !== '');
             setIsVisible(true);
         } else {
             setIsVisible(false);
         }
     }, [isOpen, transactionToEdit, getInitialData]);
+
+     useEffect(() => {
+        if (isBrilinkTransfer) {
+            if (formData.amount !== null && paidAmount !== null) {
+                const amount = formData.amount;
+                const paid = paidAmount;
+                setFormData(prev => ({ ...prev, margin: paid - amount }));
+            } else {
+                 setFormData(prev => ({ ...prev, margin: null }));
+            }
+        }
+    }, [formData.amount, paidAmount, isBrilinkTransfer]);
+
+    useEffect(() => {
+        if (!isBrilinkTransfer && paidAmount !== null) {
+            setPaidAmount(null);
+        }
+    }, [isBrilinkTransfer, paidAmount]);
 
 
     const handleClose = () => {
@@ -138,6 +177,10 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
 
         setFormData(updatedData as any);
     };
+
+    const handlePaidAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPaidAmount(parseInputValue(e.target.value));
+    };
     
      const handleDateChange = (dateString: string) => { // dateString is 'YYYY-MM-DD'
         if (!dateString) return;
@@ -180,10 +223,17 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Updated validation: amount can be 0, but not empty (null).
-        if (!formData.description || formData.amount === null || formData.amount < 0 || !formData.wallet) {
-            alert('Deskripsi, Jumlah (tidak boleh kosong), dan Dompet harus diisi.');
-            return;
+        
+        if (isBrilinkTransfer) {
+            if (!formData.description || formData.amount === null || formData.amount <= 0 || !formData.wallet || paidAmount === null || paidAmount < 0) {
+                alert('Pastikan semua field (Jenis, Jumlah Transfer, Jumlah Dibayar, Dompet) terisi dengan benar.');
+                return;
+            }
+        } else {
+             if (!formData.description || formData.amount === null || formData.amount < 0 || !formData.wallet) {
+                alert('Deskripsi, Jumlah (tidak boleh kosong), dan Dompet harus diisi.');
+                return;
+            }
         }
         
         // Default customer name to "Pelanggan" if empty
@@ -290,50 +340,94 @@ const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, on
 
 
                             {/* Financials */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label htmlFor="amount" className={formLabelClass}>Jumlah (Rp)</label>
-                                    <input 
-                                        type="text"
-                                        inputMode="numeric"
-                                        id="amount"
-                                        name="amount"
-                                        placeholder="cth: 500.000"
-                                        value={formatInputValue(formData.amount)}
-                                        onChange={handleChange}
-                                        className={formInputClass}
-                                        required
-                                    />
+                            {isBrilinkTransfer ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="amount" className={formLabelClass}>Jumlah Transfer (Rp)</label>
+                                        <input 
+                                            type="text"
+                                            inputMode="numeric"
+                                            id="amount"
+                                            name="amount"
+                                            placeholder="cth: 50.000"
+                                            value={formatInputValue(formData.amount)}
+                                            onChange={handleChange}
+                                            className={formInputClass}
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="paidAmount" className={formLabelClass}>Jumlah Dibayar (Rp)</label>
+                                        <input 
+                                            type="text"
+                                            inputMode="numeric"
+                                            id="paidAmount"
+                                            name="paidAmount"
+                                            placeholder="cth: 45.000"
+                                            value={formatInputValue(paidAmount)}
+                                            onChange={handlePaidAmountChange}
+                                            className={formInputClass}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="sm:col-span-2">
+                                        <label htmlFor="margin" className={formLabelClass}>Margin (Otomatis)</label>
+                                        <input 
+                                            type="text"
+                                            id="margin"
+                                            name="margin"
+                                            value={formatInputValue(formData.margin)}
+                                            className={`${formInputClass} ${formData.margin !== null && formData.margin < 0 ? 'text-red-500 dark:text-red-400' : 'text-sky-600 dark:text-sky-400'} font-semibold`}
+                                            readOnly
+                                        />
+                                    </div>
                                 </div>
-                                 <div className="relative">
-                                    <label htmlFor="margin" className={formLabelClass}>Margin (Rp)</label>
-                                    <input 
-                                        type="text"
-                                        inputMode="numeric"
-                                        id="margin"
-                                        name="margin"
-                                        placeholder="cth: 6.500"
-                                        value={formatInputValue(formData.margin)}
-                                        onChange={handleChange}
-                                        onFocus={() => setShowMarginSuggestions(true)}
-                                        onBlur={() => setTimeout(() => setShowMarginSuggestions(false), 200)}
-                                        className={formInputClass}
-                                    />
-                                    {showMarginSuggestions && (
-                                        <ul className="absolute z-10 w-full bg-white dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
-                                            {marginSuggestions.map((suggestion) => (
-                                                <li
-                                                    key={suggestion}
-                                                    className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500/50"
-                                                    onMouseDown={() => handleMarginSuggestionClick(suggestion)}
-                                                >
-                                                    {formatInputValue(suggestion)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
+                            ) : (
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="amount" className={formLabelClass}>Jumlah (Rp)</label>
+                                        <input 
+                                            type="text"
+                                            inputMode="numeric"
+                                            id="amount"
+                                            name="amount"
+                                            placeholder="cth: 500.000"
+                                            value={formatInputValue(formData.amount)}
+                                            onChange={handleChange}
+                                            className={formInputClass}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="relative">
+                                        <label htmlFor="margin" className={formLabelClass}>Margin (Rp)</label>
+                                        <input 
+                                            type="text"
+                                            inputMode="numeric"
+                                            id="margin"
+                                            name="margin"
+                                            placeholder="cth: 6.500"
+                                            value={formatInputValue(formData.margin)}
+                                            onChange={handleChange}
+                                            onFocus={() => setShowMarginSuggestions(true)}
+                                            onBlur={() => setTimeout(() => setShowMarginSuggestions(false), 200)}
+                                            className={formInputClass}
+                                        />
+                                        {showMarginSuggestions && (
+                                            <ul className="absolute z-10 w-full bg-white dark:bg-neutral-700 border border-slate-300 dark:border-neutral-600 rounded-2xl mt-2 max-h-48 overflow-y-auto shadow-lg animate-fade-in">
+                                                {marginSuggestions.map((suggestion) => (
+                                                    <li
+                                                        key={suggestion}
+                                                        className="px-4 py-2 text-sm text-slate-700 dark:text-white cursor-pointer hover:bg-blue-500 hover:text-white dark:hover:bg-blue-500/50"
+                                                        onMouseDown={() => handleMarginSuggestionClick(suggestion)}
+                                                    >
+                                                        {formatInputValue(suggestion)}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        )}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                             
                             {/* Margin Type Selector */}
                             {formData.description === 'Tarik Tunai' && (
