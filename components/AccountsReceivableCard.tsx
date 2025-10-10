@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Transaction } from '../types';
 import { ChevronRightIcon, CheckIcon } from './icons/Icons';
 
@@ -8,7 +8,7 @@ interface AccountsReceivableCardProps {
     totalPiutang: number; // Jumlah total semua piutang.
     formatRupiah: (amount: number) => string; // Fungsi untuk memformat angka ke Rupiah.
     onOpenDetail: (customerName: string) => void; // Callback saat pengguna ingin melihat detail piutang per pelanggan.
-    onSettleReceivable: (transaction: Transaction) => void; // Callback untuk melunasi transaksi piutang tertua.
+    onSettleReceivable: (transaction: Transaction) => void; // Callback untuk melunasi transaksi piutang.
 }
 
 // Interface untuk struktur data piutang yang telah dikelompokkan per pelanggan.
@@ -25,6 +25,9 @@ interface GroupedReceivable {
  * piutang per pelanggan, dan memungkinkan pengguna untuk melunasi atau melihat detail.
  */
 const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receivableTransactions, totalPiutang, formatRupiah, onOpenDetail, onSettleReceivable }) => {
+    
+    // State untuk melacak ID transaksi yang sedang dalam proses pelunasan untuk animasi.
+    const [settlingId, setSettlingId] = useState<string | null>(null);
 
     // useMemo untuk mengelompokkan dan mengurutkan piutang, dihitung ulang hanya jika daftar piutang berubah.
     const groupedReceivables = useMemo((): GroupedReceivable[] => {
@@ -82,6 +85,19 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
         }
         return `${diffDays} hari`;
     };
+
+    /**
+     * Menangani klik tombol lunas dengan animasi.
+     * @param transaction - Transaksi yang akan dilunasi.
+     */
+    const handleSettleClick = (transaction: Transaction) => {
+        setSettlingId(transaction.id);
+        // Tunggu animasi selesai (300ms) sebelum benar-benar menghapus data.
+        setTimeout(() => {
+            onSettleReceivable(transaction);
+            setSettlingId(null);
+        }, 300);
+    };
     
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none h-full">
@@ -98,11 +114,17 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
                     <div className="space-y-2">
                         {groupedReceivables.map((item) => {
                             const daysAgo = calculateDaysAgo(item.oldestTransaction.date);
+                            const isSettling = settlingId === item.oldestTransaction.id;
                             return (
                                 <button 
                                     key={item.customer} 
                                     onClick={() => onOpenDetail(item.customer)}
-                                    className="group w-full flex justify-between mt-2 items-center px-4 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-white/10 transition-colors duration-200 text-left"
+                                    // Menerapkan kelas transisi dan kelas kondisi untuk animasi
+                                    className={`group w-full flex justify-between items-center px-4 rounded-xl text-left overflow-hidden transition-all duration-300 ease-in-out ${
+                                        isSettling
+                                            ? 'max-h-0 py-0 mt-0 opacity-0 scale-95'
+                                            : 'max-h-20 py-2 mt-2 hover:bg-slate-100 dark:hover:bg-white/10'
+                                    }`}
                                 >
                                     <div className="flex flex-col min-w-0 flex-1">
                                         <span className="text-sm text-slate-700 dark:text-neutral-200 truncate font.medium">{item.customer}</span>
@@ -117,7 +139,7 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
                                         <button
                                             onClick={(e) => {
                                                 e.stopPropagation(); // Mencegah tombol detail ikut ter-klik.
-                                                onSettleReceivable(item.oldestTransaction);
+                                                handleSettleClick(item.oldestTransaction);
                                             }}
                                             className="z-10 h-9 w-9 flex-shrink-0 rounded-full border border-slate-300 dark:border-neutral-600 text-slate-500 dark:text-neutral-400 flex items-center justify-center transition-colors duration-200 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 hover:border-emerald-400 dark:hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400"
                                             aria-label={`Lunas piutang tertua dari ${item.customer}`}

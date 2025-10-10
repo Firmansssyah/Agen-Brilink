@@ -3,6 +3,7 @@ import { Wallet } from '../types';
 // FIX: Changed to named import
 import { WalletIconComponent } from './WalletIconComponent';
 import { InfoIcon } from './icons/Icons';
+import AnimatedNumber from './AnimatedNumber';
 
 // Properti untuk komponen WalletsSummaryCard.
 interface WalletsSummaryCardProps {
@@ -36,12 +37,20 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
                             Saldo dompet (BRI & BRILink dikurangi Rp50rb) + Total Piutang
                         </div>
                     </div>
-                    <p className="text-xl font-bold text-blue-900 dark:text-blue-200 leading-tight">{formatRupiah(totalAssets)}</p>
+                    <AnimatedNumber 
+                        value={totalAssets} 
+                        formatFn={formatRupiah} 
+                        className="text-xl font.bold text-blue-900 dark:text-blue-200 leading-tight block" 
+                    />
                 </div>
                 {/* Margin Bulan Ini */}
                 <div className="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl">
                     <p className="text-xs text-emerald-800/80 dark:text-emerald-200/80">Margin Bulan Ini</p>
-                    <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400 leading-tight">{formatRupiah(totalMargin)}</p>
+                    <AnimatedNumber 
+                        value={totalMargin} 
+                        formatFn={formatRupiah} 
+                        className="text-xl font.bold text-emerald-600 dark:text-emerald-400 leading-tight block" 
+                    />
                 </div>
             </div>
 
@@ -63,9 +72,11 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
                         </div>
                         <div className="flex flex-col min-w-0">
                             <span className="text-xs text-slate-500 dark:text-[#CAC4D0] truncate">{wallet.name}</span>
-                            <span className="text-sm font.bold text-slate-700 dark:text-[#E6E1E5] truncate">
-                                {formatRupiah(wallet.balance)}
-                            </span>
+                            <AnimatedNumber 
+                                value={wallet.balance}
+                                formatFn={formatRupiah}
+                                className="text-sm font.bold text-slate-700 dark:text-[#E6E1E5] truncate"
+                            />
                         </div>
                     </div>
                 ))}
