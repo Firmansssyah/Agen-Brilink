@@ -4,6 +4,7 @@ import MonthlyFinancialSummary from '../components/MonthlyFinancialSummary';
 import TransactionTypeAnalysis from '../components/TransactionTypeAnalysis';
 import BrilinkFeeReport from '../components/BrilinkFeeReport';
 import BrilinkFeeDetailModal from '../components/BrilinkFeeDetailModal';
+import MonthlyMarginHeatmapCard from '../components/MonthlyMarginHeatmapCard';
 
 // Properti untuk komponen ReportsPage.
 interface ReportsPageProps {
@@ -52,6 +53,12 @@ const ReportsPage: React.FC<ReportsPageProps> = ({
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-7xl">
                     <div className="space-y-6">
+                        {/* Monthly Margin Heatmap Card */}
+                        <MonthlyMarginHeatmapCard
+                            transactions={reportTransactions}
+                            formatRupiah={formatRupiah}
+                        />
+
                         {/* Grid untuk laporan tingkat atas */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <TransactionTypeAnalysis 

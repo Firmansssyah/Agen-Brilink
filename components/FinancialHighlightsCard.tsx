@@ -6,14 +6,16 @@ interface FinancialHighlightsCardProps {
     totalAssets: number;
     totalMargin: number;
     formatRupiah: (amount: number) => string;
+    onMarginClick: () => void;
+    onAssetClick: () => void;
 }
 
-const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ totalAssets, totalMargin, formatRupiah }) => {
+const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ totalAssets, totalMargin, formatRupiah, onMarginClick, onAssetClick }) => {
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl p-3 shadow-lg shadow-slate-200/50 dark:shadow-none">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {/* Total Aset */}
-                <div className="bg-blue-100 dark:bg-blue-500/10 p-4 rounded-2xl flex items-center gap-4">
+                <button onClick={onAssetClick} className="bg-blue-100 dark:bg-blue-500/10 p-4 rounded-2xl flex items-center gap-4 text-left w-full hover:ring-2 hover:ring-blue-400 transition-all">
                     <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white dark:bg-blue-400/20 flex items-center justify-center">
                         <WalletIcon className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500 dark:text-blue-300" />
                     </div>
@@ -31,10 +33,10 @@ const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ total
                             className="text-2xl sm:text-3xl font.bold text-blue-900 dark:text-blue-200 leading-tight block" 
                         />
                     </div>
-                </div>
+                </button>
 
                 {/* Margin Bulan Ini */}
-                <div className="bg-emerald-100 dark:bg-emerald-500/10 p-4 rounded-2xl flex items-center gap-4">
+                <button onClick={onMarginClick} className="bg-emerald-100 dark:bg-emerald-500/10 p-4 rounded-2xl flex items-center gap-4 text-left w-full hover:ring-2 hover:ring-emerald-400 transition-all">
                      <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white dark:bg-emerald-400/20 flex items-center justify-center">
                         <MarginIcon className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-500 dark:text-emerald-400" />
                     </div>
@@ -46,7 +48,7 @@ const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ total
                             className="text-2xl sm:text-3xl font.bold text-emerald-600 dark:text-emerald-400 leading-tight block" 
                         />
                     </div>
-                </div>
+                </button>
             </div>
         </div>
     );

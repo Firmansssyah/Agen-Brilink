@@ -16,6 +16,8 @@ import ConfirmationModal from '../components/ConfirmationModal';
 import FinancialHighlightsCard from '../components/FinancialHighlightsCard';
 import TransactionDetailModal from '../components/TransactionDetailModal';
 import EditRewardModal from '../components/EditRewardModal';
+import MonthlyMarginDetailModal from '../components/MonthlyMarginDetailModal';
+import AssetDetailModal from '../components/AssetDetailModal';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -94,6 +96,10 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     // State for modal konfirmasi penghapusan transaksi umum.
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [transactionToDeleteId, setTransactionToDeleteId] = useState<string | null>(null);
+    // State for margin detail modal
+    const [isMarginDetailModalOpen, setIsMarginDetailModalOpen] = useState(false);
+    // State for asset detail modal
+    const [isAssetDetailModalOpen, setIsAssetDetailModalOpen] = useState(false);
 
     
     // useMemo for menghitung total margin pada bulan ini.
@@ -319,7 +325,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     }, [dailyModalDate, transactions]);
 
-
     // Handler for menutup modal transaksi.
     const handleCloseModal = () => {
         setIsTransactionModalOpen(false);
@@ -466,6 +471,20 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     return (
         <>
             {/* Render semua modal */}
+             <AssetDetailModal
+                isOpen={isAssetDetailModalOpen}
+                onClose={() => setIsAssetDetailModalOpen(false)}
+                wallets={wallets}
+                transactions={transactions}
+                totalPiutang={totalPiutang}
+                formatRupiah={formatRupiah}
+            />
+            <MonthlyMarginDetailModal
+                isOpen={isMarginDetailModalOpen}
+                onClose={() => setIsMarginDetailModalOpen(false)}
+                transactions={transactions}
+                formatRupiah={formatRupiah}
+            />
             <TransferModal
                 isOpen={isTransferModalOpen}
                 onClose={() => {
@@ -566,6 +585,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         formatRupiah={formatRupiah}
                                         totalAssets={totalAssets}
                                         totalMargin={currentMonthMargin}
+                                        onMarginClick={() => setIsMarginDetailModalOpen(true)}
+                                        onAssetClick={() => setIsAssetDetailModalOpen(true)}
                                     />
                                 </section>
                                 <section>
@@ -593,6 +614,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         totalAssets={totalAssets}
                                         totalMargin={currentMonthMargin}
                                         formatRupiah={formatRupiah}
+                                        onMarginClick={() => setIsMarginDetailModalOpen(true)}
+                                        onAssetClick={() => setIsAssetDetailModalOpen(true)}
                                     />
                                 </div>
                                 <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none lg:h-[calc(100vh-11.5rem)]">

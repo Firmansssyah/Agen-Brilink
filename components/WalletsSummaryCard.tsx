@@ -11,13 +11,15 @@ interface WalletsSummaryCardProps {
     formatRupiah: (amount: number) => string; // Fungsi utilitas untuk format mata uang.
     totalAssets: number;
     totalMargin: number;
+    onMarginClick: () => void;
+    onAssetClick: () => void;
 }
 
 /**
  * Komponen WalletsSummaryCard menampilkan ringkasan finansial utama di dashboard.
  * Ini mencakup total aset, margin bulan ini, dan daftar saldo dari setiap dompet.
  */
-const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, formatRupiah, totalAssets, totalMargin }) => {
+const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, formatRupiah, totalAssets, totalMargin, onMarginClick, onAssetClick }) => {
     
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
@@ -29,7 +31,7 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
             {/* Financial Highlights for mobile/tablet view */}
             <div className="lg:hidden p-3 grid grid-cols-2 gap-3">
                 {/* Total Aset */}
-                <div className="bg-blue-100 dark:bg-blue-500/10 p-3 rounded-xl">
+                <button onClick={onAssetClick} className="bg-blue-100 dark:bg-blue-500/10 p-3 rounded-xl text-left w-full hover:ring-2 hover:ring-blue-400 transition-all">
                     <div className="flex items-center space-x-1 has-tooltip relative">
                         <p className="text-xs text-blue-800/80 dark:text-blue-200/80">Total Aset</p>
                         <InfoIcon className="h-3 w-3 text-blue-800/60 dark:text-blue-200/60" />
@@ -42,16 +44,16 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
                         formatFn={formatRupiah} 
                         className="text-xl font.bold text-blue-900 dark:text-blue-200 leading-tight block" 
                     />
-                </div>
+                </button>
                 {/* Margin Bulan Ini */}
-                <div className="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl">
+                <button onClick={onMarginClick} className="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl text-left w-full hover:ring-2 hover:ring-emerald-400 transition-all">
                     <p className="text-xs text-emerald-800/80 dark:text-emerald-200/80">Margin Bulan Ini</p>
                     <AnimatedNumber 
                         value={totalMargin} 
                         formatFn={formatRupiah} 
                         className="text-xl font.bold text-emerald-600 dark:text-emerald-400 leading-tight block" 
                     />
-                </div>
+                </button>
             </div>
 
             {/* Grid for displaying wallet balances, with separator for mobile */}
