@@ -21,7 +21,7 @@ const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; }> = ({ theme,
                 <span className={`w-6 h-6 rounded-full bg-white dark:bg-neutral-800 shadow-md transform transition-transform duration-300 relative ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0'}`}>
                     {/* Ikon untuk tema terang (matahari) */}
                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 text-yellow-500 ${theme === 'light' ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 12m-4 0a4 4 0 1 0 8 0 4 4 0 1 0-8 0 M12 2V4 M12 20V22 M2 12H4 M20 12H22 M5.64 5.64l1.41 1.41 M16.95 16.95l1.41 1.41 M5.64 18.36l1.41-1.41 M16.95 7.05l1.41-1.41" />
                     </svg>
                      {/* Ikon untuk tema gelap (bulan) */}
                      <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 text-neutral-300 ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -46,9 +46,9 @@ interface NavLinkProps {
  * Komponen NavLink adalah tautan navigasi yang digunakan di dalam sidebar.
  */
 const NavLink: React.FC<NavLinkProps> = ({ page, text, icon, active, onClick }) => {
-    const baseClasses = "flex items-center space-x-3 w-full px-4 py-2.5 rounded-full transition-colors duration-200 cursor-pointer";
-    const activeClasses = "bg-blue-100 text-blue-700 dark:bg-blue-400/20 dark:text-blue-200 font-semibold";
-    const inactiveClasses = "text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-neutral-100";
+    const baseClasses = "flex items-center space-x-4 w-full px-4 py-3 rounded-full transition-all duration-200 cursor-pointer group";
+    const activeClasses = "bg-blue-600 text-white dark:bg-blue-700 font-semibold";
+    const inactiveClasses = "text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white";
     
     return (
         <a onClick={() => onClick(page)} className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}>

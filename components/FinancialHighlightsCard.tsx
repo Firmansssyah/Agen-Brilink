@@ -1,5 +1,5 @@
 import React from 'react';
-import { InfoIcon, WalletIcon, MarginIcon } from './icons/Icons';
+import { InfoIcon, TotalAssetIcon, MarginIcon } from './icons/Icons';
 import AnimatedNumber from './AnimatedNumber';
 
 interface FinancialHighlightsCardProps {
@@ -17,7 +17,7 @@ const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ total
                 {/* Total Aset */}
                 <button onClick={onAssetClick} className="bg-blue-100 dark:bg-blue-500/10 p-4 rounded-2xl flex items-center gap-4 text-left w-full hover:ring-2 hover:ring-blue-400 transition-all">
                     <div className="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white dark:bg-blue-400/20 flex items-center justify-center">
-                        <WalletIcon className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500 dark:text-blue-300" />
+                        <TotalAssetIcon className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500 dark:text-blue-300" />
                     </div>
                     <div>
                         <div className="flex items-center space-x-1.5 has-tooltip relative">
