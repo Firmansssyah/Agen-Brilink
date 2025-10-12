@@ -57,6 +57,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
+            // Jika yang diklik adalah tombol toggle menu, jangan lakukan apa-apa.
+            // Biarkan handler dari tombol itu sendiri yang bekerja.
+            if ((event.target as HTMLElement).closest('[data-menu-toggle="true"]')) {
+                return;
+            }
             if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
                 setActiveActionMenu(null);
             }
@@ -180,6 +185,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         <td className="p-3 align-middle text-center">
                                             <div className="relative inline-flex items-center">
                                                 <button 
+                                                    data-menu-toggle="true"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setActiveActionMenu(prev => prev === transaction.id ? null : transaction.id);
@@ -236,7 +242,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     <p className="text-sm text-slate-600 dark:text-neutral-300 truncate">{transaction.customer || 'Pelanggan'}</p>
                                 </div>
                                 <div className="relative flex-shrink-0">
-                                    <button onClick={(e) => { e.stopPropagation(); setActiveActionMenu(prev => prev === transaction.id ? null : transaction.id); }} className="p-2 -mr-2 text-slate-500 dark:text-neutral-400 rounded-full hover:bg-black/5 dark:hover:bg-white/10" aria-label="Aksi lainnya">
+                                    <button data-menu-toggle="true" onClick={(e) => { e.stopPropagation(); setActiveActionMenu(prev => prev === transaction.id ? null : transaction.id); }} className="p-2 -mr-2 text-slate-500 dark:text-neutral-400 rounded-full hover:bg-black/5 dark:hover:bg-white/10" aria-label="Aksi lainnya">
                                         <MoreVerticalIcon className="h-5 w-5" />
                                     </button>
                                     {activeActionMenu === transaction.id && (

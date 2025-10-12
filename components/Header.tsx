@@ -13,8 +13,7 @@ const AppLogo: React.FC<{ className?: string }> = ({ className }) => (
 
 const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; isCollapsed: boolean; }> = ({ theme, onToggle, isCollapsed }) => {
     return (
-        <div className={`flex items-center gap-4 ${isCollapsed ? 'justify-center' : ''}`}>
-            <span className={`text-sm text-slate-600 dark:text-neutral-300 transition-opacity whitespace-nowrap overflow-hidden ${isCollapsed ? 'md:opacity-0 md:w-0 md:hidden' : 'md:opacity-100'}`}>Mode Gelap</span>
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : ''}`}>
             <button
                 onClick={onToggle}
                 className="w-14 h-8 flex-shrink-0 rounded-full bg-slate-200 dark:bg-neutral-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#212121] focus:ring-blue-400"
