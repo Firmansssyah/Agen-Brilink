@@ -31,6 +31,17 @@ const MonthlyMarginDetailModal: React.FC<MonthlyMarginDetailModalProps> = ({
         setIsVisible(false);
         setTimeout(onClose, 300);
     };
+    
+    // This function is for mobile view
+    const compactFormatRupiah = (amount: number) => {
+        if (amount >= 1_000_000) {
+            return `${(amount / 1_000_000).toFixed(1).replace(/\.0$/, '').replace('.', ',')}jt`;
+        }
+        if (amount >= 1_000) {
+            return `${Math.round(amount / 1_000)}rb`;
+        }
+        return new Intl.NumberFormat('id-ID').format(amount);
+    };
 
     const dailyData = useMemo<Map<number, DailyMarginData>>(() => {
         const dataMap = new Map<number, DailyMarginData>();
@@ -132,12 +143,15 @@ const MonthlyMarginDetailModal: React.FC<MonthlyMarginDetailModalProps> = ({
                             return (
                                 <div
                                     key={day.toISOString()}
-                                    className={`relative h-24 p-1.5 flex flex-col justify-between rounded-md transition-all duration-200 text-left ${colorClass} ${count === 0 && 'opacity-70'} ${isToday ? 'ring-2 ring-blue-500' : ''}`}
+                                    className={`relative h-16 sm:h-24 p-1 sm:p-1.5 flex flex-col justify-between rounded-md transition-all duration-200 text-left ${colorClass} ${count === 0 && 'opacity-70'} ${isToday ? 'ring-2 ring-blue-500' : ''}`}
                                 >
-                                    <span className={`font-bold text-sm ${textColorClass}`}>{dayNumber}</span>
+                                    <span className={`font-bold text-xs sm:text-sm ${textColorClass}`}>{dayNumber}</span>
                                     {count > 0 && (
-                                        <div className={`text-xs ${textColorClass}`}>
-                                            <p className="font-semibold">{formatRupiah(margin)}</p>
+                                        <div className={`text-[9px] sm:text-xs leading-tight sm:leading-normal ${textColorClass}`}>
+                                            {/* Mobile view: compact format */}
+                                            <p className="font-semibold sm:hidden">{compactFormatRupiah(margin)}</p>
+                                            {/* Desktop view: full format */}
+                                            <p className="font-semibold hidden sm:block">{formatRupiah(margin)}</p>
                                             <p className="opacity-80">{count} trx</p>
                                         </div>
                                     )}

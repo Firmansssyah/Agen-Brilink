@@ -1011,13 +1011,13 @@ const MainApp: React.FC = () => {
                 <header className="h-16 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 md:hidden border-b border-slate-200 dark:border-white/10 bg-white/80 dark:bg-[#191919]/80 backdrop-blur-sm">
                     <button 
                         onClick={() => setIsSidebarOpen(true)}
-                        className="p-2 rounded-full text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10"
+                        className="h-12 w-12 flex items-center justify-center rounded-full text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10"
                         aria-label="Buka menu"
                     >
-                        <MenuIcon />
+                        <MenuIcon className="h-7 w-7" />
                     </button>
                     <h1 className="text-lg font.bold text-slate-900 dark:text-white">{pageTitles[currentPage]}</h1>
-                    <div className="w-8"></div> {/* Spacer to center the title */}
+                    <div className="w-12"></div> {/* Spacer to center the title */}
                 </header>
                 <main className="flex-1 overflow-y-auto">
                     {renderContent()}
