@@ -1,7 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { Page } from '../types';
-import { CloseIcon, DashboardIcon, CustomersIcon, WalletIcon, ReportIcon, SettingsIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from './icons/Icons';
+import { CloseIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from './icons/Icons';
 import ClockCard from './ClockCard';
+
+// --- New SVG Icon Components ---
+
+const DashboardIcon: React.FC<{ className?: string }> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+        <path fill="currentColor" d="M5 21q-.825 0-1.412-.587T3 19V5q0-.825.588-1.412T5 3h6v18zm8 0v-9h8v7q0 .825-.587 1.413T19 21zm0-11V3h6q.825 0 1.413.588T21 5v5z"/>
+    </svg>
+);
+
+const CustomersIcon: React.FC<{ className?: string }> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+        <path fill="currentColor" d="M1 17.2q0-.85.438-1.562T2.6 14.55q1.55-.775 3.15-1.162T9 13t3.25.388t3.15 1.162q.725.375 1.163 1.088T17 17.2v.8q0 .825-.587 1.413T15 20H3q-.825 0-1.412-.587T1 18zM18.45 20q.275-.45.413-.962T19 18v-1q0-1.1-.612-2.113T16.65 13.15q1.275.15 2.4.513t2.1.887q.9.5 1.375 1.112T23 17v1q0 .825-.587 1.413T21 20zM9 12q-1.65 0-2.825-1.175T5 8t1.175-2.825T9 4t2.825 1.175T13 8t-1.175 2.825T9 12m10-4q0 1.65-1.175 2.825T15 12q-.275 0-.7-.062t-.7-.138q.675-.8 1.038-1.775T15 8t-.362-2.025T13.6 4.2q.35-.125.7-.163T15 4q1.65 0 2.825 1.175T19 8"/>
+    </svg>
+);
+
+const ManagementIcon: React.FC<{ className?: string }> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+        <path fill="currentColor" d="M3 8h18V5.5q0-.625-.437-1.062T19.5 4h-15q-.625 0-1.062.438T3 5.5zm0 6h18v-4H3zm1.5 6h15q.625 0 1.063-.437T21 18.5V16H3v2.5q0 .625.438 1.063T4.5 20M5 7q-.425 0-.712-.288T4 6t.288-.712T5 5t.713.288T6 6t-.288.713T5 7m0 6q-.425 0-.712-.288T4 12t.288-.712T5 11t.713.288T6 12t-.288.713T5 13m0 6q-.425 0-.712-.288T4 18t.288-.712T5 17t.713.288T6 18t-.288.713T5 19"/>
+    </svg>
+);
+
+const ReportIcon: React.FC<{ className?: string }> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+        <path fill="currentColor" d="M16 20v-7h4v7zm-6 0V4h4v16zm-6 0V9h4v11z"/>
+    </svg>
+);
+
+const SettingsIcon: React.FC<{ className?: string }> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" {...props}>
+        <path fill="currentColor" d="m9.25 22l-.4-3.2q-.325-.125-.612-.3t-.563-.375L4.7 19.375l-2.75-4.75l2.575-1.95Q4.5 12.5 4.5 12.338v-.675q0-.163.025-.338L1.95 9.375l2.75-4.75l2.975 1.25q.275-.2.575-.375t.6-.3l.4-3.2h5.5l.4 3.2q.325.125.613.3t.562.375l2.975-1.25l2.75 4.75l-2.575 1.95q.025.175.025.338v.674q0 .163-.05.338l2.575 1.95l-2.75 4.75l-2.95-1.25q-.275.2-.575.375t-.6.3l-.4 3.2zm2.8-6.5q1.45 0 2.475-1.025T15.55 12t-1.025-2.475T12.05 8.5q-1.475 0-2.488 1.025T8.55 12t1.013 2.475T12.05 15.5"/>
+    </svg>
+);
+
 
 type Theme = 'light' | 'dark';
 
@@ -103,7 +136,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, theme, s
     const navItems: { page: Page; text: string; icon: React.ReactNode }[] = [
         { page: 'dashboard', text: 'Dashboard', icon: <DashboardIcon className="h-5 w-5 flex-shrink-0" /> },
         { page: 'customers', text: 'Pelanggan', icon: <CustomersIcon className="h-5 w-5 flex-shrink-0" /> },
-        { page: 'management', text: 'Manajemen', icon: <WalletIcon className="h-5 w-5 flex-shrink-0" /> },
+        { page: 'management', text: 'Manajemen', icon: <ManagementIcon className="h-5 w-5 flex-shrink-0" /> },
         { page: 'reports', text: 'Laporan', icon: <ReportIcon className="h-5 w-5 flex-shrink-0" /> },
         { page: 'settings', text: 'Pengaturan', icon: <SettingsIcon className="h-5 w-5 flex-shrink-0" /> }
     ];

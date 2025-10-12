@@ -58,30 +58,35 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
 
             {/* Grid for displaying wallet balances, with separator for mobile */}
             <div className="grid grid-cols-2 gap-x-4 gap-y-3 p-3 border-t lg:border-t-0 border-slate-200 dark:border-white/10">
-                {wallets.map(wallet => (
-                    <div 
-                        key={wallet.id} 
-                        className="flex items-center space-x-3 min-w-0"
-                    >
-                        <div className="flex-shrink-0">
-                            {/* Komponen untuk menampilkan ikon dompet */}
-                            <WalletIconComponent 
-                                walletId={wallet.id}
-                                iconUrl={wallet.icon}
-                                className="h-8 w-8 text-slate-800 dark:text-white"
-                                altText={wallet.name}
-                            />
+                {wallets.map(wallet => {
+                    const iconClass = wallet.id === 'CASH' 
+                        ? "h-8 w-8 text-emerald-500 dark:text-emerald-400" 
+                        : "h-8 w-8 text-slate-800 dark:text-white";
+                    return (
+                        <div 
+                            key={wallet.id} 
+                            className="flex items-center space-x-3 min-w-0"
+                        >
+                            <div className="flex-shrink-0">
+                                {/* Komponen untuk menampilkan ikon dompet */}
+                                <WalletIconComponent 
+                                    walletId={wallet.id}
+                                    iconUrl={wallet.icon}
+                                    className={iconClass}
+                                    altText={wallet.name}
+                                />
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className="text-xs text-slate-500 dark:text-[#CAC4D0] truncate">{wallet.name}</span>
+                                <AnimatedNumber 
+                                    value={wallet.balance}
+                                    formatFn={formatRupiah}
+                                    className="text-sm font.bold text-slate-700 dark:text-[#E6E1E5] truncate"
+                                />
+                            </div>
                         </div>
-                        <div className="flex flex-col min-w-0">
-                            <span className="text-xs text-slate-500 dark:text-[#CAC4D0] truncate">{wallet.name}</span>
-                            <AnimatedNumber 
-                                value={wallet.balance}
-                                formatFn={formatRupiah}
-                                className="text-sm font.bold text-slate-700 dark:text-[#E6E1E5] truncate"
-                            />
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </div>
     );
