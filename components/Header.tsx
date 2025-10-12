@@ -1,29 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Page } from '../types';
-import { CloseIcon, DashboardIcon, CustomersIcon, WalletIcon, ReportIcon, SettingsIcon } from './icons/Icons';
+import { CloseIcon, DashboardIcon, CustomersIcon, WalletIcon, ReportIcon, SettingsIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from './icons/Icons';
 import ClockCard from './ClockCard';
 
-// Mendefinisikan tipe untuk tema aplikasi.
 type Theme = 'light' | 'dark';
 
-/**
- * Komponen ThemeToggle adalah tombol untuk beralih antara tema terang (light) dan gelap (dark).
- */
-const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; }> = ({ theme, onToggle }) => {
+const AppLogo: React.FC<{ className?: string }> = ({ className }) => (
+    <div className={`flex items-center justify-center bg-blue-600 dark:bg-blue-700 rounded-lg ${className}`}>
+        <span className="text-2xl font-bold text-white font-sans">B</span>
+    </div>
+);
+
+const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; isCollapsed: boolean; }> = ({ theme, onToggle, isCollapsed }) => {
     return (
-        <div className="flex items-center justify-between w-full">
-            <span className="text-sm text-slate-600 dark:text-neutral-300">Dark Mode</span>
+        <div className={`flex items-center gap-4 ${isCollapsed ? 'justify-center' : ''}`}>
+            <span className={`text-sm text-slate-600 dark:text-neutral-300 transition-opacity whitespace-nowrap overflow-hidden ${isCollapsed ? 'md:opacity-0 md:w-0 md:hidden' : 'md:opacity-100'}`}>Mode Gelap</span>
             <button
                 onClick={onToggle}
-                className="w-14 h-8 rounded-full bg-slate-200 dark:bg-neutral-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#212121] focus:ring-blue-400"
-                aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                className="w-14 h-8 flex-shrink-0 rounded-full bg-slate-200 dark:bg-neutral-700 flex items-center p-1 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-[#212121] focus:ring-blue-400"
+                aria-label={`Beralih ke mode ${theme === 'dark' ? 'terang' : 'gelap'}`}
             >
                 <span className={`w-6 h-6 rounded-full bg-white dark:bg-neutral-800 shadow-md transform transition-transform duration-300 relative ${theme === 'dark' ? 'translate-x-6' : 'translate-x-0'}`}>
-                    {/* Ikon untuk tema terang (matahari) */}
                     <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 text-yellow-500 ${theme === 'light' ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M12 12m-4 0a4 4 0 1 0 8 0 4 4 0 1 0-8 0 M12 2V4 M12 20V22 M2 12H4 M20 12H22 M5.64 5.64l1.41 1.41 M16.95 16.95l1.41 1.41 M5.64 18.36l1.41-1.41 M16.95 7.05l1.41-1.41" />
                     </svg>
-                     {/* Ikon untuk tema gelap (bulan) */}
                      <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 text-neutral-300 ${theme === 'dark' ? 'opacity-100' : 'opacity-0'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                     </svg>
@@ -33,32 +33,42 @@ const ThemeToggle: React.FC<{ theme: Theme; onToggle: () => void; }> = ({ theme,
     );
 };
 
-// Properti untuk komponen NavLink.
 interface NavLinkProps {
     page: Page;
     text: string;
     icon: React.ReactNode;
     active: boolean;
     onClick: (page: Page) => void;
+    isCollapsed: boolean;
 }
 
-/**
- * Komponen NavLink adalah tautan navigasi yang digunakan di dalam sidebar.
- */
-const NavLink: React.FC<NavLinkProps> = ({ page, text, icon, active, onClick }) => {
-    const baseClasses = "flex items-center space-x-4 w-full px-4 py-3 rounded-full transition-all duration-200 cursor-pointer group";
-    const activeClasses = "bg-blue-600 text-white dark:bg-blue-700 font-semibold";
-    const inactiveClasses = "text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10 hover:text-slate-800 dark:hover:text-white";
+const NavLink: React.FC<NavLinkProps> = ({ page, text, icon, active, onClick, isCollapsed }) => {
+    const commonClasses = "relative flex items-center w-full transition-colors duration-200 cursor-pointer rounded-xl";
+    const activeClasses = "bg-blue-600 text-white dark:bg-blue-700 font-semibold shadow-md";
+    const inactiveClasses = "text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10";
     
+    // For mobile and expanded desktop
+    const expandedClasses = "px-4 py-3 space-x-4";
+    // For collapsed desktop
+    const collapsedDesktopClasses = "md:h-12 md:w-12 md:mx-auto md:justify-center md:has-tooltip md:p-0 md:space-x-0";
+
     return (
-        <a onClick={() => onClick(page)} className={`${baseClasses} ${active ? activeClasses : inactiveClasses}`}>
+        <a 
+            onClick={() => onClick(page)}
+            className={`${commonClasses} ${active ? activeClasses : inactiveClasses} ${isCollapsed ? collapsedDesktopClasses : expandedClasses}`}
+        >
             {icon}
-            <span className="text-sm font-medium">{text}</span>
+            <span className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-opacity ${isCollapsed ? 'md:opacity-0 md:w-0 md:hidden' : 'md:opacity-100'}`}>{text}</span>
+            {isCollapsed && (
+                 <div className="tooltip absolute left-full top-1/2 -translate-y-1/2 ml-4 px-3 py-1.5 bg-slate-800 dark:bg-neutral-900 text-white text-xs font-medium rounded-md shadow-lg whitespace-nowrap z-50 hidden md:block">
+                    {text}
+                 </div>
+            )}
         </a>
     );
 };
 
-// Properti untuk komponen Sidebar utama.
+
 interface SidebarProps {
     currentPage: Page;
     setCurrentPage: (page: Page) => void;
@@ -69,48 +79,67 @@ interface SidebarProps {
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-/**
- * Komponen Sidebar adalah panel navigasi utama aplikasi.
- */
 const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, theme, setTheme, appName, isOpen, setIsOpen }) => {
+    const [isCollapsed, setIsCollapsed] = useState(() => {
+        return typeof window !== 'undefined' ? localStorage.getItem('sidebarCollapsed') === 'true' : false;
+    });
+
+    useEffect(() => {
+        localStorage.setItem('sidebarCollapsed', String(isCollapsed));
+    }, [isCollapsed]);
     
     const handleNavClick = (page: Page) => {
         setCurrentPage(page);
-        setIsOpen(false); // Menutup sidebar di mobile setelah navigasi.
+        setIsOpen(false);
     };
 
     const handleToggleTheme = () => {
         setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
     };
+    
+    const handleToggleCollapse = () => {
+        setIsCollapsed(prev => !prev);
+    };
 
-    // FIX: Add explicit type to navItems to ensure TypeScript infers `page` as type `Page`, not `string`.
     const navItems: { page: Page; text: string; icon: React.ReactNode }[] = [
-        { page: 'dashboard', text: 'Dashboard', icon: <DashboardIcon className="h-5 w-5" /> },
-        { page: 'customers', text: 'Pelanggan', icon: <CustomersIcon className="h-5 w-5" /> },
-        { page: 'management', text: 'Manajemen', icon: <WalletIcon className="h-5 w-5" /> },
-        { page: 'reports', text: 'Laporan', icon: <ReportIcon className="h-5 w-5" /> },
-        { page: 'settings', text: 'Pengaturan', icon: <SettingsIcon className="h-5 w-5" /> }
+        { page: 'dashboard', text: 'Dashboard', icon: <DashboardIcon className="h-5 w-5 flex-shrink-0" /> },
+        { page: 'customers', text: 'Pelanggan', icon: <CustomersIcon className="h-5 w-5 flex-shrink-0" /> },
+        { page: 'management', text: 'Manajemen', icon: <WalletIcon className="h-5 w-5 flex-shrink-0" /> },
+        { page: 'reports', text: 'Laporan', icon: <ReportIcon className="h-5 w-5 flex-shrink-0" /> },
+        { page: 'settings', text: 'Pengaturan', icon: <SettingsIcon className="h-5 w-5 flex-shrink-0" /> }
     ];
 
     return (
         <>
-            {/* Overlay untuk mobile */}
             <div 
                 className={`fixed inset-0 bg-black/40 z-40 md:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                 onClick={() => setIsOpen(false)}
                 aria-hidden="true"
             ></div>
             
-            {/* Kontainer Sidebar */}
             <aside 
                 className={`fixed top-0 left-0 h-full bg-white dark:bg-[#212121] border-r border-slate-200 dark:border-white/10 z-50
-                w-64 flex-shrink-0 flex flex-col transition-transform duration-300 ease-in-out
+                flex-shrink-0 flex flex-col transition-transform md:transition-[width] duration-300 ease-in-out
                 md:relative md:translate-x-0
+                w-64 ${isCollapsed ? 'md:w-20' : 'md:w-64'}
                 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 role="navigation"
             >
-                <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-white/10 flex-shrink-0">
-                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">{appName}</h1>
+                <div className="h-16 flex items-center justify-between px-6 md:px-0 border-b border-slate-200 dark:border-white/10 flex-shrink-0 overflow-hidden">
+                    <div className={`transition-all duration-200 w-full flex items-center ${isCollapsed ? 'md:justify-center' : 'md:px-6'}`}>
+                        {/* Mobile view, always expanded */}
+                        <h1 className="text-xl font-bold text-slate-900 dark:text-white md:hidden">{appName}</h1>
+                        
+                        {/* Desktop view */}
+                        <div className={`hidden md:flex items-center gap-3 transition-opacity ${isCollapsed ? 'opacity-0 w-0' : 'opacity-100'}`}>
+                            <AppLogo className="h-8 w-8" />
+                            <span className="text-lg font-bold text-slate-900 dark:text-white whitespace-nowrap">{appName}</span>
+                        </div>
+                         <div className={`hidden md:flex items-center justify-center transition-opacity ${isCollapsed ? 'opacity-100' : 'opacity-0 w-0'}`}>
+                             <AppLogo className="h-9 w-9" />
+                        </div>
+                    </div>
+
                     <button onClick={() => setIsOpen(false)} className="md:hidden p-2 -mr-2 text-slate-500 hover:text-slate-800 dark:text-neutral-400 dark:hover:text-white" aria-label="Tutup menu">
                         <CloseIcon />
                     </button>
@@ -126,18 +155,27 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, theme, s
                                     icon={item.icon}
                                     active={currentPage === item.page} 
                                     onClick={handleNavClick} 
+                                    isCollapsed={isCollapsed}
                                 />
                             </li>
                         ))}
                     </ul>
-                    <div className="mt-auto">
-                        <ClockCard />
+                    <div className="mt-auto pt-4">
+                        <ClockCard isCollapsed={isCollapsed} />
                     </div>
                 </nav>
 
-                <div className="p-4 border-t border-slate-200 dark:border-white/10 flex-shrink-0">
-                    <ThemeToggle theme={theme} onToggle={handleToggleTheme} />
+                <div className={`p-4 border-t border-slate-200 dark:border-white/10 flex-shrink-0 flex items-center ${isCollapsed ? 'flex-col-reverse gap-4' : 'justify-between'}`}>
+                    <ThemeToggle theme={theme} onToggle={handleToggleTheme} isCollapsed={isCollapsed} />
+                    <button 
+                        onClick={handleToggleCollapse}
+                        className="hidden md:flex items-center justify-center h-8 w-8 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200/60 dark:hover:bg-white/10 transition-colors"
+                        aria-label={isCollapsed ? "Lebarkan sidebar" : "Sempitkan sidebar"}
+                    >
+                        {isCollapsed ? <PanelLeftOpenIcon className="h-5 w-5" /> : <PanelLeftCloseIcon className="h-5 w-5" />}
+                    </button>
                 </div>
+
             </aside>
         </>
     );

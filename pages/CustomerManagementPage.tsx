@@ -237,16 +237,21 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                                     {formatRupiah(customer.totalPiutang)}
                                                 </td>
                                                 <td className="p-2 text-sm text-center">
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleOpenRewardModal(customer);
-                                                        }}
-                                                        className="p-2 rounded-full text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors"
-                                                        aria-label={`Beri reward untuk ${customer.name}`}
-                                                    >
-                                                        <GiftIcon className="h-5 w-5" />
-                                                    </button>
+                                                    <div className="relative has-tooltip inline-flex">
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleOpenRewardModal(customer);
+                                                            }}
+                                                            className="p-2 rounded-full text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-500/10 transition-colors"
+                                                            aria-label={`Beri reward untuk ${customer.name}`}
+                                                        >
+                                                            <GiftIcon className="h-5 w-5" />
+                                                        </button>
+                                                        <span className="tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-slate-700 text-white text-xs rounded-md shadow-lg">
+                                                            Beri Reward
+                                                        </span>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )) : (

@@ -118,17 +118,23 @@ const MonthlyMarginHeatmapCard: React.FC<MonthlyMarginHeatmapCardProps> = ({
                     const isToday = today.getFullYear() === day.getFullYear() && today.getMonth() === day.getMonth() && today.getDate() === day.getDate();
                     
                     return (
-                        <div
-                            key={day.toISOString()}
-                            className={`relative h-24 p-1.5 flex flex-col justify-between rounded-md transition-all duration-200 text-left ${colorClass} ${count === 0 && 'opacity-70'} ${isToday ? 'ring-2 ring-blue-500' : ''}`}
-                        >
-                            <span className={`font-bold text-sm ${textColorClass}`}>{dayNumber}</span>
-                            {count > 0 && (
-                                <div className={`text-xs ${textColorClass}`}>
-                                    <p className="font-semibold">{formatRupiah(margin)}</p>
-                                    <p className="opacity-80">{count} trx</p>
-                                </div>
-                            )}
+                        <div key={day.toISOString()} className="relative has-tooltip">
+                            <div
+                                className={`h-24 p-1.5 flex flex-col justify-between rounded-md transition-all duration-200 text-left ${colorClass} ${count === 0 && 'opacity-70'} ${isToday ? 'ring-2 ring-blue-500' : ''}`}
+                            >
+                                <span className={`font-bold text-sm ${textColorClass}`}>{dayNumber}</span>
+                                {count > 0 && (
+                                    <div className={`text-xs ${textColorClass}`}>
+                                        <p className="font-semibold">{formatRupiah(margin)}</p>
+                                        <p className="opacity-80">{count} trx</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-10 w-max whitespace-nowrap px-3 py-1.5 bg-slate-800 dark:bg-neutral-900 text-white text-xs font-medium rounded-md shadow-lg">
+                                <p className="font-bold">{day.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                <p>Margin: {formatRupiah(margin)}</p>
+                                <p>Transaksi: {count}</p>
+                            </div>
                         </div>
                     );
                 })}

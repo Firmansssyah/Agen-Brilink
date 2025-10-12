@@ -89,6 +89,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         }
     };
 
+    const tooltipClasses = "tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-slate-700 text-white text-xs rounded-md shadow-lg z-10";
+
     return (
         <>
              {/* Tampilan Tabel untuk Desktop */}
@@ -137,9 +139,19 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                             const toWallet = wallets.find(w => w.id === transaction.toWallet);
                                                             return (
                                                                 <>
-                                                                    {fromWallet && <WalletIconComponent walletId={fromWallet.id} iconUrl={fromWallet.icon} className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={fromWallet.name} />}
+                                                                    {fromWallet && (
+                                                                        <div className="relative has-tooltip">
+                                                                            <WalletIconComponent walletId={fromWallet.id} iconUrl={fromWallet.icon} className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={fromWallet.name} />
+                                                                            <span className={tooltipClasses}>{fromWallet.name}</span>
+                                                                        </div>
+                                                                    )}
                                                                     <ArrowRightIcon className="h-4 w-4 text-slate-400 dark:text-neutral-500" />
-                                                                    {toWallet && <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={toWallet.name} />}
+                                                                    {toWallet && (
+                                                                        <div className="relative has-tooltip">
+                                                                            <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={toWallet.name} />
+                                                                            <span className={tooltipClasses}>{toWallet.name}</span>
+                                                                        </div>
+                                                                    )}
                                                                 </>
                                                             );
                                                         })()}
@@ -151,10 +163,13 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                     {(() => {
                                                         const wallet = wallets.find(w => w.id === transaction.wallet);
                                                         return wallet && (
-                                                            <WalletIconComponent 
-                                                                walletId={wallet.id} iconUrl={wallet.icon} 
-                                                                className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={wallet.name}
-                                                            />
+                                                            <div className="relative has-tooltip">
+                                                                <WalletIconComponent 
+                                                                    walletId={wallet.id} iconUrl={wallet.icon} 
+                                                                    className="h-6 w-6 object-contain dark:brightness-0 dark:invert" altText={wallet.name}
+                                                                />
+                                                                <span className={tooltipClasses}>{wallet.name}</span>
+                                                            </div>
                                                         );
                                                     })()}
                                                     <span className="font-bold">{`${transaction.type === TransactionType.IN ? '+' : '-'} ${formatRupiah(transaction.amount)}`}</span>
@@ -248,9 +263,19 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                                 const toWallet = wallets.find(w => w.id === transaction.toWallet);
                                                 return (
                                                     <>
-                                                        {fromWallet && <WalletIconComponent walletId={fromWallet.id} iconUrl={fromWallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={fromWallet.name} />}
+                                                        {fromWallet && (
+                                                            <div className="relative has-tooltip">
+                                                                <WalletIconComponent walletId={fromWallet.id} iconUrl={fromWallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={fromWallet.name} />
+                                                                <span className={tooltipClasses}>{fromWallet.name}</span>
+                                                            </div>
+                                                        )}
                                                         <ArrowRightIcon className="h-4 w-4 text-slate-400 dark:text-neutral-500" />
-                                                        {toWallet && <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={toWallet.name} />}
+                                                        {toWallet && (
+                                                            <div className="relative has-tooltip">
+                                                                <WalletIconComponent walletId={toWallet.id} iconUrl={toWallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={toWallet.name} />
+                                                                <span className={tooltipClasses}>{toWallet.name}</span>
+                                                            </div>
+                                                        )}
                                                     </>
                                                 );
                                             })()}
@@ -261,7 +286,12 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     <div className="flex items-center space-x-3">
                                         {(() => {
                                             const wallet = wallets.find(w => w.id === transaction.wallet);
-                                            return wallet && <WalletIconComponent walletId={wallet.id} iconUrl={wallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={wallet.name} />;
+                                            return wallet && (
+                                                <div className="relative has-tooltip">
+                                                    <WalletIconComponent walletId={wallet.id} iconUrl={wallet.icon} className="h-7 w-7 object-contain dark:brightness-0 dark:invert" altText={wallet.name} />
+                                                    <span className={tooltipClasses}>{wallet.name}</span>
+                                                </div>
+                                            );
                                         })()}
                                         <div>
                                             <p className={`text-lg font-bold ${transaction.type === TransactionType.IN ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>

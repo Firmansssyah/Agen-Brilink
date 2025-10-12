@@ -127,6 +127,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
         }
     };
 
+    const tooltipClasses = "tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-slate-700 text-white text-xs rounded-md shadow-lg";
 
     return (
         <main className="p-4 sm:p-6 flex-1">
@@ -189,8 +190,14 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                                 <td className="p-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">{formatRupiah(wallet.balance)}</td>
                                                 <td className="p-2 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
-                                                        <button onClick={() => handleOpenEditWalletModal(wallet)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit dompet ${wallet.name}`}><EditIcon /></button>
-                                                        <button onClick={() => handleOpenDeleteWalletModal(wallet)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus dompet ${wallet.name}`}><DeleteIcon /></button>
+                                                        <div className="relative has-tooltip">
+                                                            <button onClick={() => handleOpenEditWalletModal(wallet)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit dompet ${wallet.name}`}><EditIcon /></button>
+                                                            <span className={tooltipClasses}>Edit Dompet</span>
+                                                        </div>
+                                                        <div className="relative has-tooltip">
+                                                            <button onClick={() => handleOpenDeleteWalletModal(wallet)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus dompet ${wallet.name}`}><DeleteIcon /></button>
+                                                            <span className={tooltipClasses}>Hapus Dompet</span>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -228,8 +235,14 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                                 <td className="p-2 text-sm text-slate-800 dark:text-white">{category}</td>
                                                 <td className="p-2 text-sm text-center">
                                                     <div className="flex justify-center space-x-2">
-                                                        <button onClick={() => handleOpenEditCategoryModal(category)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit kategori ${category}`}><EditIcon /></button>
-                                                        <button onClick={() => handleOpenDeleteCategoryModal(category)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus kategori ${category}`}><DeleteIcon /></button>
+                                                        <div className="relative has-tooltip">
+                                                            <button onClick={() => handleOpenEditCategoryModal(category)} className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200 dark:hover:bg-white/10 hover:text-slate-700 dark:hover:text-white transition-colors duration-200" aria-label={`Edit kategori ${category}`}><EditIcon /></button>
+                                                            <span className={tooltipClasses}>Edit Kategori</span>
+                                                        </div>
+                                                        <div className="relative has-tooltip">
+                                                            <button onClick={() => handleOpenDeleteCategoryModal(category)} className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-400/10 hover:text-red-600 dark:hover:text-red-300 transition-colors duration-200" aria-label={`Hapus kategori ${category}`}><DeleteIcon /></button>
+                                                            <span className={tooltipClasses}>Hapus Kategori</span>
+                                                        </div>
                                                     </div>
                                                 </td>
                                             </tr>
