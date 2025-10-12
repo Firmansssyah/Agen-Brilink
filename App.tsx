@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Transaction, Wallet, TransactionType, Page, Font } from './types';
-import Sidebar from './components/Header';
+import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import ManagementPage from './pages/ManagementPage';
 import CustomerManagementPage from './pages/CustomerManagementPage';
