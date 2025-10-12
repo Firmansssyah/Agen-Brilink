@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
 import { WalletIconComponent } from './WalletIconComponent';
-import { ChevronDownIcon, ChevronUpIcon, EditIcon, DeleteIcon, MoreVerticalIcon, ArrowRightIcon } from './icons/Icons';
+import { ChevronDownIcon, ChevronUpIcon, EditIcon, DeleteIcon, ArrowRightIcon } from './icons/Icons';
 
 interface TransactionTableProps {
     transactions: Transaction[];
@@ -52,48 +52,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     sortDirection,
     onSort
 }) => {
-    const [activeActionMenu, setActiveActionMenu] = useState<string | null>(null);
-    const actionMenuRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            // Jika yang diklik adalah tombol toggle menu, jangan lakukan apa-apa.
-            // Biarkan handler dari tombol itu sendiri yang bekerja.
-            if ((event.target as HTMLElement).closest('[data-menu-toggle="true"]')) {
-                return;
-            }
-            if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
-                setActiveActionMenu(null);
-            }
-        };
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
-
-    const handleActionClick = (e: React.MouseEvent, handler: () => void) => {
-        e.stopPropagation();
-        handler();
-        setActiveActionMenu(null);
-    };
-
-    const handleDeleteClick = (transaction: Transaction) => {
-        if (transaction.isInternalTransfer && transaction.transferId) {
-            onDeleteTransferConfirm(transaction.transferId);
-        } else {
-            onDeleteTransactionConfirm(transaction.id);
-        }
-    };
-
-    const handleEditClick = (transaction: Transaction) => {
-        if (transaction.isInternalTransfer && onEditTransfer) {
-            onEditTransfer(transaction);
-        } else {
-            onEditTransaction(transaction);
-        }
-    };
-
     const tooltipClasses = "tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-slate-700 text-white text-xs rounded-md shadow-lg z-10";
 
     return (
@@ -183,30 +141,35 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                         </td>
                                         <td className="p-3 align-middle text-sm font-semibold text-sky-600 dark:text-sky-300">{formatRupiah(transaction.margin)}</td>
                                         <td className="p-3 align-middle text-center">
-                                            <div className="relative inline-flex items-center">
+                                            <div className="flex items-center justify-center space-x-1">
                                                 <button 
-                                                    data-menu-toggle="true"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setActiveActionMenu(prev => prev === transaction.id ? null : transaction.id);
+                                                        if (transaction.isInternalTransfer && onEditTransfer) {
+                                                            onEditTransfer(transaction);
+                                                        } else {
+                                                            onEditTransaction(transaction);
+                                                        }
                                                     }}
                                                     className="p-2 rounded-full text-slate-500 dark:text-neutral-400 hover:bg-slate-200/60 dark:hover:bg-white/10"
-                                                    aria-label="Aksi lainnya"
+                                                    aria-label="Edit transaksi"
                                                 >
-                                                    <MoreVerticalIcon className="h-5 w-5" />
+                                                    <EditIcon className="h-4 w-4" />
                                                 </button>
-                                                {activeActionMenu === transaction.id && (
-                                                    <div ref={actionMenuRef} className="absolute right-0 top-full mt-2 w-36 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-slate-200 dark:border-neutral-700 z-10 animate-fade-in p-1">
-                                                        <button onClick={(e) => handleActionClick(e, () => handleEditClick(transaction))} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-md text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5">
-                                                            <EditIcon className="h-4 w-4" />
-                                                            <span>Edit</span>
-                                                        </button>
-                                                        <button onClick={(e) => handleActionClick(e, () => handleDeleteClick(transaction))} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10">
-                                                            <DeleteIcon className="h-4 w-4" />
-                                                            <span>Hapus</span>
-                                                        </button>
-                                                    </div>
-                                                )}
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (transaction.isInternalTransfer && transaction.transferId) {
+                                                            onDeleteTransferConfirm(transaction.transferId);
+                                                        } else {
+                                                            onDeleteTransactionConfirm(transaction.id);
+                                                        }
+                                                    }}
+                                                    className="p-2 rounded-full text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/10"
+                                                    aria-label="Hapus transaksi"
+                                                >
+                                                    <DeleteIcon className="h-4 w-4" />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -241,22 +204,33 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                                     <p className="text-base font-semibold text-slate-800 dark:text-white truncate">{transaction.description}</p>
                                     <p className="text-sm text-slate-600 dark:text-neutral-300 truncate">{transaction.customer || 'Pelanggan'}</p>
                                 </div>
-                                <div className="relative flex-shrink-0">
-                                    <button data-menu-toggle="true" onClick={(e) => { e.stopPropagation(); setActiveActionMenu(prev => prev === transaction.id ? null : transaction.id); }} className="p-2 -mr-2 text-slate-500 dark:text-neutral-400 rounded-full hover:bg-black/5 dark:hover:bg-white/10" aria-label="Aksi lainnya">
-                                        <MoreVerticalIcon className="h-5 w-5" />
+                                <div className="flex-shrink-0 flex items-center gap-1">
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (transaction.isInternalTransfer && onEditTransfer) {
+                                                onEditTransfer(transaction);
+                                            } else {
+                                                onEditTransaction(transaction);
+                                            }
+                                        }} 
+                                        className="p-2 -mr-1 text-slate-500 dark:text-neutral-400 rounded-full hover:bg-black/5 dark:hover:bg-white/10" aria-label="Edit transaksi"
+                                    >
+                                        <EditIcon className="h-5 w-5" />
                                     </button>
-                                    {activeActionMenu === transaction.id && (
-                                        <div ref={actionMenuRef} className="absolute right-0 top-full mt-2 w-36 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-slate-200 dark:border-neutral-700 z-10 animate-fade-in p-1">
-                                            <button onClick={(e) => handleActionClick(e, () => handleEditClick(transaction))} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-md text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5">
-                                                <EditIcon className="h-4 w-4" />
-                                                <span>Edit</span>
-                                            </button>
-                                            <button onClick={(e) => handleActionClick(e, () => handleDeleteClick(transaction))} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10">
-                                                <DeleteIcon className="h-4 w-4" />
-                                                <span>Hapus</span>
-                                            </button>
-                                        </div>
-                                    )}
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (transaction.isInternalTransfer && transaction.transferId) {
+                                                onDeleteTransferConfirm(transaction.transferId);
+                                            } else {
+                                                onDeleteTransactionConfirm(transaction.id);
+                                            }
+                                        }} 
+                                        className="p-2 -mr-2 text-red-500 dark:text-red-400 rounded-full hover:bg-black/5 dark:hover:bg-white/10" aria-label="Hapus transaksi"
+                                    >
+                                        <DeleteIcon className="h-5 w-5" />
+                                    </button>
                                 </div>
                             </div>
                             
