@@ -214,17 +214,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         
         // 4. Lakukan pengurutan.
         items.sort((a, b) => {
-            // Prioritas utama: piutang selalu di atas.
-            if (a.isPiutang !== b.isPiutang) {
-                return a.isPiutang ? -1 : 1;
-            }
-            
-            // Jika keduanya piutang, urutkan berdasarkan tanggal terlama.
-            if (a.isPiutang && b.isPiutang) {
-                return new Date(a.date).getTime() - new Date(b.date).getTime();
-            }
-            
-            // Untuk non-piutang, gunakan pengurutan yang dipilih pengguna.
             const valA = a[sortKey];
             const valB = b[sortKey];
 
