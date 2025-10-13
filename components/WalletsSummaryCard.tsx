@@ -19,7 +19,14 @@ interface WalletsSummaryCardProps {
  * Komponen WalletsSummaryCard menampilkan ringkasan finansial utama di dashboard.
  * Ini mencakup total aset, margin bulan ini, dan daftar saldo dari setiap dompet.
  */
-const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, formatRupiah, totalAssets, totalMargin, onMarginClick, onAssetClick }) => {
+const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ 
+    wallets, 
+    formatRupiah, 
+    totalAssets, 
+    totalMargin, 
+    onMarginClick, 
+    onAssetClick,
+}) => {
     
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
@@ -57,31 +64,27 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({ wallets, format
             </div>
 
             {/* Grid for displaying wallet balances, with separator for mobile */}
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3 p-3 border-t lg:border-t-0 border-slate-200 dark:border-white/10">
+            <div className="grid grid-cols-2 gap-3 p-3 border-t lg:border-t-0 border-slate-200 dark:border-white/10">
                 {wallets.map(wallet => {
-                    const iconClass = wallet.id === 'CASH' 
-                        ? "h-8 w-8 text-emerald-500 dark:text-emerald-400" 
-                        : "h-8 w-8 text-slate-800 dark:text-white";
                     return (
-                        <div 
-                            key={wallet.id} 
-                            className="flex items-center space-x-3 min-w-0"
+                         <div
+                            key={wallet.id}
+                            className="p-3 rounded-xl flex items-center gap-3 w-full text-left bg-slate-50 dark:bg-neutral-900/50"
                         >
                             <div className="flex-shrink-0">
-                                {/* Komponen untuk menampilkan ikon dompet */}
-                                <WalletIconComponent 
+                                <WalletIconComponent
                                     walletId={wallet.id}
                                     iconUrl={wallet.icon}
-                                    className={iconClass}
+                                    className="h-8 w-8"
                                     altText={wallet.name}
                                 />
                             </div>
-                            <div className="flex flex-col min-w-0">
-                                <span className="text-xs text-slate-500 dark:text-[#CAC4D0] truncate">{wallet.name}</span>
+                            <div className="min-w-0">
+                                <span className="block text-xs font-medium text-slate-500 dark:text-neutral-400 truncate">{wallet.name}</span>
                                 <AnimatedNumber 
                                     value={wallet.balance}
                                     formatFn={formatRupiah}
-                                    className="text-sm font.bold text-slate-700 dark:text-[#E6E1E5] truncate"
+                                    className="block text-base font-bold text-slate-800 dark:text-white truncate"
                                 />
                             </div>
                         </div>
