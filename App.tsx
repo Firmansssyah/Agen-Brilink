@@ -228,7 +228,10 @@ const MainApp: React.FC = () => {
         } else { // Transfer IN/OUT dan lainnya
             if (type === TransactionType.IN) {
                 primaryWalletChange = amount + margin;
-                if (!isPiutang) cashWalletChange = -amount;
+                // BUG FIX: For IN types (like Tarik Tunai), cash is given out regardless of piutang status.
+                // The piutang is the debt owed by the customer, but the cash has physically left the drawer.
+                // Previously, this was inside an `if (!isPiutang)` block, causing cash not to be deducted for piutang transactions.
+                cashWalletChange = -amount;
             } else { // OUT
                 primaryWalletChange = -amount;
                 if (!isPiutang) cashWalletChange = amount + margin;
