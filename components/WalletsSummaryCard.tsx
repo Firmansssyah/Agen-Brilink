@@ -30,11 +30,6 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({
     
     return (
         <div className="bg-white dark:bg-neutral-800 rounded-3xl flex flex-col shadow-lg shadow-slate-200/50 dark:shadow-none">
-             {/* Desktop Header */}
-            <div className="hidden lg:flex items-center justify-between p-4 border-b border-slate-200 dark:border-white/10">
-                <h3 className="text-lg font-medium text-slate-800 dark:text-white">Dompet</h3>
-            </div>
-            
             {/* Financial Highlights for mobile/tablet view */}
             <div className="lg:hidden p-3 grid grid-cols-2 gap-3">
                 {/* Total Aset */}
