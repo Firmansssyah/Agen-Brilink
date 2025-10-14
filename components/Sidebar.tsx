@@ -77,7 +77,7 @@ interface NavLinkProps {
 const NavLink: React.FC<NavLinkProps> = ({ page, text, icon, active, onClick, isCollapsed }) => {
     const commonClasses = "relative flex items-center w-full transition-colors duration-200 cursor-pointer rounded-full";
     const activeClasses = "bg-blue-500 text-white dark:bg-blue-500/10 dark:text-blue-200 font-semibold";
-    const inactiveClasses = "text-slate-600 dark:text-neutral-300 hover:bg-slate-200/50 dark:hover:bg-white/10";
+    const inactiveClasses = "bg-slate-100 dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 hover:bg-slate-200 dark:hover:bg-neutral-700";
     
     // For mobile and expanded desktop
     const expandedClasses = "px-4 py-3 space-x-4";
