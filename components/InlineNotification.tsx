@@ -55,30 +55,44 @@ const InlineNotification: React.FC = () => {
     const { message, type } = currentToast;
 
     const iconMap: Record<ToastType, React.ReactNode> = {
-        success: <CheckIcon className="h-5 w-5 text-white" />,
-        error: <ErrorIcon className="h-5 w-5 text-white" />,
-        info: <InfoIcon className="h-5 w-5 text-white" />,
-        destructive: <CheckIcon className="h-5 w-5 text-white" />,
+        success: <CheckIcon className="h-5 w-5 text-emerald-500" />,
+        error: <ErrorIcon className="h-5 w-5 text-red-500" />,
+        info: <InfoIcon className="h-5 w-5 text-sky-500" />,
+        destructive: <CheckIcon className="h-5 w-5 text-red-500" />,
     };
     
-    const styleMap: Record<ToastType, string> = {
-        success: 'bg-emerald-500 dark:bg-emerald-600',
-        error: 'bg-red-500 dark:bg-red-600',
-        info: 'bg-sky-500 dark:bg-sky-600',
-        destructive: 'bg-red-500 dark:bg-red-600',
+    const colorMap: Record<ToastType, { text: string; closeButton: string; }> = {
+        success: {
+            text: 'text-emerald-700',
+            closeButton: 'text-emerald-500 hover:bg-emerald-100',
+        },
+        error: {
+            text: 'text-red-700',
+            closeButton: 'text-red-500 hover:bg-red-100',
+        },
+        info: {
+            text: 'text-sky-700',
+            closeButton: 'text-sky-500 hover:bg-sky-100',
+        },
+        destructive: {
+            text: 'text-red-700',
+            closeButton: 'text-red-500 hover:bg-red-100',
+        },
     };
 
+    const colors = colorMap[type];
+
     return (
-        <div className={`w-full p-3 rounded-xl border border-transparent flex items-center justify-between gap-4 text-white ${styleMap[type]} ${isExiting ? 'animate-fade-out-up' : 'animate-fade-in'}`}>
+        <div className={`w-full p-3 rounded-xl flex items-center justify-between gap-4 bg-white shadow-xl shadow-slate-300/40 dark:shadow-black/25 ${isExiting ? 'animate-fade-out-up' : 'animate-fade-in'}`}>
             <div className="flex items-center gap-3">
                 <div className="flex-shrink-0">
                     {iconMap[type]}
                 </div>
-                <p className="text-sm font-semibold">{message}</p>
+                <p className={`text-sm font-semibold ${colors.text}`}>{message}</p>
             </div>
             <button
                 onClick={handleDismiss}
-                className="p-1 rounded-full text-white/80 hover:text-white hover:bg-black/20"
+                className={`p-1 rounded-full transition-colors ${colors.closeButton}`}
                 aria-label="Tutup notifikasi"
             >
                 <CloseIcon className="h-5 w-5" />
