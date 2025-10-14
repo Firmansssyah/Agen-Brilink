@@ -7,7 +7,6 @@ import CustomerManagementPage from './pages/CustomerManagementPage';
 import ReportsPage from './pages/ReportsPage';
 import SettingsPage from './pages/SettingsPage';
 import { ToastProvider, useToastContext } from './contexts/ToastContext';
-import ToastContainer from './components/ToastContainer';
 import { MenuIcon } from './components/icons/Icons';
 
 // Mendefinisikan tipe untuk tema aplikasi.
@@ -434,7 +433,7 @@ const MainApp: React.FC = () => {
 
             await applyWalletChanges(transactionToDelete, 'delete');
             setTransactions(prev => prev.filter(t => t.id !== transactionId));
-            addToast('Transaksi berhasil dihapus', 'success');
+            addToast('Transaksi berhasil dihapus', 'destructive');
         } catch (err) {
             console.error("Gagal menghapus transaksi:", err);
             addToast('Gagal menghapus transaksi.', 'error');
@@ -483,7 +482,7 @@ const MainApp: React.FC = () => {
             const res = await fetch(`${API_BASE_URL}/wallets/${walletId}`, { method: 'DELETE' });
             if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
             setWallets(prev => prev.filter(w => w.id !== walletId));
-            addToast('Dompet berhasil dihapus', 'success');
+            addToast('Dompet berhasil dihapus', 'destructive');
         } catch (err) {
             console.error("Gagal menghapus dompet:", err);
             addToast('Gagal menghapus dompet.', 'error');
@@ -546,7 +545,7 @@ const MainApp: React.FC = () => {
             });
             if (!res.ok) throw new Error(`Server merespon dengan status ${res.status}`);
             setCategories(newCategories);
-            addToast('Kategori berhasil dihapus', 'success');
+            addToast('Kategori berhasil dihapus', 'destructive');
         } catch(err) {
             console.error("Gagal menghapus kategori:", err);
             addToast('Gagal menghapus kategori.', 'error');
@@ -804,7 +803,7 @@ const MainApp: React.FC = () => {
             setWallets(updatedWalletsState);
             setTransactions(prev => prev.filter(t => t.transferId !== transferId));
             
-            addToast('Pindah saldo berhasil dihapus', 'success');
+            addToast('Pindah saldo berhasil dihapus', 'destructive');
             
         } catch (err) {
             console.error("Failed to delete transfer:", err);
@@ -1039,7 +1038,6 @@ const App: React.FC = () => {
     return (
         <ToastProvider>
             <MainApp />
-            <ToastContainer />
         </ToastProvider>
     );
 };

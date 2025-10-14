@@ -37,10 +37,18 @@ const Toast: React.FC<{ toast: ToastMessage, onDismiss: (id: number) => void }> 
         success: <CheckIcon className="h-6 w-6 text-emerald-500 dark:text-emerald-400" />,
         error: <ErrorIcon className="h-6 w-6 text-red-500 dark:text-red-400" />,
         info: <InfoIcon className="h-6 w-6 text-sky-500 dark:text-sky-400" />,
+        destructive: <CheckIcon className="h-6 w-6 text-red-500 dark:text-red-400" />,
+    };
+    
+    const styleMap: Record<ToastType, string> = {
+        success: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20',
+        error: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20',
+        info: 'bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-500/20',
+        destructive: 'bg-red-50 dark:bg-red-500/10 border-red-200 dark:border-red-500/20',
     };
 
     return (
-        <div className="w-full max-w-sm rounded-full shadow-lg bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm border border-slate-200 dark:border-white/10 animate-toast-in">
+        <div className={`w-full max-w-sm rounded-full shadow-2xl border animate-toast-in ${styleMap[type]}`}>
             <div className="flex items-center px-4 py-3">
                 <div className="flex-shrink-0">
                     {iconMap[type]}
@@ -98,7 +106,7 @@ const ToastContainer: React.FC = () => {
     if (typeof document === 'undefined') return null;
 
     return createPortal(
-        <div className="fixed top-4 right-4 z-[100] w-full max-w-sm px-4 space-y-3">
+        <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] w-full max-w-sm px-4 space-y-3">
             {toasts.map(toast => (
                 <Toast 
                     key={toast.id}

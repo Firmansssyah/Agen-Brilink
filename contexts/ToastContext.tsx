@@ -1,7 +1,7 @@
 
 import React, { createContext, useState, useCallback, useContext, ReactNode } from 'react';
 
-export type ToastType = 'success' | 'error' | 'info';
+export type ToastType = 'success' | 'error' | 'info' | 'destructive';
 
 export interface ToastMessage {
     id: number;
@@ -28,11 +28,9 @@ export const ToastProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const addToast = useCallback((message: string, type: ToastType, options?: { undoHandler?: () => void }) => {
         const id = Date.now() + Math.random(); // Add random to avoid collision
         const newToast: ToastMessage = { id, message, type, ...options };
-        setToasts(prevToasts => [...prevToasts, newToast]);
+        // Prepend new toast so the newest one is always at the start of the array
+        setToasts(prevToasts => [newToast, ...prevToasts]);
         
-        if (!options?.undoHandler) {
-            setTimeout(() => removeToast(id), 4000); // auto-dismiss for non-undo toasts
-        }
     }, []);
 
     return (

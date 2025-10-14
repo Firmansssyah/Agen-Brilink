@@ -18,6 +18,7 @@ import TransactionDetailModal from '../components/TransactionDetailModal';
 import EditRewardModal from '../components/EditRewardModal';
 import MonthlyMarginDetailModal from '../components/MonthlyMarginDetailModal';
 import AssetDetailModal from '../components/AssetDetailModal';
+import InlineNotification from '../components/InlineNotification';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -568,6 +569,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             {/* Kolom Kanan (Ringkasan), menjadi yang pertama di mobile */}
                             <div className="lg:col-span-1 space-y-6 lg:order-2 lg:h-[calc(100vh-3rem)] flex flex-col">
+                                <InlineNotification />
                                  <section>
                                     <WalletsSummaryCard 
                                         wallets={wallets}
