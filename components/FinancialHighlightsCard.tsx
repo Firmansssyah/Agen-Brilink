@@ -1,6 +1,6 @@
 import React from 'react';
 import { InfoIcon, TotalAssetIcon, MarginIcon } from './icons/Icons';
-import AnimatedNumber from './AnimatedNumber';
+import FormattedNumber from './FormattedNumber';
 
 interface FinancialHighlightsCardProps {
     totalAssets: number;
@@ -27,7 +27,7 @@ const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ total
                                 Saldo dompet (BRI & BRILink dikurangi Rp50rb) + Total Piutang
                             </div>
                         </div>
-                         <AnimatedNumber 
+                         <FormattedNumber 
                             value={totalAssets} 
                             formatFn={formatRupiah} 
                             className="text-2xl sm:text-3xl font.bold text-blue-900 dark:text-blue-200 leading-tight block" 
@@ -42,7 +42,7 @@ const FinancialHighlightsCard: React.FC<FinancialHighlightsCardProps> = ({ total
                     </div>
                     <div>
                         <p className="text-sm text-emerald-800/80 dark:text-emerald-200/80">Margin Bulan Ini</p>
-                        <AnimatedNumber 
+                        <FormattedNumber 
                             value={totalMargin} 
                             formatFn={formatRupiah} 
                             className="text-2xl sm:text-3xl font.bold text-emerald-600 dark:text-emerald-400 leading-tight block" 

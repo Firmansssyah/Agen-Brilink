@@ -3,7 +3,7 @@ import { Wallet } from '../types';
 // FIX: Changed to named import
 import { WalletIconComponent } from './WalletIconComponent';
 import { InfoIcon } from './icons/Icons';
-import AnimatedNumber from './AnimatedNumber';
+import FormattedNumber from './FormattedNumber';
 
 // Properti untuk komponen WalletsSummaryCard.
 interface WalletsSummaryCardProps {
@@ -41,7 +41,7 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({
                             Saldo dompet (BRI & BRILink dikurangi Rp50rb) + Total Piutang
                         </div>
                     </div>
-                    <AnimatedNumber 
+                    <FormattedNumber 
                         value={totalAssets} 
                         formatFn={formatRupiah} 
                         className="text-xl font.bold text-blue-900 dark:text-blue-200 leading-tight block" 
@@ -50,7 +50,7 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({
                 {/* Margin Bulan Ini */}
                 <button onClick={onMarginClick} className="bg-emerald-100 dark:bg-emerald-500/10 p-3 rounded-xl text-left w-full hover:ring-2 hover:ring-emerald-400 transition-all">
                     <p className="text-xs text-emerald-800/80 dark:text-emerald-200/80">Margin Bulan Ini</p>
-                    <AnimatedNumber 
+                    <FormattedNumber 
                         value={totalMargin} 
                         formatFn={formatRupiah} 
                         className="text-xl font.bold text-emerald-600 dark:text-emerald-400 leading-tight block" 
@@ -76,7 +76,7 @@ const WalletsSummaryCard: React.FC<WalletsSummaryCardProps> = ({
                             </div>
                             <div className="min-w-0">
                                 <span className="block text-xs font-medium text-slate-500 dark:text-neutral-400 truncate">{wallet.name}</span>
-                                <AnimatedNumber 
+                                <FormattedNumber 
                                     value={wallet.balance}
                                     formatFn={formatRupiah}
                                     className="block text-base font-bold text-slate-800 dark:text-white truncate"

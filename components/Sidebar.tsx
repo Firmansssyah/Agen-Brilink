@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Page } from '../types';
 import { CloseIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from './icons/Icons';
-import ClockCard from './ClockCard';
 
 // --- New SVG Icon Components ---
 
@@ -192,9 +191,6 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, theme, s
                             </li>
                         ))}
                     </ul>
-                    <div className="mt-auto pt-4">
-                        <ClockCard isCollapsed={isCollapsed} />
-                    </div>
                 </nav>
 
                 <div className={`p-4 border-t border-slate-200 dark:border-white/10 flex-shrink-0 flex items-center ${isCollapsed ? 'flex-col-reverse gap-4' : 'justify-between'}`}>
