@@ -54,18 +54,18 @@ const ClockCard: React.FC = () => {
         return (
             <div className="flex flex-row items-center justify-center animate-fade-in w-full text-center divide-x divide-slate-200 dark:divide-neutral-700">
                 {/* Date on the left */}
-                <div className="flex-1 px-4">
-                    <p className="text-lg font-medium text-slate-500 dark:text-neutral-400">
+                <div className="flex-1 px-3">
+                    <p className="text-base font-medium text-slate-500 dark:text-neutral-400">
                         {dayName}
                     </p>
-                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                    <p className="text-xl font-bold text-slate-800 dark:text-white">
                         {dateAndMonth}
                     </p>
                 </div>
 
                 {/* Time on the right */}
-                <div className="flex-1 px-4">
-                    <p className="font-sans text-5xl font-bold text-slate-800 dark:text-white tracking-tight">
+                <div className="flex-1 px-3">
+                    <p className="font-sans text-4xl font-bold text-slate-800 dark:text-white tracking-tight">
                         {hours}:{minutes}
                     </p>
                 </div>
@@ -96,7 +96,7 @@ const ClockCard: React.FC = () => {
 
         return (
             <div className={`relative w-full rounded-xl overflow-hidden ${colors.bg} ${isExiting ? 'animate-fade-out-up' : 'animate-fade-in'}`}>
-                <div className="flex items-center justify-between gap-4 p-4">
+                <div className="flex items-center justify-between gap-4 p-3">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                         <div className="flex-shrink-0">
                             {iconMap[type]}
@@ -118,7 +118,7 @@ const ClockCard: React.FC = () => {
 
     // Main component render
     return (
-        <div className="bg-white dark:bg-neutral-800 rounded-3xl p-4 shadow-lg shadow-slate-200/50 dark:shadow-none min-h-[88px] flex items-center justify-center">
+        <div className="bg-white dark:bg-neutral-800 rounded-3xl p-4 shadow-lg shadow-slate-200/50 dark:shadow-none flex items-center justify-center">
             {currentToast ? renderNotification() : renderClock()}
         </div>
     );
