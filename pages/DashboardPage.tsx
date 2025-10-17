@@ -18,7 +18,6 @@ import TransactionDetailModal from '../components/TransactionDetailModal';
 import EditRewardModal from '../components/EditRewardModal';
 import MonthlyMarginDetailModal from '../components/MonthlyMarginDetailModal';
 import AssetDetailModal from '../components/AssetDetailModal';
-import ClockCard from '../components/ClockCard';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -580,7 +579,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         onAssetClick={() => setIsAssetDetailModalOpen(true)}
                                     />
                                 </section>
-                                 <ClockCard />
                                 <section>
                                     <WeeklyTransactionSummary 
                                         transactions={transactions}
