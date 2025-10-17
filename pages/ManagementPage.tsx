@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
-import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon, TuneIcon, CutIcon } from '../components/icons/Icons';
+import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon, TuneIcon, CutIcon, MoreVerticalIcon } from '../components/icons/Icons';
 import AddEditWalletModal from '../components/AddEditWalletModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
@@ -45,6 +45,8 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     const [isAddCapitalModalOpen, setIsAddCapitalModalOpen] = useState(false);
     const [isAdjustCashModalOpen, setIsAdjustCashModalOpen] = useState(false);
     const [isBankFeeModalOpen, setIsBankFeeModalOpen] = useState(false);
+    const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+    const actionsMenuRef = useRef<HTMLDivElement>(null);
 
 
     // State from TransactionCategoryPage
@@ -52,6 +54,19 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
+
+    // Close actions menu when clicking outside
+    useEffect(() => {
+      function handleClickOutside(event: MouseEvent) {
+        if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target as Node)) {
+          setIsActionsMenuOpen(false);
+        }
+      }
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, [actionsMenuRef]);
 
     // Handlers from WalletManagementPage
     const handleOpenAddWalletModal = () => {
@@ -146,42 +161,51 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     <div className="bg-white dark:bg-neutral-800 p-4 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
                         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-4 px-2">
                             <h3 className="text-lg font.medium text-slate-800 dark:text-white flex-shrink-0">Daftar Dompet</h3>
-                            <div className="flex items-center flex-wrap gap-2 justify-start sm:justify-end">
-                                <button
-                                    onClick={() => setIsInitialBalanceModalOpen(true)}
-                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-neutral-700/50 dark:hover:bg-neutral-700 dark:text-neutral-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
-                                    aria-label="Atur modal awal dompet"
-                                >
-                                    <SettingsIcon className="h-4 w-4" />
-                                    <span>Atur Modal</span>
-                                </button>
-                                 <button
-                                    onClick={() => setIsAddCapitalModalOpen(true)}
-                                    className="bg-emerald-100 hover:bg-emerald-200 text-emerald-700 dark:bg-emerald-400/10 dark:hover:bg-emerald-400/20 dark:text-emerald-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
-                                    aria-label="Tambah modal ke dompet"
-                                >
-                                    <PlusIcon className="h-4 w-4" />
-                                    <span>Tambah Modal</span>
-                                </button>
-                                <button
-                                    onClick={() => setIsAdjustCashModalOpen(true)}
-                                    className="bg-yellow-100 hover:bg-yellow-200 text-yellow-700 dark:bg-yellow-400/10 dark:hover:bg-yellow-400/20 dark:text-yellow-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
-                                    aria-label="Sesuaikan kas tunai"
-                                >
-                                    <TuneIcon className="h-4 w-4" />
-                                    <span>Sesuaikan Kas</span>
-                                </button>
-                                <button
-                                    onClick={() => setIsBankFeeModalOpen(true)}
-                                    className="bg-purple-100 hover:bg-purple-200 text-purple-700 dark:bg-purple-400/10 dark:hover:bg-purple-400/20 dark:text-purple-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
-                                    aria-label="Catat potongan bank"
-                                >
-                                    <CutIcon className="h-4 w-4" />
-                                    <span>Potongan Bank</span>
-                                </button>
+                            <div className="flex items-center gap-2 justify-start sm:justify-end">
+                                <div ref={actionsMenuRef} className="relative">
+                                    <button
+                                        onClick={() => setIsActionsMenuOpen(prev => !prev)}
+                                        className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-neutral-700/50 dark:hover:bg-neutral-700 dark:text-neutral-200 font-semibold p-2.5 rounded-full flex items-center justify-center transition-colors duration-300"
+                                        aria-label="Aksi lainnya"
+                                        aria-haspopup="true"
+                                        aria-expanded={isActionsMenuOpen}
+                                    >
+                                        <MoreVerticalIcon className="h-5 w-5" />
+                                    </button>
+                                    {isActionsMenuOpen && (
+                                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-slate-200 dark:border-white/10 z-10 animate-fade-in p-2">
+                                            <ul className="space-y-1">
+                                                <li>
+                                                    <button onClick={() => { setIsInitialBalanceModalOpen(true); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                        <SettingsIcon className="h-5 w-5 text-slate-500 dark:text-neutral-400" />
+                                                        <span>Atur Modal Awal</span>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button onClick={() => { setIsAddCapitalModalOpen(true); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                        <PlusIcon className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+                                                        <span>Tambah Modal</span>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button onClick={() => { setIsAdjustCashModalOpen(true); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                        <TuneIcon className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
+                                                        <span>Sesuaikan Kas</span>
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button onClick={() => { setIsBankFeeModalOpen(true); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                        <CutIcon className="h-5 w-5 text-purple-500 dark:text-purple-400" />
+                                                        <span>Potongan Bank</span>
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
                                 <button 
                                     onClick={handleOpenAddWalletModal}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2.5 px-5 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
                                 >
                                     <PlusIcon />
                                     <span>Tambah Dompet</span>
