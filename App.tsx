@@ -198,6 +198,9 @@ const MainApp: React.FC = () => {
             primaryWalletChange = (type === TransactionType.IN) ? amount : -amount;
         } else if (description === 'Fee Brilink') {
             primaryWalletChange = margin;
+        } else if (description === 'Potongan Bank') {
+            primaryWalletChange = -amount;
+            cashWalletChange = 0;
         } else if (description === 'Tambah Modal') {
              // Menambah modal hanya mempengaruhi dompet utama, bukan kas.
              // Jika yang dihapus adalah 'Tambah Modal', saldo dompet akan berkurang, tapi KAS tidak bertambah.
@@ -898,6 +901,53 @@ const MainApp: React.FC = () => {
         }
     }, [wallets, addToast, API_BASE_URL]);
 
+    const handleBankFeeTransaction = useCallback(async (data: { walletId: string, amount: number }) => {
+        const { walletId, amount } = data;
+        const targetWallet = wallets.find(w => w.id === walletId);
+        if (!targetWallet) {
+            addToast('Dompet tidak ditemukan', 'error');
+            return;
+        }
+
+        const feeTransaction: Omit<Transaction, 'id'> = {
+            date: new Date().toISOString(),
+            description: 'Potongan Bank',
+            customer: 'Bank',
+            type: TransactionType.OUT,
+            amount: amount,
+            margin: 0,
+            wallet: walletId,
+            isPiutang: false,
+        };
+
+        try {
+            const txRes = await fetch(`${API_BASE_URL}/transactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(feeTransaction)
+            });
+            if (!txRes.ok) throw new Error('Gagal menyimpan transaksi potongan bank.');
+            const savedTransaction = await txRes.json();
+
+            const newBalance = targetWallet.balance - amount;
+            const walletRes = await fetch(`${API_BASE_URL}/wallets/${walletId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ balance: newBalance })
+            });
+            if (!walletRes.ok) throw new Error('Gagal memperbarui saldo dompet.');
+            const updatedWallet = await walletRes.json();
+
+            setTransactions(prev => [savedTransaction, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+            setWallets(prev => prev.map(w => w.id === walletId ? updatedWallet : w));
+
+            addToast('Potongan bank berhasil dicatat', 'success');
+        } catch (err) {
+            console.error("Gagal mencatat potongan bank:", err);
+            addToast(err instanceof Error ? err.message : 'Gagal mencatat potongan bank.', 'error');
+        }
+    }, [wallets, addToast, API_BASE_URL]);
+
 
     /**
      * Fungsi untuk me-render halaman yang sesuai berdasarkan state `currentPage`.
@@ -931,6 +981,7 @@ const MainApp: React.FC = () => {
                     onDeleteCategory={handleDeleteCategory}
                     onSaveInitialBalances={handleSaveInitialBalances}
                     onSaveCapital={handleSaveCapitalTransaction}
+                    onSaveBankFee={handleBankFeeTransaction}
                     onSaveTransaction={handleSaveTransaction}
                     formatRupiah={formatRupiah}
                 />;

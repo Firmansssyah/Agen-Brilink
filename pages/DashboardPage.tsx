@@ -18,6 +18,7 @@ import TransactionDetailModal from '../components/TransactionDetailModal';
 import EditRewardModal from '../components/EditRewardModal';
 import MonthlyMarginDetailModal from '../components/MonthlyMarginDetailModal';
 import AssetDetailModal from '../components/AssetDetailModal';
+import EditBankFeeModal from '../components/EditBankFeeModal';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -74,6 +75,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [isEditFeeModalOpen, setIsEditFeeModalOpen] = useState(false);
     // State for visibilitas modal edit reward.
     const [isEditRewardModalOpen, setIsEditRewardModalOpen] = useState(false);
+    const [isEditBankFeeModalOpen, setIsEditBankFeeModalOpen] = useState(false);
     // State for menyimpan tanggal yang dipilih untuk modal detail harian.
     const [dailyModalDate, setDailyModalDate] = useState<string | null>(null);
     // State for filter.
@@ -274,6 +276,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         } else if (transaction.description.startsWith('Reward:')) {
             setTransactionToEdit(transaction);
             setIsEditRewardModalOpen(true);
+        } else if (transaction.description === 'Potongan Bank') {
+            setTransactionToEdit(transaction);
+            setIsEditBankFeeModalOpen(true);
         } else {
             setTransactionToEdit(transaction);
             setIsTransactionModalOpen(true);
@@ -366,6 +371,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const handleUpdateReward = (updatedTransaction: Transaction) => {
         onSaveTransaction(updatedTransaction);
         setIsEditRewardModalOpen(false);
+    };
+
+    const handleUpdateBankFee = (updatedTransaction: Transaction) => {
+        onSaveTransaction(updatedTransaction);
+        setIsEditBankFeeModalOpen(false);
     };
 
     // Handler for membuka modal transfer.
@@ -539,6 +549,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 isOpen={isEditRewardModalOpen}
                 onClose={() => setIsEditRewardModalOpen(false)}
                 onSave={handleUpdateReward}
+                onDelete={onDeleteTransaction}
+                transactionToEdit={transactionToEdit}
+                formatRupiah={formatRupiah}
+            />
+            <EditBankFeeModal
+                isOpen={isEditBankFeeModalOpen}
+                onClose={() => setIsEditBankFeeModalOpen(false)}
+                onSave={handleUpdateBankFee}
                 onDelete={onDeleteTransaction}
                 transactionToEdit={transactionToEdit}
                 formatRupiah={formatRupiah}

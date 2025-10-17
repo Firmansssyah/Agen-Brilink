@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
-import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon, TuneIcon } from '../components/icons/Icons';
+import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon, TuneIcon, CutIcon } from '../components/icons/Icons';
 import AddEditWalletModal from '../components/AddEditWalletModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
 import InitialBalanceModal from '../components/InitialBalanceModal';
 import AddCapitalModal from '../components/AddCapitalModal';
 import AdjustCashModal from '../components/AdjustCashModal';
+import BankFeeModal from '../components/BankFeeModal';
 
 interface ManagementPageProps {
     wallets: Wallet[];
@@ -17,6 +18,7 @@ interface ManagementPageProps {
     onDeleteCategory: (categoryName: string) => Promise<void>;
     onSaveInitialBalances: (updatedWallets: { id: string; initialBalance: number }[]) => Promise<void>;
     onSaveCapital: (data: { walletId: string; amount: number; }) => Promise<void>;
+    onSaveBankFee: (data: { walletId: string; amount: number; }) => Promise<void>;
     onSaveTransaction: (data: Omit<Transaction, 'id' | 'date'>) => Promise<void>;
     formatRupiah: (amount: number) => string;
 }
@@ -30,6 +32,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     onDeleteCategory,
     onSaveInitialBalances,
     onSaveCapital,
+    onSaveBankFee,
     onSaveTransaction,
     formatRupiah,
 }) => {
@@ -41,6 +44,7 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     const [isInitialBalanceModalOpen, setIsInitialBalanceModalOpen] = useState(false);
     const [isAddCapitalModalOpen, setIsAddCapitalModalOpen] = useState(false);
     const [isAdjustCashModalOpen, setIsAdjustCashModalOpen] = useState(false);
+    const [isBankFeeModalOpen, setIsBankFeeModalOpen] = useState(false);
 
 
     // State from TransactionCategoryPage
@@ -96,6 +100,11 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
         };
         await onSaveTransaction(adjustmentTransaction);
         setIsAdjustCashModalOpen(false);
+    };
+
+    const handleSaveBankFee = async (data: { walletId: string; amount: number; }) => {
+        await onSaveBankFee(data);
+        setIsBankFeeModalOpen(false);
     };
 
     // Handlers from TransactionCategoryPage
@@ -161,6 +170,14 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                 >
                                     <TuneIcon className="h-4 w-4" />
                                     <span>Sesuaikan Kas</span>
+                                </button>
+                                <button
+                                    onClick={() => setIsBankFeeModalOpen(true)}
+                                    className="bg-purple-100 hover:bg-purple-200 text-purple-700 dark:bg-purple-400/10 dark:hover:bg-purple-400/20 dark:text-purple-200 font-semibold py-2 px-4 rounded-full flex items-center space-x-2 transition-colors duration-300 text-sm"
+                                    aria-label="Catat potongan bank"
+                                >
+                                    <CutIcon className="h-4 w-4" />
+                                    <span>Potongan Bank</span>
                                 </button>
                                 <button 
                                     onClick={handleOpenAddWalletModal}
@@ -297,6 +314,12 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     isOpen={isAdjustCashModalOpen}
                     onClose={() => setIsAdjustCashModalOpen(false)}
                     onSave={handleSaveCashAdjustment}
+                />
+                <BankFeeModal
+                    isOpen={isBankFeeModalOpen}
+                    onClose={() => setIsBankFeeModalOpen(false)}
+                    onSave={handleSaveBankFee}
+                    wallets={wallets}
                 />
             </div>
         </main>
