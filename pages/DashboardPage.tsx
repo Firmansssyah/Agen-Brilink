@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
-import { Transaction, Wallet, SortKey, SortDirection, TransactionType } from '../types';
+import { Transaction, Wallet, SortKey, SortDirection, TransactionType, Font } from '../types';
 import WalletsSummaryCard from '../components/WalletsSummaryCard';
 import AccountsReceivableCard from '../components/AccountsReceivableCard';
 import TransactionTable from '../components/TransactionTable';
@@ -45,6 +45,7 @@ interface DashboardPageProps {
     invoiceAddress: string;
     invoicePhone: string;
     invoiceFooter: string;
+    invoiceFont: Font;
 }
 
 /**
@@ -74,6 +75,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     invoiceAddress,
     invoicePhone,
     invoiceFooter,
+    invoiceFont,
 }) => {
     // State for visibilitas modal tambah/edit transaksi.
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -617,6 +619,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 invoiceAddress={invoiceAddress}
                 invoicePhone={invoicePhone}
                 invoiceFooter={invoiceFooter}
+                invoiceFont={invoiceFont}
             />
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-7xl">

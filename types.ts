@@ -39,4 +39,4 @@ export type SortKey = 'date' | 'description' | 'customer' | 'amount' | 'margin';
 // Tipe alias untuk arah pengurutan (ascending atau descending).
 export type SortDirection = 'asc' | 'desc';
 // Tipe alias untuk mendefinisikan jenis huruf yang tersedia di aplikasi.
-export type Font = 'font-sans' | 'font-inter' | 'font-poppins' | 'font-roboto-flex';
+export type Font = 'font-sans' | 'font-inter' | 'font-poppins' | 'font-roboto-flex' | 'font-mono';

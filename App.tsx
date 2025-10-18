@@ -60,6 +60,7 @@ const MainApp: React.FC = () => {
     const [invoiceAddress, setInvoiceAddress] = useState<string>(() => localStorage.getItem('invoiceAddress') || '');
     const [invoicePhone, setInvoicePhone] = useState<string>(() => localStorage.getItem('invoicePhone') || '');
     const [invoiceFooter, setInvoiceFooter] = useState<string>(() => localStorage.getItem('invoiceFooter') || 'Terima kasih telah bertransaksi!');
+    const [invoiceFont, setInvoiceFont] = useState<Font>(() => (localStorage.getItem('invoiceFont') as Font) || 'font-mono');
 
 
     // useMemo untuk mendefinisikan URL dasar API, agar tidak dihitung ulang pada setiap render.
@@ -117,40 +118,43 @@ const MainApp: React.FC = () => {
         }
         localStorage.setItem('theme', theme);
     }, [theme]);
-    
-    // useEffect untuk menyimpan nama aplikasi ke localStorage setiap kali berubah.
-    useEffect(() => {
-        localStorage.setItem('appName', appName);
-    }, [appName]);
-
-    // useEffects untuk menyimpan pengaturan struk ke localStorage.
-    useEffect(() => {
-        localStorage.setItem('invoiceAppName', invoiceAppName);
-    }, [invoiceAppName]);
-
-    useEffect(() => {
-        localStorage.setItem('invoiceAddress', invoiceAddress);
-    }, [invoiceAddress]);
-
-    useEffect(() => {
-        localStorage.setItem('invoicePhone', invoicePhone);
-    }, [invoicePhone]);
-
-    useEffect(() => {
-        localStorage.setItem('invoiceFooter', invoiceFooter);
-    }, [invoiceFooter]);
-
 
     // useEffect untuk mengubah jenis huruf aplikasi dan menyimpannya di localStorage.
     useEffect(() => {
         const body = window.document.body;
         // Hapus kelas font lama
-        body.classList.remove('font-sans', 'font-inter', 'font-poppins', 'font-roboto-flex');
+        body.classList.remove('font-sans', 'font-inter', 'font-poppins', 'font-roboto-flex', 'font-mono');
         // Tambahkan kelas font baru
         body.classList.add(font);
-        // Simpan ke local storage
-        localStorage.setItem('fontFamily', font);
     }, [font]);
+
+    const handleSaveSettings = useCallback((settings: {
+        appName: string;
+        font: Font;
+        invoiceAppName: string;
+        invoiceAddress: string;
+        invoicePhone: string;
+        invoiceFooter: string;
+        invoiceFont: Font;
+    }) => {
+        setAppName(settings.appName);
+        setFont(settings.font);
+        setInvoiceAppName(settings.invoiceAppName);
+        setInvoiceAddress(settings.invoiceAddress);
+        setInvoicePhone(settings.invoicePhone);
+        setInvoiceFooter(settings.invoiceFooter);
+        setInvoiceFont(settings.invoiceFont);
+
+        localStorage.setItem('appName', settings.appName);
+        localStorage.setItem('fontFamily', settings.font);
+        localStorage.setItem('invoiceAppName', settings.invoiceAppName);
+        localStorage.setItem('invoiceAddress', settings.invoiceAddress);
+        localStorage.setItem('invoicePhone', settings.invoicePhone);
+        localStorage.setItem('invoiceFooter', settings.invoiceFooter);
+        localStorage.setItem('invoiceFont', settings.invoiceFont);
+
+        addToast('Pengaturan berhasil disimpan', 'success');
+    }, [addToast]);
 
 
     /**
@@ -1020,6 +1024,7 @@ const MainApp: React.FC = () => {
                     invoiceAddress={invoiceAddress}
                     invoicePhone={invoicePhone}
                     invoiceFooter={invoiceFooter}
+                    invoiceFont={invoiceFont}
                 />;
             case 'management':
                 return <ManagementPage 
@@ -1051,17 +1056,13 @@ const MainApp: React.FC = () => {
             case 'settings':
                 return <SettingsPage 
                     appName={appName} 
-                    onAppNameChange={setAppName}
                     font={font}
-                    onFontChange={setFont}
                     invoiceAppName={invoiceAppName}
-                    onInvoiceAppNameChange={setInvoiceAppName}
                     invoiceAddress={invoiceAddress}
-                    onInvoiceAddressChange={setInvoiceAddress}
                     invoicePhone={invoicePhone}
-                    onInvoicePhoneChange={setInvoicePhone}
                     invoiceFooter={invoiceFooter}
-                    onInvoiceFooterChange={setInvoiceFooter}
+                    invoiceFont={invoiceFont}
+                    onSaveSettings={handleSaveSettings}
                 />;
             default:
                 return <DashboardPage 
@@ -1086,6 +1087,7 @@ const MainApp: React.FC = () => {
                     invoiceAddress={invoiceAddress}
                     invoicePhone={invoicePhone}
                     invoiceFooter={invoiceFooter}
+                    invoiceFont={invoiceFont}
                 />;
         }
     };

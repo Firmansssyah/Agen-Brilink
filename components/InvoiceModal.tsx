@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Transaction, Wallet } from '../types';
+import { Transaction, Wallet, Font } from '../types';
 import { useToastContext } from '../contexts/ToastContext';
 
 // Deklarasi untuk memberitahu TypeScript bahwa html2canvas ada di window object
@@ -15,6 +15,7 @@ interface InvoiceModalProps {
     invoiceAddress: string;
     invoicePhone: string;
     invoiceFooter: string;
+    invoiceFont: Font;
 }
 
 const InvoiceModal: React.FC<InvoiceModalProps> = ({ 
@@ -26,7 +27,8 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
     invoiceAppName,
     invoiceAddress,
     invoicePhone,
-    invoiceFooter
+    invoiceFooter,
+    invoiceFont
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [copyButtonText, setCopyButtonText] = useState('Salin sbg. Gambar');
@@ -76,6 +78,15 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
              setTimeout(() => setCopyButtonText('Salin sbg. Gambar'), 2000);
         });
     };
+    
+    // Process footer text for HTML rendering
+    const processFooter = (text: string) => {
+        return text
+            .replace(/<b>/g, '<strong style="font-weight: 700;">').replace(/<\/b>/g, '</strong>')
+            .replace(/<i>/g, '<em style="font-style: italic;">').replace(/<\/i>/g, '</em>')
+            .replace(/<light>/g, '<span style="font-weight: 300;">').replace(/<\/light>/g, '</span>')
+            .replace(/\n/g, '<br />');
+    };
 
     if (!isOpen || !transaction) return null;
 
@@ -85,6 +96,8 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
     const formattedDate = new Date(transaction.date).toLocaleString('id-ID', {
         day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
+    
+    const processedFooter = processFooter(invoiceFooter);
 
     return (
         <div
@@ -96,9 +109,9 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 className={`bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 ease-in-out flex flex-col max-h-[90vh] ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div ref={invoiceRef} className="bg-white rounded-t-2xl">
+                <div ref={invoiceRef} className={`bg-white rounded-t-2xl text-black ${invoiceFont}`}>
                     <div className="p-6 border-b border-dashed border-slate-300 text-center">
-                        <h2 className="text-lg font-semibold text-slate-800">{invoiceAppName}</h2>
+                        <h2 className="text-lg font-semibold">{invoiceAppName}</h2>
                         {invoiceAddress && <p className="text-xs text-slate-500 mt-1">{invoiceAddress}</p>}
                         {invoicePhone && <p className="text-xs text-slate-500">{invoicePhone}</p>}
                         <p className="text-sm text-slate-500 mt-2">Bukti Transaksi</p>
@@ -144,9 +157,10 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             <span className="font-bold text-lg text-slate-800">{formatRupiah(total)}</span>
                         </div>
 
-                        <p className="text-center text-xs text-slate-400 mt-6">
-                            {invoiceFooter}
-                        </p>
+                         <div 
+                            className="text-center text-xs text-slate-500 mt-6 leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: processedFooter }}
+                        />
                     </div>
                 </div>
 
