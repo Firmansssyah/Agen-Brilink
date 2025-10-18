@@ -22,6 +22,38 @@ interface SettingsPageProps {
     }) => void;
 }
 
+const appVersion = "1.2.0";
+const changelog = [
+    {
+        version: "1.2.0",
+        date: "Des 2024",
+        changes: [
+            "Peningkatan: Kini mendukung Web Share API di perangkat mobile untuk membagikan struk dengan lebih mudah dan andal.",
+            "Perbaikan: Tombol 'Salin Gambar' yang tidak berfungsi di beberapa browser mobile kini diganti dengan 'Bagikan Struk'.",
+            "UI: Pesan notifikasi yang lebih jelas saat menyalin atau membagikan struk transaksi.",
+        ],
+    },
+    {
+        version: "1.1.5",
+        date: "Nov 2024",
+        changes: [
+            "Fitur: Pratinjau struk sekarang tersedia langsung di halaman Pengaturan saat Anda mengubah tampilannya.",
+            "Fitur: Kustomisasi teks footer pada struk kini mendukung format tebal, miring, dan tipis.",
+            "Perbaikan: Perhitungan total aset kini lebih akurat dengan mengecualikan saldo minimum pada dompet BRI & BRILink.",
+        ],
+    },
+    {
+        version: "1.1.0",
+        date: "Okt 2024",
+        changes: [
+            "Fitur: Halaman Laporan kini menampilkan Peta Aktivitas Transaksi (Heatmap) untuk visualisasi margin harian.",
+            "Fitur: Menambah modal dan mencatat potongan bank kini lebih mudah melalui menu Aksi di halaman Manajemen.",
+            "UI: Peningkatan desain pada halaman Manajemen dan Pelanggan untuk pengalaman yang lebih baik.",
+        ],
+    },
+];
+
+
 const SettingsPage: React.FC<SettingsPageProps> = ({ 
     appName, 
     font, 
@@ -260,6 +292,36 @@ const SettingsPage: React.FC<SettingsPageProps> = ({
                             </div>
                         </div>
                     </div>
+                    
+                    {/* About App Card */}
+                    <div className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                        <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-4">Tentang Aplikasi</h2>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center bg-slate-100 dark:bg-black/20 p-3 rounded-xl">
+                                <span className="text-sm font-medium text-slate-600 dark:text-neutral-300">Versi Aplikasi</span>
+                                <span className="font-mono text-sm font-semibold bg-blue-100 text-blue-800 dark:bg-blue-400/20 dark:text-blue-200 px-2 py-0.5 rounded-md">{appVersion}</span>
+                            </div>
+                            <div>
+                                <h3 className="text-md font-semibold text-slate-700 dark:text-neutral-200 mb-2">Riwayat Perubahan</h3>
+                                <div className="no-scrollbar max-h-72 overflow-y-auto p-4 bg-slate-100 dark:bg-black/20 rounded-xl space-y-4">
+                                    {changelog.map((item, index) => (
+                                        <div key={index} className="border-b border-slate-200 dark:border-neutral-700 pb-4 last:border-b-0 last:pb-0">
+                                            <div className="flex items-baseline gap-3">
+                                                <h4 className="font-semibold text-slate-800 dark:text-white">v{item.version}</h4>
+                                                <p className="text-xs text-slate-500 dark:text-neutral-400">{item.date}</p>
+                                            </div>
+                                            <ul className="mt-2 list-disc list-inside space-y-1 pl-1 text-sm text-slate-600 dark:text-neutral-300">
+                                                {item.changes.map((change, idx) => (
+                                                    <li key={idx}>{change}</li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
 
                     {/* Save Changes Card */}
                     {isDirty && (

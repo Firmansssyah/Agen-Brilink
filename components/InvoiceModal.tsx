@@ -18,6 +18,9 @@ interface InvoiceModalProps {
     invoiceFont: Font;
 }
 
+type SupportedAction = 'share' | 'copy' | 'download';
+type ButtonState = 'idle' | 'processing' | 'success' | 'failed';
+
 const InvoiceModal: React.FC<InvoiceModalProps> = ({ 
     isOpen, 
     onClose, 
@@ -34,26 +37,37 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
     const invoiceRef = useRef<HTMLDivElement>(null);
     const { addToast } = useToastContext();
     
-    // Check for Web Share API support
-    const isShareApiAvailable = typeof navigator.share !== 'undefined';
-    const [actionButtonText, setActionButtonText] = useState(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
+    const [supportedAction, setSupportedAction] = useState<SupportedAction>('download');
+    const [buttonState, setButtonState] = useState<ButtonState>('idle');
 
     useEffect(() => {
-        setIsVisible(isOpen);
         if (isOpen) {
-            // Reset button text when modal opens
-            setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
+            setIsVisible(true);
+            setButtonState('idle'); // Reset button state when modal opens
+
+            // Feature detection to determine the best action
+            const dummyFile = new File([""], "dummy.png", { type: "image/png" });
+            if (navigator.share && navigator.canShare?.({ files: [dummyFile] })) {
+                setSupportedAction('share');
+            // @ts-ignore
+            } else if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+                setSupportedAction('copy');
+            } else {
+                setSupportedAction('download');
+            }
+        } else {
+            setIsVisible(false);
         }
-    }, [isOpen, isShareApiAvailable]);
+    }, [isOpen]);
 
     const handleClose = () => {
         setIsVisible(false);
         setTimeout(onClose, 300);
     };
 
-    const handleShareOrCopyImage = async () => {
+    const handleActionClick = async () => {
         if (!invoiceRef.current) return;
-        setActionButtonText('Memproses...');
+        setButtonState('processing');
 
         try {
             const canvas = await html2canvas(invoiceRef.current, {
@@ -61,58 +75,54 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 scale: 2,
             });
 
-            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
-
-            if (!blob) {
-                throw new Error('Gagal membuat gambar dari struk.');
-            }
-
-            // --- Web Share API (Mobile First) ---
-            if (navigator.share && navigator.canShare) {
+            if (supportedAction === 'share') {
+                const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, 'image/png'));
+                if (!blob) throw new Error('Gagal membuat gambar dari struk.');
+                
                 const file = new File([blob], `struk-${transaction?.id.substring(0, 8)}.png`, { type: 'image/png' });
-                // canShare check for files
-                if (navigator.canShare({ files: [file] })) {
-                    try {
-                        await navigator.share({
-                            files: [file],
-                            title: `Struk Transaksi - ${transaction?.description}`,
-                            text: `Berikut adalah struk transaksi ${invoiceAppName}.`,
-                        });
-                        addToast('Berhasil dibagikan', 'success');
-                        handleClose();
-                        return; // Success, exit
-                    } catch (shareError: any) {
-                        if (shareError.name !== 'AbortError') {
-                            console.error('Error saat berbagi:', shareError);
-                            addToast('Gagal membagikan struk', 'error');
-                        }
-                        // Reset button text if user cancels share
-                        setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
-                        return; // Don't fall back to copy
-                    }
-                }
-            }
 
-            // --- Clipboard API (Desktop Fallback) ---
-            try {
-                // ClipboardItem is not available in all browsers, especially non-secure contexts.
+                await navigator.share({
+                    files: [file],
+                    title: `Struk Transaksi - ${transaction?.description}`,
+                    text: `Berikut adalah struk transaksi ${invoiceAppName}.`,
+                });
+                addToast('Struk berhasil dibagikan', 'success');
+                handleClose();
+
+            } else if (supportedAction === 'copy') {
+                const blob = await new Promise<Blob | null>(r => canvas.toBlob(r, 'image/png'));
+                if (!blob) throw new Error('Gagal membuat gambar dari struk.');
+                
                 // @ts-ignore
                 const item = new ClipboardItem({ 'image/png': blob });
                 await navigator.clipboard.write([item]);
-                setActionButtonText('Tersalin!');
                 addToast('Struk berhasil disalin', 'success');
+                setButtonState('success');
+                setTimeout(handleClose, 1000);
+
+            } else { // 'download' fallback
+                const imageUrl = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = `struk-${transaction?.id.substring(0, 8)}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                addToast('Gambar struk diunduh', 'success');
                 handleClose();
-            } catch (copyError) {
-                console.error('Gagal menyalin ke clipboard:', copyError);
-                addToast('Gagal menyalin. Browser Anda mungkin tidak mendukung fitur ini.', 'error');
-                setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
             }
 
         } catch (error: any) {
-            console.error('Gagal memproses gambar struk:', error);
-            addToast(error.message || 'Gagal memproses gambar.', 'error');
-            setActionButtonText('Gagal');
-            setTimeout(() => setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar'), 2000);
+            // User cancelled the share dialog
+            if (error.name === 'AbortError') {
+                setButtonState('idle');
+                return;
+            }
+
+            console.error('Gagal melakukan aksi struk:', error);
+            addToast('Aksi gagal. Coba lagi.', 'error');
+            setButtonState('failed');
+            setTimeout(() => setButtonState('idle'), 2000);
         }
     };
     
@@ -124,6 +134,21 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
             .replace(/<light>/g, '<span style="font-weight: 300;">').replace(/<\/light>/g, '</span>')
             .replace(/\n/g, '<br />');
     };
+
+    const buttonTextMap: Record<SupportedAction, string> = {
+        share: 'Bagikan Struk',
+        copy: 'Salin sbg. Gambar',
+        download: 'Unduh Gambar',
+    };
+    
+    const buttonStateTextMap: Record<ButtonState, string> = {
+        idle: buttonTextMap[supportedAction],
+        processing: 'Memproses...',
+        success: 'Berhasil!',
+        failed: 'Gagal',
+    };
+    
+    const actionButtonText = buttonStateTextMap[buttonState];
 
     if (!isOpen || !transaction) return null;
 
@@ -205,7 +230,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     <button onClick={handleClose} className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-slate-700 dark:text-neutral-200 font-semibold py-3 rounded-full text-sm transition-colors">
                         Selesai
                     </button>
-                    <button onClick={handleShareOrCopyImage} className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-3 rounded-full text-sm transition-colors">
+                    <button onClick={handleActionClick} disabled={buttonState === 'processing'} className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-3 rounded-full text-sm transition-colors disabled:opacity-70 disabled:cursor-wait">
                         {actionButtonText}
                     </button>
                 </div>
