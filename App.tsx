@@ -52,6 +52,14 @@ const MainApp: React.FC = () => {
     );
     // State untuk visibilitas sidebar di mobile.
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // State untuk menampilkan struk/invoice setelah transaksi berhasil.
+    const [invoiceForTransaction, setInvoiceForTransaction] = useState<Transaction | null>(null);
+
+    // Pengaturan Struk
+    const [invoiceAppName, setInvoiceAppName] = useState<string>(() => localStorage.getItem('invoiceAppName') || 'Agen BRILink');
+    const [invoiceAddress, setInvoiceAddress] = useState<string>(() => localStorage.getItem('invoiceAddress') || '');
+    const [invoicePhone, setInvoicePhone] = useState<string>(() => localStorage.getItem('invoicePhone') || '');
+    const [invoiceFooter, setInvoiceFooter] = useState<string>(() => localStorage.getItem('invoiceFooter') || 'Terima kasih telah bertransaksi!');
 
 
     // useMemo untuk mendefinisikan URL dasar API, agar tidak dihitung ulang pada setiap render.
@@ -114,6 +122,24 @@ const MainApp: React.FC = () => {
     useEffect(() => {
         localStorage.setItem('appName', appName);
     }, [appName]);
+
+    // useEffects untuk menyimpan pengaturan struk ke localStorage.
+    useEffect(() => {
+        localStorage.setItem('invoiceAppName', invoiceAppName);
+    }, [invoiceAppName]);
+
+    useEffect(() => {
+        localStorage.setItem('invoiceAddress', invoiceAddress);
+    }, [invoiceAddress]);
+
+    useEffect(() => {
+        localStorage.setItem('invoicePhone', invoicePhone);
+    }, [invoicePhone]);
+
+    useEffect(() => {
+        localStorage.setItem('invoiceFooter', invoiceFooter);
+    }, [invoiceFooter]);
+
 
     // useEffect untuk mengubah jenis huruf aplikasi dan menyimpannya di localStorage.
     useEffect(() => {
@@ -387,11 +413,19 @@ const MainApp: React.FC = () => {
                 
                 setTransactions(prev => [savedTransaction, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
                 await applyWalletChanges(savedTransaction, 'create');
+                
+                // Jangan tampilkan struk untuk transaksi internal.
+                const isInternal = savedTransaction.isInternalTransfer || ['Internal', 'Bank', 'BRILink'].includes(savedTransaction.customer);
+                if (!isInternal) {
+                    setInvoiceForTransaction(savedTransaction);
+                }
             }
-            addToast(isEditing ? 'Transaksi berhasil diperbarui' : 'Transaksi berhasil ditambahkan', 'success');
+            if (isEditing) {
+                addToast('Transaksi berhasil diperbarui', 'success');
+            }
         } catch(err) {
             console.error("Gagal menyimpan transaksi:", err);
-            addToast('Gagal menyimpan transaksi.', 'error');
+            addToast(isEditing ? 'Gagal memperbarui transaksi.' : 'Gagal menyimpan transaksi.', 'error');
         }
     }, [transactions, wallets, addToast, API_BASE_URL, applyWalletChanges]);
     
@@ -418,6 +452,14 @@ const MainApp: React.FC = () => {
             addToast('Gagal melunasi piutang.', 'error');
         }
     }, [applyWalletChanges, addToast, API_BASE_URL]);
+
+    /**
+     * useCallback untuk menampilkan struk transaksi.
+     * @param transactionToShow - Transaksi yang struknya akan ditampilkan.
+     */
+    const handleShowInvoice = useCallback((transaction: Transaction) => {
+        setInvoiceForTransaction(transaction);
+    }, []);
     
     /**
      * useCallback untuk menghapus transaksi setelah dikonfirmasi.
@@ -970,6 +1012,14 @@ const MainApp: React.FC = () => {
                     categories={categories}
                     customers={customers}
                     formatRupiah={formatRupiah}
+                    appName={appName}
+                    invoiceForTransaction={invoiceForTransaction}
+                    onCloseInvoice={() => setInvoiceForTransaction(null)}
+                    onShowInvoice={handleShowInvoice}
+                    invoiceAppName={invoiceAppName}
+                    invoiceAddress={invoiceAddress}
+                    invoicePhone={invoicePhone}
+                    invoiceFooter={invoiceFooter}
                 />;
             case 'management':
                 return <ManagementPage 
@@ -1004,6 +1054,14 @@ const MainApp: React.FC = () => {
                     onAppNameChange={setAppName}
                     font={font}
                     onFontChange={setFont}
+                    invoiceAppName={invoiceAppName}
+                    onInvoiceAppNameChange={setInvoiceAppName}
+                    invoiceAddress={invoiceAddress}
+                    onInvoiceAddressChange={setInvoiceAddress}
+                    invoicePhone={invoicePhone}
+                    onInvoicePhoneChange={setInvoicePhone}
+                    invoiceFooter={invoiceFooter}
+                    onInvoiceFooterChange={setInvoiceFooter}
                 />;
             default:
                 return <DashboardPage 
@@ -1020,6 +1078,14 @@ const MainApp: React.FC = () => {
                     categories={categories}
                     customers={customers}
                     formatRupiah={formatRupiah}
+                    appName={appName}
+                    invoiceForTransaction={invoiceForTransaction}
+                    onCloseInvoice={() => setInvoiceForTransaction(null)}
+                    onShowInvoice={handleShowInvoice}
+                    invoiceAppName={invoiceAppName}
+                    invoiceAddress={invoiceAddress}
+                    invoicePhone={invoicePhone}
+                    invoiceFooter={invoiceFooter}
                 />;
         }
     };

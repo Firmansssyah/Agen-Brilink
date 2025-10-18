@@ -7,9 +7,30 @@ interface SettingsPageProps {
     onAppNameChange: (newName: string) => void;
     font: Font;
     onFontChange: (newFont: Font) => void;
+    invoiceAppName: string;
+    onInvoiceAppNameChange: (name: string) => void;
+    invoiceAddress: string;
+    onInvoiceAddressChange: (address: string) => void;
+    invoicePhone: string;
+    onInvoicePhoneChange: (phone: string) => void;
+    invoiceFooter: string;
+    onInvoiceFooterChange: (footer: string) => void;
 }
 
-const SettingsPage: React.FC<SettingsPageProps> = ({ appName, onAppNameChange, font, onFontChange }) => {
+const SettingsPage: React.FC<SettingsPageProps> = ({ 
+    appName, 
+    onAppNameChange, 
+    font, 
+    onFontChange,
+    invoiceAppName,
+    onInvoiceAppNameChange,
+    invoiceAddress,
+    onInvoiceAddressChange,
+    invoicePhone,
+    onInvoicePhoneChange,
+    invoiceFooter,
+    onInvoiceFooterChange,
+}) => {
     const formInputClass = "w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-full px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500";
     
     const fonts: { id: Font, name: string, className: string }[] = [
@@ -70,7 +91,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appName, onAppNameChange, f
                     
                     {/* Appearance Settings Card */}
                     <div className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
-                        <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">Tampilan</h2>
+                        <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">Tampilan Dasbor</h2>
                         <div className="space-y-6">
                             <div>
                                 <label htmlFor="appName" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Nama Aplikasi</label>
@@ -108,6 +129,56 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ appName, onAppNameChange, f
                                         </label>
                                     ))}
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Invoice Settings Card */}
+                    <div className="bg-white dark:bg-neutral-800 p-6 rounded-3xl shadow-lg shadow-slate-200/50 dark:shadow-none">
+                        <h2 className="text-lg font-semibold text-slate-800 dark:text-white mb-6">Pengaturan Struk</h2>
+                        <div className="space-y-6">
+                            <div>
+                                <label htmlFor="invoiceAppName" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Nama Toko</label>
+                                <input 
+                                    type="text" 
+                                    id="invoiceAppName"
+                                    value={invoiceAppName}
+                                    onChange={(e) => onInvoiceAppNameChange(e.target.value)}
+                                    className={formInputClass}
+                                    placeholder="cth: BRILink Jaya Abadi"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="invoiceAddress" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Alamat</label>
+                                <input 
+                                    type="text" 
+                                    id="invoiceAddress"
+                                    value={invoiceAddress}
+                                    onChange={(e) => onInvoiceAddressChange(e.target.value)}
+                                    className={formInputClass}
+                                    placeholder="cth: Jl. Merdeka No. 10"
+                                />
+                            </div>
+                             <div>
+                                <label htmlFor="invoicePhone" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Nomor HP</label>
+                                <input 
+                                    type="text" 
+                                    id="invoicePhone"
+                                    value={invoicePhone}
+                                    onChange={(e) => onInvoicePhoneChange(e.target.value)}
+                                    className={formInputClass}
+                                    placeholder="cth: 08123456789"
+                                />
+                            </div>
+                             <div>
+                                <label htmlFor="invoiceFooter" className="block text-sm font-medium text-slate-600 dark:text-neutral-300 mb-2">Teks Footer</label>
+                                <textarea
+                                    id="invoiceFooter"
+                                    value={invoiceFooter}
+                                    onChange={(e) => onInvoiceFooterChange(e.target.value)}
+                                    className="w-full bg-slate-100 dark:bg-neutral-700 border border-transparent focus:border-blue-400 focus:ring-1 focus:ring-blue-400 rounded-2xl px-4 py-3 text-sm text-slate-800 dark:text-white transition outline-none placeholder:text-slate-400 dark:placeholder:text-neutral-500"
+                                    rows={2}
+                                />
                             </div>
                         </div>
                     </div>

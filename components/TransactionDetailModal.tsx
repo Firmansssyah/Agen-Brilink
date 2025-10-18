@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
 import { WalletIconComponent } from './WalletIconComponent';
-import { CloseIcon, UserIcon, CashIcon } from './icons/Icons';
+import { CloseIcon, UserIcon, CashIcon, PrintIcon } from './icons/Icons';
 
 interface TransactionDetailModalProps {
     isOpen: boolean;
@@ -9,6 +9,7 @@ interface TransactionDetailModalProps {
     transaction: Transaction | null;
     wallets: Wallet[];
     formatRupiah: (amount: number) => string;
+    onShowInvoice: (transaction: Transaction) => void;
 }
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode; }> = ({ label, value }) => (
@@ -25,6 +26,7 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     transaction,
     wallets,
     formatRupiah,
+    onShowInvoice,
 }) => {
     const [isVisible, setIsVisible] = useState(false);
 
@@ -38,6 +40,9 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     };
 
     if (!isOpen || !transaction) return null;
+    
+    // Transaksi internal tidak memerlukan struk.
+    const isInternal = transaction.isInternalTransfer || ['Internal', 'Bank', 'BRILink'].includes(transaction.customer);
     
     // Re-implement simplified display logic based on calculateWalletChanges from App.tsx
     // This is for display only and doesn't affect actual data.
@@ -108,6 +113,13 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     
     const showAdditionalDetails = transaction.margin > 0 || (transaction.description === 'Tarik Tunai' && transaction.marginType) || (transaction.notes && transaction.notes.trim() !== '');
 
+    const handleShowInvoiceClick = () => {
+        if (transaction) {
+            onShowInvoice(transaction);
+            handleClose(); // Close this modal to show the invoice modal
+        }
+    };
+
     return (
         <div
             className={`fixed inset-0 z-50 flex justify-center items-center p-4 transition-opacity duration-300 ease-in-out bg-black/40 backdrop-blur-sm ${isVisible ? 'opacity-100' : 'opacity-0'}`}
@@ -119,13 +131,20 @@ const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* --- Header --- */}
-                <div className={`relative p-4 flex items-center justify-center flex-shrink-0 ${
+                <div className={`relative p-4 flex items-center justify-between flex-shrink-0 ${
                     transaction.isPiutang ? 'bg-red-500' : 'bg-emerald-500'
                 }`}>
-                    <h2 id="transaction-detail-title" className="text-lg font-semibold text-white">
+                     {!isInternal ? (
+                        <button onClick={handleShowInvoiceClick} className="p-2 rounded-full text-white/80 hover:bg-black/20 hover:text-white transition-colors" aria-label="Tampilkan Struk">
+                            <PrintIcon className="h-5 w-5" />
+                        </button>
+                    ) : (
+                        <div className="w-9 h-9" /> /* Spacer for alignment */
+                    )}
+                    <h2 id="transaction-detail-title" className="text-lg font-semibold text-white absolute left-1/2 -translate-x-1/2">
                         {transaction.description}
                     </h2>
-                    <button onClick={handleClose} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full text-white/80 hover:bg-black/20 hover:text-white transition-colors" aria-label="Tutup">
+                    <button onClick={handleClose} className="p-2 rounded-full text-white/80 hover:bg-black/20 hover:text-white transition-colors" aria-label="Tutup">
                         <CloseIcon className="h-5 w-5" />
                     </button>
                 </div>

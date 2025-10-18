@@ -19,6 +19,7 @@ import EditRewardModal from '../components/EditRewardModal';
 import MonthlyMarginDetailModal from '../components/MonthlyMarginDetailModal';
 import AssetDetailModal from '../components/AssetDetailModal';
 import EditBankFeeModal from '../components/EditBankFeeModal';
+import InvoiceModal from '../components/InvoiceModal';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -36,6 +37,14 @@ interface DashboardPageProps {
     onDeleteTransaction: (transactionId: string) => void;
     onDeleteBalanceTransfer: (transferId: string) => void;
     formatRupiah: (amount: number) => string;
+    appName: string;
+    invoiceForTransaction: Transaction | null;
+    onCloseInvoice: () => void;
+    onShowInvoice: (transaction: Transaction) => void;
+    invoiceAppName: string;
+    invoiceAddress: string;
+    invoicePhone: string;
+    invoiceFooter: string;
 }
 
 /**
@@ -57,6 +66,14 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     onDeleteTransaction,
     onDeleteBalanceTransfer,
     formatRupiah,
+    appName,
+    invoiceForTransaction,
+    onCloseInvoice,
+    onShowInvoice,
+    invoiceAppName,
+    invoiceAddress,
+    invoicePhone,
+    invoiceFooter,
 }) => {
     // State for visibilitas modal tambah/edit transaksi.
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -287,9 +304,19 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
 
     // Handler for membuka modal info transaksi.
     const handleOpenInfoModal = useCallback((transaction: Transaction) => {
-        setTransactionForInfo(transaction);
+        // For combined transfer transactions, we need to find the original to show details
+        if(transaction.isInternalTransfer && transaction.id.startsWith('transfer-')) {
+            const originalTx = transactions.find(t => t.transferId === transaction.id);
+            if (originalTx) {
+                 setTransactionForInfo(originalTx);
+            } else {
+                 setTransactionForInfo(transaction); // Fallback
+            }
+        } else {
+            setTransactionForInfo(transaction);
+        }
         setIsInfoModalOpen(true);
-    }, []);
+    }, [transactions]);
 
 
     // Handler for membuka modal edit transfer.
@@ -514,6 +541,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 transaction={transactionForInfo}
                 wallets={wallets}
                 formatRupiah={formatRupiah}
+                onShowInvoice={onShowInvoice}
             />
             <DailyTransactionsModal
                 isOpen={!!dailyModalDate}
@@ -578,6 +606,17 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 message="Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan."
                 confirmText="Ya, Hapus"
                 confirmColor="bg-red-600 hover:bg-red-700"
+            />
+            <InvoiceModal
+                isOpen={!!invoiceForTransaction}
+                onClose={onCloseInvoice}
+                transaction={invoiceForTransaction}
+                wallets={wallets}
+                formatRupiah={formatRupiah}
+                invoiceAppName={invoiceAppName}
+                invoiceAddress={invoiceAddress}
+                invoicePhone={invoicePhone}
+                invoiceFooter={invoiceFooter}
             />
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-7xl">
