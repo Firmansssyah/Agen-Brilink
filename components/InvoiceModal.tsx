@@ -31,52 +31,89 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
     invoiceFont
 }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const [copyButtonText, setCopyButtonText] = useState('Salin sbg. Gambar');
     const invoiceRef = useRef<HTMLDivElement>(null);
     const { addToast } = useToastContext();
-
+    
+    // Check for Web Share API support
+    const isShareApiAvailable = typeof navigator.share !== 'undefined';
+    const [actionButtonText, setActionButtonText] = useState(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
 
     useEffect(() => {
         setIsVisible(isOpen);
         if (isOpen) {
-            setCopyButtonText('Salin sbg. Gambar');
+            // Reset button text when modal opens
+            setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
         }
-    }, [isOpen]);
+    }, [isOpen, isShareApiAvailable]);
 
     const handleClose = () => {
         setIsVisible(false);
         setTimeout(onClose, 300);
     };
 
-    const handleCopyAsImage = () => {
+    const handleShareOrCopyImage = async () => {
         if (!invoiceRef.current) return;
-        setCopyButtonText('Menyalin...');
+        setActionButtonText('Memproses...');
 
-        html2canvas(invoiceRef.current, { 
-            backgroundColor: '#ffffff', // Explicitly set white background for capture
-            scale: 2 // Higher resolution
-        }).then((canvas: HTMLCanvasElement) => {
-            canvas.toBlob((blob) => {
-                if (blob) {
-                    const item = new ClipboardItem({ 'image/png': blob });
-                    navigator.clipboard.write([item]).then(() => {
-                        setCopyButtonText('Tersalin!');
-                        addToast('Struk gambar berhasil disalin', 'success');
-                        handleClose(); // Tutup segera setelah berhasil
-                    }).catch(err => {
-                        console.error('Gagal menyalin gambar ke clipboard:', err);
-                        setCopyButtonText('Gagal');
-                        addToast('Gagal menyalin struk', 'error');
-                        setTimeout(() => setCopyButtonText('Salin sbg. Gambar'), 2000);
-                    });
+        try {
+            const canvas = await html2canvas(invoiceRef.current, {
+                backgroundColor: '#ffffff',
+                scale: 2,
+            });
+
+            const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'));
+
+            if (!blob) {
+                throw new Error('Gagal membuat gambar dari struk.');
+            }
+
+            // --- Web Share API (Mobile First) ---
+            if (navigator.share && navigator.canShare) {
+                const file = new File([blob], `struk-${transaction?.id.substring(0, 8)}.png`, { type: 'image/png' });
+                // canShare check for files
+                if (navigator.canShare({ files: [file] })) {
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: `Struk Transaksi - ${transaction?.description}`,
+                            text: `Berikut adalah struk transaksi ${invoiceAppName}.`,
+                        });
+                        addToast('Berhasil dibagikan', 'success');
+                        handleClose();
+                        return; // Success, exit
+                    } catch (shareError: any) {
+                        if (shareError.name !== 'AbortError') {
+                            console.error('Error saat berbagi:', shareError);
+                            addToast('Gagal membagikan struk', 'error');
+                        }
+                        // Reset button text if user cancels share
+                        setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
+                        return; // Don't fall back to copy
+                    }
                 }
-            }, 'image/png');
-        }).catch((err: any) => {
-             console.error('Gagal membuat gambar dari struk:', err);
-             setCopyButtonText('Gagal');
-             addToast('Gagal membuat gambar struk', 'error');
-             setTimeout(() => setCopyButtonText('Salin sbg. Gambar'), 2000);
-        });
+            }
+
+            // --- Clipboard API (Desktop Fallback) ---
+            try {
+                // ClipboardItem is not available in all browsers, especially non-secure contexts.
+                // @ts-ignore
+                const item = new ClipboardItem({ 'image/png': blob });
+                await navigator.clipboard.write([item]);
+                setActionButtonText('Tersalin!');
+                addToast('Struk berhasil disalin', 'success');
+                handleClose();
+            } catch (copyError) {
+                console.error('Gagal menyalin ke clipboard:', copyError);
+                addToast('Gagal menyalin. Browser Anda mungkin tidak mendukung fitur ini.', 'error');
+                setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar');
+            }
+
+        } catch (error: any) {
+            console.error('Gagal memproses gambar struk:', error);
+            addToast(error.message || 'Gagal memproses gambar.', 'error');
+            setActionButtonText('Gagal');
+            setTimeout(() => setActionButtonText(isShareApiAvailable ? 'Bagikan Struk' : 'Salin sbg. Gambar'), 2000);
+        }
     };
     
     // Process footer text for HTML rendering
@@ -168,8 +205,8 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     <button onClick={handleClose} className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-slate-700 dark:text-neutral-200 font-semibold py-3 rounded-full text-sm transition-colors">
                         Selesai
                     </button>
-                    <button onClick={handleCopyAsImage} className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-3 rounded-full text-sm transition-colors">
-                        {copyButtonText}
+                    <button onClick={handleShareOrCopyImage} className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-3 rounded-full text-sm transition-colors">
+                        {actionButtonText}
                     </button>
                 </div>
             </div>
