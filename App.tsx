@@ -964,7 +964,7 @@ const MainApp: React.FC = () => {
             customer: 'Bank',
             type: TransactionType.OUT,
             amount: amount,
-            margin: 0,
+            margin: -amount,
             wallet: walletId,
             isPiutang: false,
         };

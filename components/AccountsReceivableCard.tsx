@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Transaction } from '../types';
-import { ChevronRightIcon, CheckIcon } from './icons/Icons';
+// FIX: Replace PrintIcon with ShareIcon for better semantics
+import { CheckIcon, ShareIcon } from './icons/Icons';
 
 // Interface untuk properti komponen AccountsReceivableCard.
 interface AccountsReceivableCardProps {
@@ -9,6 +10,7 @@ interface AccountsReceivableCardProps {
     formatRupiah: (amount: number) => string; // Fungsi untuk memformat angka ke Rupiah.
     onOpenDetail: (customerName: string) => void; // Callback saat pengguna ingin melihat detail piutang per pelanggan.
     onSettleReceivable: (transaction: Transaction) => void; // Callback untuk melunasi transaksi piutang.
+    onOpenBill: (customerName: string) => void;
 }
 
 // Interface untuk struktur data piutang yang telah dikelompokkan per pelanggan.
@@ -24,7 +26,7 @@ interface GroupedReceivable {
  * Komponen ini mengelompokkan piutang berdasarkan pelanggan, menampilkan total
  * piutang per pelanggan, dan memungkinkan pengguna untuk melunasi atau melihat detail.
  */
-const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receivableTransactions, totalPiutang, formatRupiah, onOpenDetail, onSettleReceivable }) => {
+const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receivableTransactions, totalPiutang, formatRupiah, onOpenDetail, onSettleReceivable, onOpenBill }) => {
     
     // State untuk melacak ID transaksi yang sedang dalam proses pelunasan untuk animasi.
     const [settlingId, setSettlingId] = useState<string | null>(null);
@@ -135,6 +137,16 @@ const AccountsReceivableCard: React.FC<AccountsReceivableCardProps> = ({ receiva
                                           <span className="text-sm font.medium text-yellow-500 dark:text-yellow-400">{formatRupiah(item.totalAmount)}</span>
                                           <span className="text-xs text-red-500 dark:text-red-300">{daysAgo}</span>
                                         </div>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onOpenBill(item.customer);
+                                            }}
+                                            className="z-10 h-9 w-9 flex-shrink-0 rounded-full border border-slate-300 dark:border-neutral-600 text-slate-500 dark:text-neutral-400 flex items-center justify-center transition-colors duration-200 hover:bg-sky-100 dark:hover:bg-sky-500/20 hover:border-sky-400 dark:hover:border-sky-500 hover:text-sky-500 dark:hover:text-sky-400"
+                                            aria-label={`Buat tagihan untuk ${item.customer}`}
+                                        >
+                                            <ShareIcon className="h-4 w-4" />
+                                        </button>
                                         {/* Tombol untuk melunasi piutang tertua dari pelanggan ini */}
                                         <button
                                             onClick={(e) => {

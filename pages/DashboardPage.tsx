@@ -23,6 +23,7 @@ import InvoiceModal from '../components/InvoiceModal';
 import EditInterestModal from '../components/EditInterestModal';
 import BankFeeModal from '../components/BankFeeModal';
 import AddInterestModal from '../components/AddInterestModal';
+import ReceivableInvoiceModal from '../components/ReceivableInvoiceModal';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -94,9 +95,6 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [transactionToEdit, setTransactionToEdit] = useState<Transaction | null>(null);
     // State for menyimpan data transfer yang akan diedit.
     const [transferToEdit, setTransferToEdit] = useState<Transaction | null>(null);
-    // State for pengurutan tabel.
-    const [sortKey, setSortKey] = useState<SortKey>('date');
-    const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
     // State for visibilitas modal tambah fee.
     const [isFeeModalOpen, setIsFeeModalOpen] = useState(false);
     // State for visibilitas modal edit fee.
@@ -137,6 +135,10 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     // State for desktop actions dropdown menu
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const actionsMenuRef = useRef<HTMLDivElement>(null);
+    // State for piutang invoice modal
+    const [isBillModalOpen, setIsBillModalOpen] = useState(false);
+    const [selectedBillCustomer, setSelectedBillCustomer] = useState<string | null>(null);
+
 
     // Close actions menu when clicking outside
     useEffect(() => {
@@ -185,101 +187,102 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     // useMemo for memproses daftar transaksi yang akan ditampilkan.
     // Ini menggabungkan dua entri transfer saldo menjadi satu baris.
     const displayTransactions = useMemo(() => {
-        const transfers = new Map<string, { in?: Transaction, out?: Transaction }>();
-        const otherTransactions: Transaction[] = [];
+        const transactionsById = new Map<string, Transaction>();
+        const transfers = new Map<string, { out?: Transaction, in?: Transaction }>();
 
-        // 1. Kelompokkan transfer dan pisahkan transaksi lain.
-        transactions.forEach(t => {
-            if (t.isInternalTransfer && t.transferId) {
-                const pair = transfers.get(t.transferId) || {};
-                if (t.type === TransactionType.IN) {
-                    pair.in = t;
-                } else { // OUT
-                    pair.out = t;
+        // First pass: separate transfers and regular transactions
+        for (const tx of transactions) {
+            if (tx.isInternalTransfer && tx.transferId) {
+                const transferPair = transfers.get(tx.transferId) || {};
+                if (tx.type === 'OUT') {
+                    transferPair.out = tx;
+                } else {
+                    transferPair.in = tx;
                 }
-                transfers.set(t.transferId, pair);
+                transfers.set(tx.transferId, transferPair);
             } else {
-                otherTransactions.push(t);
+                transactionsById.set(tx.id, tx);
             }
-        });
+        }
 
-        // 2. Buat objek transaksi gabungan untuk setiap pasangan transfer.
-        const combinedTransferTransactions: Transaction[] = [];
+        // Second pass: process the transfers
         for (const [transferId, pair] of transfers.entries()) {
-            if (pair.in && pair.out) {
-                combinedTransferTransactions.push({
-                    id: transferId, // Gunakan transferId sebagai ID unik untuk tampilan gabungan.
+            if (pair.out && pair.in) {
+                // It's a complete pair, create a combined transaction
+                const combinedTx: Transaction = {
+                    id: transferId, // Use transferId for a stable key
                     transferId: transferId,
                     date: pair.out.date,
                     description: `Pindah Saldo`,
                     customer: 'Internal',
-                    type: TransactionType.OUT, // Tipe netral, logika tampilan akan dikustomisasi.
-                    amount: pair.in.amount, // Jumlah yang diterima.
-                    margin: pair.out.amount - pair.in.amount, // Biaya transfer.
-                    wallet: pair.out.wallet, // Dompet asal.
-                    toWallet: pair.in.wallet, // Dompet tujuan.
+                    type: TransactionType.OUT, // Neutral type
+                    amount: pair.in.amount,
+                    margin: pair.out.amount - pair.in.amount, // Fee
+                    wallet: pair.out.wallet,
+                    toWallet: pair.in.wallet,
                     isPiutang: false,
                     isInternalTransfer: true,
-                });
+                };
+                transactionsById.set(transferId, combinedTx);
             } else {
-                // Jika pasangan tidak lengkap, kembalikan sebagai transaksi individual.
-                if (pair.in) otherTransactions.push(pair.in);
-                if (pair.out) otherTransactions.push(pair.out);
+                // Incomplete pair, add them back as individual transactions
+                if (pair.out) transactionsById.set(pair.out.id, pair.out);
+                if (pair.in) transactionsById.set(pair.in.id, pair.in);
             }
         }
-        return [...otherTransactions, ...combinedTransferTransactions];
+
+        return Array.from(transactionsById.values());
     }, [transactions]);
 
-    // useMemo for menyaring dan mengurutkan transaksi berdasarkan input pengguna.
-    const filteredAndSortedTransactions = useMemo(() => {
-        let items = displayTransactions.filter(t => !t.isDeleting);
 
+    // useMemo for menyaring dan mengurutkan transaksi berdasarkan input pengguna.
+    const filteredTransactions = useMemo(() => {
+        let items = displayTransactions.filter(t => !t.isDeleting);
+    
         // 1. Terapkan filter pencarian.
         if (searchTerm.trim()) {
             const lowercasedFilter = searchTerm.toLowerCase();
-            items = items.filter(t =>
-                t.description.toLowerCase().includes(lowercasedFilter) ||
-                t.customer.toLowerCase().includes(lowercasedFilter) ||
-                t.amount.toString().includes(lowercasedFilter) ||
-                formatRupiah(t.amount).includes(lowercasedFilter)
-            );
+            const isNumericSearch = /^\d+$/.test(lowercasedFilter.replace(/\./g, ''));
+    
+            items = items.filter(t => {
+                if (isNumericSearch) {
+                    // Search only in numeric fields if the search term is numeric
+                    const numericFilter = lowercasedFilter.replace(/\./g, '');
+                    return t.amount.toString().includes(numericFilter) ||
+                           t.margin.toString().includes(numericFilter);
+                } else {
+                    // Search in text fields if the search term is text
+                    return t.description.toLowerCase().includes(lowercasedFilter) ||
+                           t.customer.toLowerCase().includes(lowercasedFilter) ||
+                           (t.notes && t.notes.toLowerCase().includes(lowercasedFilter));
+                }
+            });
         }
-
+    
         // 2. Terapkan filter tipe transaksi.
         if (filterType !== 'all') {
             items = items.filter(t => t.type === filterType);
         }
-
-        // 3. Terapkan filter rentang tanggal.
+    
+        // 3. Terapkan filter rentang tanggal (dengan perbaikan zona waktu).
         if (filterStartDate) {
-            const startDate = new Date(filterStartDate);
+            const [year, month, day] = filterStartDate.split('-').map(Number);
+            const startDate = new Date(year, month - 1, day);
             startDate.setHours(0, 0, 0, 0);
             items = items.filter(t => new Date(t.date) >= startDate);
         }
         if (filterEndDate) {
-            const endDate = new Date(filterEndDate);
+            const [year, month, day] = filterEndDate.split('-').map(Number);
+            const endDate = new Date(year, month - 1, day);
             endDate.setHours(23, 59, 59, 999);
             items = items.filter(t => new Date(t.date) <= endDate);
         }
         
-        // 4. Lakukan pengurutan.
-        items.sort((a, b) => {
-            const valA = a[sortKey];
-            const valB = b[sortKey];
+        // Selalu urutkan dari yang terbaru ke terlama sebagai default.
+        items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-            let comparison = 0;
-            if (sortKey === 'date') {
-                comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-            } else if (typeof valA === 'string' && typeof valB === 'string') {
-                comparison = valA.localeCompare(valB);
-            } else if (typeof valA === 'number' && typeof valB === 'number') {
-                comparison = valA - valB;
-            }
-
-            return sortDirection === 'asc' ? comparison : -comparison;
-        });
         return items;
-    }, [displayTransactions, searchTerm, filterType, filterStartDate, filterEndDate, sortKey, sortDirection, formatRupiah]);
+    }, [displayTransactions, searchTerm, filterType, filterStartDate, filterEndDate]);
     
     // useMemo for menghitung default "pintar" untuk modal transaksi.
     const smartDefaults = useMemo(() => {
@@ -391,30 +394,23 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsTransactionModalOpen(false);
     };
     
-    // Handler for mengubah pengurutan tabel.
-    const handleSort = (key: SortKey) => {
-        if (sortKey === key) {
-            setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
-        } else {
-            setSortKey(key);
-            setSortDirection(key === 'date' ? 'desc' : 'asc');
-        }
-    };
-    
     // Handler for membuka modal tambah fee.
     const handleOpenFeeModal = () => {
         setIsFeeModalOpen(true);
         setIsFabMenuOpen(false);
+        setIsActionsMenuOpen(false);
     };
 
     const handleOpenBankFeeModal = () => {
         setIsBankFeeModalOpen(true);
         setIsFabMenuOpen(false);
+        setIsActionsMenuOpen(false);
     };
 
     const handleOpenInterestModal = () => {
         setIsAddInterestModalOpen(true);
         setIsFabMenuOpen(false);
+        setIsActionsMenuOpen(false);
     };
 
     // Handler for menyimpan transaksi fee.
@@ -469,6 +465,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setTransferToEdit(null);
         setIsTransferModalOpen(true);
         setIsFabMenuOpen(false);
+        setIsActionsMenuOpen(false);
     };
     
     // useCallback for menyimpan data dari modal transfer (baru atau editan).
@@ -533,6 +530,12 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const handleOpenReceivableDetail = (customerName: string) => {
         setSelectedCustomerForReceivables(customerName);
         setIsReceivableDetailModalOpen(true);
+    };
+    
+    // Handler for membuka modal tagihan piutang.
+    const handleOpenBillModal = (customerName: string) => {
+        setSelectedBillCustomer(customerName);
+        setIsBillModalOpen(true);
     };
 
     // useEffect for menambahkan shortcut keyboard '/' untuk membuka modal tambah transaksi.
@@ -698,6 +701,15 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 invoiceFooter={invoiceFooter}
                 invoiceFont={invoiceFont}
             />
+            <ReceivableInvoiceModal
+                isOpen={isBillModalOpen}
+                onClose={() => setIsBillModalOpen(false)}
+                customerName={selectedBillCustomer}
+                transactions={accountsReceivable}
+                invoiceAppName={invoiceAppName}
+                invoiceAddress={invoiceAddress}
+                invoicePhone={invoicePhone}
+            />
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-7xl">
                     <div className="space-y-6">
@@ -730,6 +742,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                         formatRupiah={formatRupiah} 
                                         onOpenDetail={handleOpenReceivableDetail}
                                         onSettleReceivable={onSettleReceivable}
+                                        onOpenBill={handleOpenBillModal}
                                     />
                                 </section>
                             </div>
@@ -765,25 +778,25 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                                     <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-slate-200 dark:border-white/10 z-20 animate-fade-in p-2">
                                                         <ul className="space-y-1">
                                                             <li>
-                                                                <button onClick={() => { handleOpenInterestModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                <button onClick={handleOpenInterestModal} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                                                                     <MarginIcon className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
                                                                     <span>Bunga Bank</span>
                                                                 </button>
                                                             </li>
                                                             <li>
-                                                                <button onClick={() => { handleOpenBankFeeModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                <button onClick={handleOpenBankFeeModal} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                                                                     <CutIcon className="h-5 w-5 text-purple-500 dark:text-purple-400" />
                                                                     <span>Potongan Bank</span>
                                                                 </button>
                                                             </li>
                                                             <li>
-                                                                <button onClick={() => { handleOpenTransferModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                <button onClick={handleOpenTransferModal} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                                                                     <TransferIcon className="h-5 w-5 text-sky-500 dark:text-sky-400" />
                                                                     <span>Pindah Saldo</span>
                                                                 </button>
                                                             </li>
                                                             <li>
-                                                                <button onClick={() => { handleOpenFeeModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                <button onClick={handleOpenFeeModal} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
                                                                     <PlusIcon className="h-5 w-5 text-blue-500 dark:text-blue-400" />
                                                                     <span>Fee Brilink</span>
                                                                 </button>
@@ -800,7 +813,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                             >
                                                 <PlusIcon className="h-4 w-4" />
                                                 <span>Tambah Transaksi</span>
-                                                <kbd className="hidden sm:inline-block ml-2 bg-slate-100/30 dark:bg-neutral-700/80 border border-slate-300 dark:border-neutral-600 rounded px-1.5 py-0.5 text-xs font.mono text-white dark:text-neutral-300">/</kbd>
+                                                <kbd className="hidden sm:inline-block ml-2 bg-slate-100/30 dark:bg-neutral-700/80 border border-slate-300 dark:border-neutral-600 rounded px-1.5 py-0.5 text-xs font-mono text-white dark:text-neutral-300">/</kbd>
                                             </button>
                                         </div>
                                     </div>
@@ -820,16 +833,13 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                     <div className="flex-grow min-h-0">
                                         <TransactionTable 
                                             wallets={wallets}
-                                            transactions={filteredAndSortedTransactions} 
+                                            transactions={filteredTransactions} 
                                             formatRupiah={formatRupiah} 
                                             onInfoTransaction={handleOpenInfoModal}
                                             onEditTransaction={handleOpenEditModal}
                                             onDeleteTransactionConfirm={handleDeleteTransactionConfirm}
                                             onEditTransfer={handleOpenEditTransferModal}
                                             onDeleteTransferConfirm={handleDeleteTransferConfirm}
-                                            sortKey={sortKey}
-                                            sortDirection={sortDirection}
-                                            onSort={handleSort}
                                         />
                                     </div>
                                 </div>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Transaction, TransactionType, Wallet, SortKey, SortDirection } from '../types';
+import { Transaction, TransactionType, Wallet } from '../types';
 import { WalletIconComponent } from './WalletIconComponent';
-import { ChevronDownIcon, ChevronUpIcon, EditIcon, DeleteIcon, ArrowRightIcon } from './icons/Icons';
+import { EditIcon, DeleteIcon, ArrowRightIcon } from './icons/Icons';
 
 interface TransactionTableProps {
     transactions: Transaction[];
@@ -12,32 +12,7 @@ interface TransactionTableProps {
     onDeleteTransactionConfirm: (transactionId: string) => void;
     onEditTransfer?: (transaction: Transaction) => void;
     onDeleteTransferConfirm: (transferId: string) => void;
-    sortKey: SortKey;
-    sortDirection: SortDirection;
-    onSort: (key: SortKey) => void;
 }
-
-const SortableHeader: React.FC<{
-    columnKey: SortKey;
-    title: string;
-    onSort: (key: SortKey) => void;
-    sortKey: SortKey;
-    sortDirection: SortDirection;
-    className?: string;
-}> = ({ columnKey, title, onSort, sortKey, sortDirection, className = "" }) => {
-    const isActive = sortKey === columnKey;
-    
-    return (
-        <th className={`p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider ${className}`}>
-            <button onClick={() => onSort(columnKey)} className="flex items-center space-x-1.5 group focus:outline-none">
-                <span className={isActive ? "text-slate-800 dark:text-white" : ""}>{title}</span>
-                {isActive && (
-                    sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4 text-slate-800 dark:text-white" /> : <ChevronDownIcon className="h-4 w-4 text-slate-800 dark:text-white" />
-                )}
-            </button>
-        </th>
-    );
-};
 
 const TransactionTable: React.FC<TransactionTableProps> = ({ 
     transactions, 
@@ -48,9 +23,6 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     onDeleteTransactionConfirm,
     onEditTransfer,
     onDeleteTransferConfirm,
-    sortKey,
-    sortDirection,
-    onSort,
 }) => {
     const tooltipClasses = "tooltip absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-slate-700 text-white text-xs rounded-md shadow-lg z-10";
 
@@ -63,11 +35,11 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                         <table className="w-full text-left border-collapse">
                             <thead className="sticky top-0 z-10 border-b border-slate-200 dark:border-white/10 bg-slate-50/80 dark:bg-neutral-800/80 backdrop-blur-sm">
                                 <tr>
-                                    <SortableHeader columnKey="date" title="Tanggal" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                    <SortableHeader columnKey="description" title="Deskripsi" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                    <SortableHeader columnKey="customer" title="Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                    <SortableHeader columnKey="amount" title="Jumlah" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
-                                    <SortableHeader columnKey="margin" title="Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={onSort} />
+                                    <th className="p-3 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Tanggal</th>
+                                    <th className="p-3 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Deskripsi</th>
+                                    <th className="p-3 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Pelanggan</th>
+                                    <th className="p-3 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Jumlah</th>
+                                    <th className="p-3 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Margin</th>
                                     <th className="p-3 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
                                 </tr>
                             </thead>

@@ -20,38 +20,6 @@ interface CustomerSummary {
     totalMargin: number;
 }
 
-// Tipe alias untuk kunci pengurutan tabel pelanggan.
-type CustomerSortKey = 'name' | 'transactionCount' | 'totalMargin' | 'totalPiutang';
-
-/**
- * Komponen SortableHeader adalah header kolom untuk tabel yang dapat diklik
- * untuk mengurutkan data berdasarkan kolom tersebut.
- */
-const SortableHeader: React.FC<{
-    columnKey: CustomerSortKey;
-    title: string;
-    onSort: (key: CustomerSortKey) => void;
-    sortKey: CustomerSortKey;
-    sortDirection: SortDirection;
-    className?: string;
-    textAlignment?: 'text-left' | 'text-center' | 'text-right';
-}> = ({ columnKey, title, onSort, sortKey, sortDirection, className = "", textAlignment = 'text-left' }) => {
-    const isActive = sortKey === columnKey; // Cek apakah ini kolom yang sedang aktif diurutkan.
-    
-    return (
-        <th className={`p-2 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider ${className} ${textAlignment}`}>
-            <button onClick={() => onSort(columnKey)} className={`flex items-center space-x-1.5 group focus:outline-none ${textAlignment === 'text-center' ? 'mx-auto' : ''}`}>
-                <span className={isActive ? "text-slate-800 dark:text-white" : ""}>{title}</span>
-                {/* Menampilkan ikon panah naik/turun jika kolom ini aktif */}
-                {isActive && (
-                    sortDirection === 'asc' ? <ChevronUpIcon className="h-4 w-4 text-slate-800 dark:text-white" /> : <ChevronDownIcon className="h-4 w-4 text-slate-800 dark:text-white" />
-                )}
-            </button>
-        </th>
-    );
-};
-
-
 /**
  * Komponen CustomerManagementPage menampilkan analisis data pelanggan,
  * termasuk jumlah transaksi, total margin, dan total piutang.
@@ -66,9 +34,6 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
     // State untuk menyimpan nama pelanggan yang detailnya akan ditampilkan.
     const [selectedCustomerName, setSelectedCustomerName] = useState<string | null>(null);
     const [customerForReward, setCustomerForReward] = useState<CustomerSummary | null>(null);
-    // State untuk pengurutan tabel.
-    const [sortKey, setSortKey] = useState<CustomerSortKey>('totalMargin');
-    const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
     // useMemo untuk mendapatkan daftar bulan unik dari transaksi untuk filter dropdown.
     const availableMonths = useMemo(() => {
@@ -117,24 +82,12 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         // 3. Ubah map menjadi array.
         const data = Array.from(summaryMap, ([name, data]) => ({ name, ...data }));
         
-        // 4. Lakukan pengurutan.
-        data.sort((a, b) => {
-            const valA = a[sortKey];
-            const valB = b[sortKey];
-            let comparison = 0;
-            
-            if (typeof valA === 'string' && typeof valB === 'string') {
-                comparison = valA.localeCompare(valB);
-            } else if (typeof valA === 'number' && typeof valB === 'number') {
-                comparison = valA - valB;
-            }
-
-            return sortDirection === 'asc' ? comparison : -comparison;
-        });
+        // 4. Pengurutan default berdasarkan total margin (tertinggi dulu).
+        data.sort((a, b) => b.totalMargin - a.totalMargin);
         
         return data;
 
-    }, [transactions, selectedPeriod, sortKey, sortDirection]);
+    }, [transactions, selectedPeriod]);
 
     // Handler saat baris pelanggan di-klik untuk membuka modal detail.
     const handleRowClick = (customerName: string) => {
@@ -162,18 +115,6 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
         onSaveTransaction(rewardTransaction);
         setIsRewardModalOpen(false);
     };
-
-    // Handler untuk mengubah pengurutan tabel.
-    const handleSort = (key: CustomerSortKey) => {
-        if (sortKey === key) {
-            setSortDirection(prev => (prev === 'asc' ? 'desc' : 'asc'));
-        } else {
-            setSortKey(key);
-            // Default ke 'desc' untuk kolom angka, 'asc' untuk nama.
-            setSortDirection(key === 'name' ? 'asc' : 'desc');
-        }
-    };
-
 
     // useMemo untuk menyaring riwayat transaksi pelanggan yang dipilih untuk ditampilkan di modal.
     const selectedCustomerTransactions = useMemo(() => {
@@ -214,11 +155,11 @@ const CustomerManagementPage: React.FC<CustomerManagementPageProps> = ({ transac
                                 <table className="w-full text-left">
                                     <thead className="border-b border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5">
                                         <tr>
-                                            <SortableHeader columnKey="name" title="Nama Pelanggan" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
-                                            <SortableHeader columnKey="transactionCount" title="Jml. Transaksi" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} textAlignment="text-center" />
-                                            <SortableHeader columnKey="totalMargin" title="Total Margin" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
-                                            <SortableHeader columnKey="totalPiutang" title="Total Piutang" sortKey={sortKey} sortDirection={sortDirection} onSort={handleSort} />
-                                            <th className="p-2 text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider text-center">Aksi</th>
+                                            <th className="p-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Nama Pelanggan</th>
+                                            <th className="p-2 text-center text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Jml. Transaksi</th>
+                                            <th className="p-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Margin</th>
+                                            <th className="p-2 text-left text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Total Piutang</th>
+                                            <th className="p-2 text-center text-xs font-semibold uppercase text-slate-500 dark:text-[#958F99] tracking-wider">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>

@@ -63,6 +63,7 @@ const EditBankFeeModal: React.FC<EditBankFeeModalProps> = ({ isOpen, onClose, on
                 ...transactionToEdit, 
                 date: newDate.toISOString(),
                 amount: amount,
+                margin: -amount,
             });
         }
     };
