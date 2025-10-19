@@ -709,6 +709,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 invoiceAppName={invoiceAppName}
                 invoiceAddress={invoiceAddress}
                 invoicePhone={invoicePhone}
+                invoiceFont={invoiceFont}
             />
             <main className="p-4 sm:p-6 flex-1">
                 <div className="mx-auto max-w-7xl">

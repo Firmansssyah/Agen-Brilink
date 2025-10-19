@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Transaction } from '../types';
+import { Transaction, Font } from '../types';
 import { useToastContext } from '../contexts/ToastContext';
 import { CloseIcon, ShareIcon } from './icons/Icons';
 
@@ -14,6 +14,7 @@ interface ReceivableInvoiceModalProps {
     invoiceAppName: string;
     invoiceAddress: string;
     invoicePhone: string;
+    invoiceFont: Font;
 }
 
 const ReceivableInvoiceModal: React.FC<ReceivableInvoiceModalProps> = ({
@@ -23,7 +24,8 @@ const ReceivableInvoiceModal: React.FC<ReceivableInvoiceModalProps> = ({
     transactions,
     invoiceAppName,
     invoiceAddress,
-    invoicePhone
+    invoicePhone,
+    invoiceFont
 }) => {
     const [isVisible, setIsVisible] = useState(false);
     const invoiceRef = useRef<HTMLDivElement>(null);
@@ -53,6 +55,21 @@ const ReceivableInvoiceModal: React.FC<ReceivableInvoiceModalProps> = ({
             currency: 'IDR',
             minimumFractionDigits: 0,
         }).format(amount);
+    };
+    
+    const calculateDaysAgo = (dateString: string): string => {
+        const piutangDate = new Date(dateString);
+        const today = new Date();
+        piutangDate.setHours(0, 0, 0, 0);
+        today.setHours(0, 0, 0, 0);
+
+        const diffTime = today.getTime() - piutangDate.getTime();
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays <= 0) {
+            return 'Hari ini';
+        }
+        return `${diffDays} hari`;
     };
 
     const handleShare = async () => {
@@ -116,7 +133,7 @@ const ReceivableInvoiceModal: React.FC<ReceivableInvoiceModalProps> = ({
                 className={`bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl w-full max-w-sm transform transition-all duration-300 ease-in-out flex flex-col max-h-[90vh] ${isVisible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}`}
                 onClick={(e) => e.stopPropagation()}
             >
-                <div ref={invoiceRef} className="bg-white rounded-t-2xl text-black font-mono">
+                <div ref={invoiceRef} className={`bg-white rounded-t-2xl text-black ${invoiceFont}`}>
                     <div className="p-4 border-b border-dashed border-slate-300 text-center">
                         <h2 className="text-base font-semibold">{invoiceAppName}</h2>
                         <p className="text-xs text-slate-500 mt-1">{invoiceAddress}</p>
@@ -140,16 +157,18 @@ const ReceivableInvoiceModal: React.FC<ReceivableInvoiceModalProps> = ({
                             <table className="w-full text-xs">
                                 <thead>
                                     <tr className="border-b border-dashed border-slate-300">
-                                        <th className="py-1 text-left font-normal text-slate-500">Tanggal</th>
+                                        <th className="py-1 text-left font-normal text-slate-500 w-[15%]">Tgl</th>
                                         <th className="py-1 text-left font-normal text-slate-500">Keterangan</th>
-                                        <th className="py-1 text-right font-normal text-slate-500">Jumlah</th>
+                                        <th className="py-1 text-center font-normal text-slate-500 w-[20%]">Tertunda</th>
+                                        <th className="py-1 text-right font-normal text-slate-500 w-[30%]">Jumlah</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {customerTransactions.map(t => (
                                         <tr key={t.id}>
                                             <td className="py-1 align-top">{new Date(t.date).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit' })}</td>
-                                            <td className="py-1 align-top">{t.description}</td>
+                                            <td className="py-1 align-top pr-2">{t.description}</td>
+                                            <td className="py-1 align-top text-center text-red-500">{calculateDaysAgo(t.date)}</td>
                                             <td className="py-1 align-top text-right">{formatRupiah(t.amount + t.margin)}</td>
                                         </tr>
                                     ))}
