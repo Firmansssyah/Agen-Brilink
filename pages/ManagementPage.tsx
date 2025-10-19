@@ -1,13 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Transaction, TransactionType, Wallet } from '../types';
-import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon, TuneIcon, CutIcon, MoreVerticalIcon } from '../components/icons/Icons';
+import { EditIcon, DeleteIcon, PlusIcon, SettingsIcon, TuneIcon, MoreVerticalIcon, SyncIcon } from '../components/icons/Icons';
 import AddEditWalletModal from '../components/AddEditWalletModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import AddEditCategoryModal from '../components/AddEditCategoryModal';
 import InitialBalanceModal from '../components/InitialBalanceModal';
 import AddCapitalModal from '../components/AddCapitalModal';
 import AdjustCashModal from '../components/AdjustCashModal';
-import BankFeeModal from '../components/BankFeeModal';
 
 interface ManagementPageProps {
     wallets: Wallet[];
@@ -18,8 +17,8 @@ interface ManagementPageProps {
     onDeleteCategory: (categoryName: string) => Promise<void>;
     onSaveInitialBalances: (updatedWallets: { id: string; initialBalance: number }[]) => Promise<void>;
     onSaveCapital: (data: { walletId: string; amount: number; }) => Promise<void>;
-    onSaveBankFee: (data: { walletId: string; amount: number; }) => Promise<void>;
     onSaveTransaction: (data: Omit<Transaction, 'id' | 'date'>) => Promise<void>;
+    onResyncBalances: () => Promise<void>;
     formatRupiah: (amount: number) => string;
 }
 
@@ -32,8 +31,8 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     onDeleteCategory,
     onSaveInitialBalances,
     onSaveCapital,
-    onSaveBankFee,
     onSaveTransaction,
+    onResyncBalances,
     formatRupiah,
 }) => {
     // State from WalletManagementPage
@@ -44,8 +43,8 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
     const [isInitialBalanceModalOpen, setIsInitialBalanceModalOpen] = useState(false);
     const [isAddCapitalModalOpen, setIsAddCapitalModalOpen] = useState(false);
     const [isAdjustCashModalOpen, setIsAdjustCashModalOpen] = useState(false);
-    const [isBankFeeModalOpen, setIsBankFeeModalOpen] = useState(false);
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+    const [isResyncConfirmOpen, setIsResyncConfirmOpen] = useState(false);
     const actionsMenuRef = useRef<HTMLDivElement>(null);
 
 
@@ -117,9 +116,9 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
         setIsAdjustCashModalOpen(false);
     };
 
-    const handleSaveBankFee = async (data: { walletId: string; amount: number; }) => {
-        await onSaveBankFee(data);
-        setIsBankFeeModalOpen(false);
+    const handleConfirmResync = async () => {
+        setIsResyncConfirmOpen(false);
+        await onResyncBalances();
     };
 
     // Handlers from TransactionCategoryPage
@@ -193,10 +192,10 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                                                         <span>Sesuaikan Kas</span>
                                                     </button>
                                                 </li>
-                                                <li>
-                                                    <button onClick={() => { setIsBankFeeModalOpen(true); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
-                                                        <CutIcon className="h-5 w-5 text-purple-500 dark:text-purple-400" />
-                                                        <span>Potongan Bank</span>
+                                                 <li>
+                                                    <button onClick={() => { setIsResyncConfirmOpen(true); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                        <SyncIcon className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                                                        <span>Sinkronisasi Ulang Saldo</span>
                                                     </button>
                                                 </li>
                                             </ul>
@@ -339,11 +338,14 @@ const ManagementPage: React.FC<ManagementPageProps> = ({
                     onClose={() => setIsAdjustCashModalOpen(false)}
                     onSave={handleSaveCashAdjustment}
                 />
-                <BankFeeModal
-                    isOpen={isBankFeeModalOpen}
-                    onClose={() => setIsBankFeeModalOpen(false)}
-                    onSave={handleSaveBankFee}
-                    wallets={wallets}
+                 <ConfirmationModal
+                    isOpen={isResyncConfirmOpen}
+                    onClose={() => setIsResyncConfirmOpen(false)}
+                    onConfirm={handleConfirmResync}
+                    title="Sinkronisasi Ulang Saldo"
+                    message="Proses ini akan menghitung ulang saldo semua dompet dari awal berdasarkan riwayat transaksi. Ini berguna untuk memperbaiki ketidaksesuaian data. Proses mungkin memerlukan beberapa saat. Lanjutkan?"
+                    confirmText="Ya, Sinkronisasi"
+                    confirmColor="bg-blue-600 hover:bg-blue-700"
                 />
             </div>
         </main>

@@ -244,3 +244,11 @@ export const PrintIcon: React.FC<{ className?: string }> = ({ className = "h-4 w
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
     </svg>
 );
+
+// Komponen Ikon Sinkronisasi (Sync)
+export const SyncIcon: React.FC<{ className?: string }> = ({ className = "h-5 w-5" }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h5M20 20v-5h-5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 9a9 9 0 0 1 14.65-4.65L20 5M4 19l1.35-1.35A9 9 0 0 0 15 20h5" />
+    </svg>
+);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Transaction, Wallet, Font } from '../types';
 import { useToastContext } from '../contexts/ToastContext';
+import { InfoIcon } from './icons/Icons';
 
 // Deklarasi untuk memberitahu TypeScript bahwa html2canvas ada di window object
 declare const html2canvas: any;
@@ -39,15 +40,19 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
     
     const [supportedAction, setSupportedAction] = useState<SupportedAction>('download');
     const [buttonState, setButtonState] = useState<ButtonState>('idle');
+    const [isSecureContext, setIsSecureContext] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
             setIsVisible(true);
             setButtonState('idle'); // Reset button state when modal opens
+            
+            const secure = window.location.protocol === 'https:';
+            setIsSecureContext(secure);
 
             // Feature detection to determine the best action
             const dummyFile = new File([""], "dummy.png", { type: "image/png" });
-            if (navigator.share && navigator.canShare?.({ files: [dummyFile] })) {
+            if (secure && navigator.share && navigator.canShare?.({ files: [dummyFile] })) {
                 setSupportedAction('share');
             // @ts-ignore
             } else if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
@@ -195,10 +200,6 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 <span className="font-medium text-slate-700">{transaction.customer}</span>
                             </div>
                             <div className="flex justify-between">
-                                <span className="text-slate-500">Dompet</span>
-                                <span className="font-medium text-slate-700">{wallet?.name || 'N/A'}</span>
-                            </div>
-                            <div className="flex justify-between">
                                 <span className="text-slate-500">ID Transaksi</span>
                                 <span className="font-mono text-xs text-slate-700">{transaction.id.substring(0, 8)}</span>
                             </div>
@@ -226,13 +227,21 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({
                     </div>
                 </div>
 
-                <div id="invoice-modal-actions" className="p-4 flex-shrink-0 flex gap-3 border-t border-slate-200 dark:border-neutral-700">
-                    <button onClick={handleClose} className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-slate-700 dark:text-neutral-200 font-semibold py-3 rounded-full text-sm transition-colors">
-                        Selesai
-                    </button>
-                    <button onClick={handleActionClick} disabled={buttonState === 'processing'} className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-3 rounded-full text-sm transition-colors disabled:opacity-70 disabled:cursor-wait">
-                        {actionButtonText}
-                    </button>
+                <div id="invoice-modal-actions" className="p-4 flex flex-col gap-3 border-t border-slate-200 dark:border-neutral-700">
+                    {!isSecureContext && (
+                        <div className="bg-yellow-100 dark:bg-yellow-500/10 p-3 rounded-lg flex items-center gap-2 text-yellow-800 dark:text-yellow-200">
+                            <InfoIcon className="h-5 w-5 flex-shrink-0" />
+                            <p className="text-xs">Fitur 'Bagikan Struk' memerlukan koneksi aman (HTTPS) dan akan aktif saat aplikasi di-hosting.</p>
+                        </div>
+                    )}
+                    <div className="flex gap-3">
+                        <button onClick={handleClose} className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-neutral-700 dark:hover:bg-neutral-600 text-slate-700 dark:text-neutral-200 font-semibold py-3 rounded-full text-sm transition-colors">
+                            Selesai
+                        </button>
+                        <button onClick={handleActionClick} disabled={buttonState === 'processing'} className="w-full bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-3 rounded-full text-sm transition-colors disabled:opacity-70 disabled:cursor-wait">
+                            {actionButtonText}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

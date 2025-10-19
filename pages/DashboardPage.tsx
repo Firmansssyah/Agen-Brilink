@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Transaction, Wallet, SortKey, SortDirection, TransactionType, Font } from '../types';
 import WalletsSummaryCard from '../components/WalletsSummaryCard';
 import AccountsReceivableCard from '../components/AccountsReceivableCard';
@@ -8,7 +8,7 @@ import TransactionModal from '../components/TransactionModal';
 import AddFeeModal from '../components/AddFeeModal';
 import EditFeeModal from '../components/EditFeeModal';
 import TransactionFilterControls from '../components/TransactionFilterControls';
-import { PlusIcon, TransferIcon } from '../components/icons/Icons';
+import { PlusIcon, TransferIcon, CutIcon, MarginIcon, MoreVerticalIcon } from '../components/icons/Icons';
 import TransferModal from '../components/TransferModal';
 import DailyTransactionsModal from '../components/DailyTransactionsModal';
 import ReceivableDetailModal from '../components/ReceivableDetailModal';
@@ -20,6 +20,9 @@ import MonthlyMarginDetailModal from '../components/MonthlyMarginDetailModal';
 import AssetDetailModal from '../components/AssetDetailModal';
 import EditBankFeeModal from '../components/EditBankFeeModal';
 import InvoiceModal from '../components/InvoiceModal';
+import EditInterestModal from '../components/EditInterestModal';
+import BankFeeModal from '../components/BankFeeModal';
+import AddInterestModal from '../components/AddInterestModal';
 
 
 // Properti yang diterima oleh komponen DashboardPage.
@@ -46,6 +49,10 @@ interface DashboardPageProps {
     invoicePhone: string;
     invoiceFooter: string;
     invoiceFont: Font;
+    // FIX: Update function signature to return a Promise, matching the implementation in App.tsx and the expectation in child components.
+    onSaveBankFee: (data: { walletId: string; amount: number; }) => Promise<void>;
+    // FIX: Update function signature to return a Promise, matching the implementation in App.tsx and the expectation in child components.
+    onSaveInterest: (data: { walletId: string; amount: number; date: string; }) => Promise<void>;
 }
 
 /**
@@ -76,6 +83,8 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     invoicePhone,
     invoiceFooter,
     invoiceFont,
+    onSaveBankFee,
+    onSaveInterest,
 }) => {
     // State for visibilitas modal tambah/edit transaksi.
     const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
@@ -95,6 +104,7 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     // State for visibilitas modal edit reward.
     const [isEditRewardModalOpen, setIsEditRewardModalOpen] = useState(false);
     const [isEditBankFeeModalOpen, setIsEditBankFeeModalOpen] = useState(false);
+    const [isEditInterestModalOpen, setIsEditInterestModalOpen] = useState(false);
     // State for menyimpan tanggal yang dipilih untuk modal detail harian.
     const [dailyModalDate, setDailyModalDate] = useState<string | null>(null);
     // State for filter.
@@ -121,6 +131,25 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const [isMarginDetailModalOpen, setIsMarginDetailModalOpen] = useState(false);
     // State for asset detail modal
     const [isAssetDetailModalOpen, setIsAssetDetailModalOpen] = useState(false);
+    // State for bank fee and interest modals
+    const [isBankFeeModalOpen, setIsBankFeeModalOpen] = useState(false);
+    const [isAddInterestModalOpen, setIsAddInterestModalOpen] = useState(false);
+    // State for desktop actions dropdown menu
+    const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
+    const actionsMenuRef = useRef<HTMLDivElement>(null);
+
+    // Close actions menu when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (actionsMenuRef.current && !actionsMenuRef.current.contains(event.target as Node)) {
+                setIsActionsMenuOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [actionsMenuRef]);
 
     
     // useMemo for menghitung total margin pada bulan ini.
@@ -298,6 +327,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         } else if (transaction.description === 'Potongan Bank') {
             setTransactionToEdit(transaction);
             setIsEditBankFeeModalOpen(true);
+        } else if (transaction.description === 'Bunga Bank') {
+            setTransactionToEdit(transaction);
+            setIsEditInterestModalOpen(true);
         } else {
             setTransactionToEdit(transaction);
             setIsTransactionModalOpen(true);
@@ -375,6 +407,16 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsFabMenuOpen(false);
     };
 
+    const handleOpenBankFeeModal = () => {
+        setIsBankFeeModalOpen(true);
+        setIsFabMenuOpen(false);
+    };
+
+    const handleOpenInterestModal = () => {
+        setIsAddInterestModalOpen(true);
+        setIsFabMenuOpen(false);
+    };
+
     // Handler for menyimpan transaksi fee.
     const handleSaveFee = (amount: number) => {
         const feeTransaction: Omit<Transaction, 'id' | 'date'> = {
@@ -390,6 +432,16 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
         setIsFeeModalOpen(false);
     };
     
+    const handleSaveBankFeeFromModal = async (data: { walletId: string; amount: number; }) => {
+        await onSaveBankFee(data);
+        setIsBankFeeModalOpen(false);
+    };
+
+    const handleSaveInterestFromModal = async (data: { walletId: string; amount: number; date: string; }) => {
+        await onSaveInterest(data);
+        setIsAddInterestModalOpen(false);
+    };
+
     // Handler for memperbarui transaksi fee.
     const handleUpdateFee = (updatedTransaction: Transaction) => {
         onSaveTransaction(updatedTransaction);
@@ -405,6 +457,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
     const handleUpdateBankFee = (updatedTransaction: Transaction) => {
         onSaveTransaction(updatedTransaction);
         setIsEditBankFeeModalOpen(false);
+    };
+
+    const handleUpdateInterest = (updatedTransaction: Transaction) => {
+        onSaveTransaction(updatedTransaction);
+        setIsEditInterestModalOpen(false);
     };
 
     // Handler for membuka modal transfer.
@@ -591,6 +648,26 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                 transactionToEdit={transactionToEdit}
                 formatRupiah={formatRupiah}
             />
+            <EditInterestModal
+                isOpen={isEditInterestModalOpen}
+                onClose={() => setIsEditInterestModalOpen(false)}
+                onSave={handleUpdateInterest}
+                onDelete={onDeleteTransaction}
+                transactionToEdit={transactionToEdit}
+                formatRupiah={formatRupiah}
+            />
+            <BankFeeModal
+                isOpen={isBankFeeModalOpen}
+                onClose={() => setIsBankFeeModalOpen(false)}
+                onSave={handleSaveBankFeeFromModal}
+                wallets={wallets}
+            />
+            <AddInterestModal
+                isOpen={isAddInterestModalOpen}
+                onClose={() => setIsAddInterestModalOpen(false)}
+                onSave={handleSaveInterestFromModal}
+                wallets={wallets}
+            />
             <ConfirmationModal 
                 isOpen={isDeleteTransferConfirmOpen}
                 onClose={() => setIsDeleteTransferConfirmOpen(false)}
@@ -672,25 +749,54 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                                     <div className="flex-shrink-0 flex justify-between items-center mb-4 px-2">
                                         <h3 className="text-lg font.medium text-slate-800 dark:text-white">Riwayat Transaksi</h3>
                                         <div className="hidden md:flex items-center space-x-2">
-                                            <button 
-                                                onClick={handleOpenTransferModal}
-                                                className="bg-sky-100 hover:bg-sky-200 text-sky-700 dark:bg-sky-400/10 dark:hover:bg-sky-400/20 dark:text-sky-200 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
-                                                aria-label="Pindah saldo antar dompet"
-                                            >
-                                                <TransferIcon className="h-4 w-4" />
-                                                <span>Pindah Saldo</span>
-                                            </button>
-                                            <button 
-                                                onClick={handleOpenFeeModal}
-                                                className="bg-blue-100 hover:bg-blue-200 text-blue-700 dark:bg-blue-400/10 dark:hover:bg-blue-400/20 dark:text-blue-200 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm"
-                                                aria-label="Tambah Fee Brilink"
-                                            >
-                                                <PlusIcon className="h-4 w-4" />
-                                                <span>Fee Brilink</span>
-                                            </button>
+                                            {/* New Actions Dropdown */}
+                                            <div ref={actionsMenuRef} className="relative">
+                                                <button
+                                                    onClick={() => setIsActionsMenuOpen(prev => !prev)}
+                                                    className="bg-slate-100 hover:bg-slate-200 text-slate-700 dark:bg-neutral-700/50 dark:hover:bg-neutral-700 dark:text-neutral-200 font-semibold p-2.5 rounded-full flex items-center justify-center transition-colors duration-300"
+                                                    aria-label="Aksi lainnya"
+                                                    aria-haspopup="true"
+                                                    aria-expanded={isActionsMenuOpen}
+                                                >
+                                                    <MoreVerticalIcon className="h-5 w-5" />
+                                                </button>
+
+                                                {isActionsMenuOpen && (
+                                                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-800 rounded-xl shadow-lg border border-slate-200 dark:border-white/10 z-20 animate-fade-in p-2">
+                                                        <ul className="space-y-1">
+                                                            <li>
+                                                                <button onClick={() => { handleOpenInterestModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                    <MarginIcon className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+                                                                    <span>Bunga Bank</span>
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button onClick={() => { handleOpenBankFeeModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                    <CutIcon className="h-5 w-5 text-purple-500 dark:text-purple-400" />
+                                                                    <span>Potongan Bank</span>
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button onClick={() => { handleOpenTransferModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                    <TransferIcon className="h-5 w-5 text-sky-500 dark:text-sky-400" />
+                                                                    <span>Pindah Saldo</span>
+                                                                </button>
+                                                            </li>
+                                                            <li>
+                                                                <button onClick={() => { handleOpenFeeModal(); setIsActionsMenuOpen(false); }} className="w-full flex items-center gap-3 px-3 py-2 text-sm text-left rounded-lg text-slate-700 dark:text-neutral-200 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors">
+                                                                    <PlusIcon className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                                                                    <span>Fee Brilink</span>
+                                                                </button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Main Add Transaction Button */}
                                             <button 
                                                 onClick={handleOpenAddModal}
-                                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font.semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-400 dark:hover:bg-blue-500 dark:text-slate-900 font-semibold py-2 px-4 rounded-full flex items-center justify-center space-x-2 transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 <PlusIcon className="h-4 w-4" />
                                                 <span>Tambah Transaksi</span>
@@ -753,6 +859,22 @@ const DashboardPage: React.FC<DashboardPageProps> = ({
                             </div>
                             <button onClick={handleOpenAddModal} className="h-12 w-12 rounded-full bg-white dark:bg-neutral-700 text-blue-500 dark:text-blue-300 flex items-center justify-center shadow-md hover:bg-slate-100 dark:hover:bg-neutral-600">
                                 <PlusIcon className="h-6 w-6" strokeWidth={2} />
+                            </button>
+                        </div>
+                         <div className="flex items-center gap-3">
+                            <div className="bg-white dark:bg-neutral-700 text-slate-700 dark:text-neutral-200 text-xs font.semibold px-3 py-1.5 rounded-full shadow-md">
+                                Bunga Bank
+                            </div>
+                            <button onClick={handleOpenInterestModal} className="h-12 w-12 rounded-full bg-white dark:bg-neutral-700 text-emerald-500 dark:text-emerald-300 flex items-center justify-center shadow-md hover:bg-slate-100 dark:hover:bg-neutral-600">
+                                <MarginIcon className="h-6 w-6" />
+                            </button>
+                        </div>
+                         <div className="flex items-center gap-3">
+                            <div className="bg-white dark:bg-neutral-700 text-slate-700 dark:text-neutral-200 text-xs font.semibold px-3 py-1.5 rounded-full shadow-md">
+                                Potongan Bank
+                            </div>
+                            <button onClick={handleOpenBankFeeModal} className="h-12 w-12 rounded-full bg-white dark:bg-neutral-700 text-purple-500 dark:text-purple-300 flex items-center justify-center shadow-md hover:bg-slate-100 dark:hover:bg-neutral-600">
+                                <CutIcon className="h-6 w-6" />
                             </button>
                         </div>
                         <div className="flex items-center gap-3">

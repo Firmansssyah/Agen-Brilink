@@ -40,7 +40,7 @@ const MainApp: React.FC = () => {
     // State untuk halaman yang sedang aktif.
     const [currentPage, setCurrentPage] = useState<Page>('dashboard');
     // State untuk nama aplikasi, diambil dari localStorage atau default.
-    const [appName, setAppName] = useState<string>(() => localStorage.getItem('appName') || 'Agen BRILink');
+    const [appName, setAppName] = useState<string>(() => localStorage.getItem('appName') || 'Firman Jaya');
     // State untuk tema aplikasi, disesuaikan dengan preferensi sistem atau localStorage.
     const [theme, setTheme] = useState<Theme>(
         (localStorage.getItem('theme') as Theme) ||
@@ -56,11 +56,11 @@ const MainApp: React.FC = () => {
     const [invoiceForTransaction, setInvoiceForTransaction] = useState<Transaction | null>(null);
 
     // Pengaturan Struk
-    const [invoiceAppName, setInvoiceAppName] = useState<string>(() => localStorage.getItem('invoiceAppName') || 'Agen BRILink');
-    const [invoiceAddress, setInvoiceAddress] = useState<string>(() => localStorage.getItem('invoiceAddress') || '');
-    const [invoicePhone, setInvoicePhone] = useState<string>(() => localStorage.getItem('invoicePhone') || '');
+    const [invoiceAppName, setInvoiceAppName] = useState<string>(() => localStorage.getItem('invoiceAppName') || 'Toko Firman Jaya');
+    const [invoiceAddress, setInvoiceAddress] = useState<string>(() => localStorage.getItem('invoiceAddress') || 'Dsn. Gadingan, Ds. Gunungsari, Kec. Maesan');
+    const [invoicePhone, setInvoicePhone] = useState<string>(() => localStorage.getItem('invoicePhone') || '085117122803');
     const [invoiceFooter, setInvoiceFooter] = useState<string>(() => localStorage.getItem('invoiceFooter') || 'Terima kasih telah bertransaksi!');
-    const [invoiceFont, setInvoiceFont] = useState<Font>(() => (localStorage.getItem('invoiceFont') as Font) || 'font-mono');
+    const [invoiceFont, setInvoiceFont] = useState<Font>(() => (localStorage.getItem('invoiceFont') as Font) || 'font-sans');
 
 
     // useMemo untuk mendefinisikan URL dasar API, agar tidak dihitung ulang pada setiap render.
@@ -230,6 +230,9 @@ const MainApp: React.FC = () => {
             primaryWalletChange = margin;
         } else if (description === 'Potongan Bank') {
             primaryWalletChange = -amount;
+            cashWalletChange = 0;
+        } else if (description === 'Bunga Bank') {
+            primaryWalletChange = margin;
             cashWalletChange = 0;
         } else if (description === 'Tambah Modal') {
              // Menambah modal hanya mempengaruhi dompet utama, bukan kas.
@@ -994,6 +997,121 @@ const MainApp: React.FC = () => {
         }
     }, [wallets, addToast, API_BASE_URL]);
 
+    const handleSaveInterestTransaction = useCallback(async (data: { walletId: string, amount: number, date: string }) => {
+        const { walletId, amount, date } = data;
+        const targetWallet = wallets.find(w => w.id === walletId);
+        if (!targetWallet) {
+            addToast('Dompet tidak ditemukan', 'error');
+            return;
+        }
+    
+        const interestTransaction: Omit<Transaction, 'id'> = {
+            date: date,
+            description: 'Bunga Bank',
+            customer: 'Bank',
+            type: TransactionType.IN,
+            amount: 0,
+            margin: amount,
+            wallet: walletId,
+            isPiutang: false,
+        };
+    
+        try {
+            // 1. Post new transaction
+            const txRes = await fetch(`${API_BASE_URL}/transactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(interestTransaction)
+            });
+            if (!txRes.ok) throw new Error('Gagal menyimpan transaksi bunga bank.');
+            const savedTransaction = await txRes.json();
+    
+            // 2. Update wallet balance
+            const newBalance = targetWallet.balance + amount;
+            const walletRes = await fetch(`${API_BASE_URL}/wallets/${walletId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ balance: newBalance })
+            });
+            if (!walletRes.ok) throw new Error('Gagal memperbarui saldo dompet.');
+            const updatedWallet = await walletRes.json();
+    
+            // 3. Update local state
+            setTransactions(prev => [savedTransaction, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+            setWallets(prev => prev.map(w => w.id === walletId ? updatedWallet : w));
+    
+            addToast('Bunga bank berhasil dicatat', 'success');
+        } catch (err) {
+            console.error("Gagal mencatat bunga bank:", err);
+            addToast(err instanceof Error ? err.message : 'Gagal mencatat bunga bank.', 'error');
+        }
+    }, [wallets, addToast, API_BASE_URL]);
+
+    const handleResyncBalances = useCallback(async () => {
+        addToast('Memulai sinkronisasi ulang saldo...', 'info');
+        try {
+            // 1. Reset balances to initial state locally
+            const balanceMap = new Map<string, number>();
+            wallets.forEach(w => {
+                balanceMap.set(w.id, w.initialBalance ?? 0);
+            });
+    
+            // 2. Sort all transactions from oldest to newest
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+            // 3. Re-apply every transaction using the corrected logic
+            for (const transaction of sortedTransactions) {
+                // Settle receivable logic (adds cash)
+                if (!transaction.isPiutang) {
+                    const originalTx = sortedTransactions.find(t => t.id === transaction.id && t.isPiutang);
+                    if (originalTx) {
+                        const cashWalletId = 'CASH';
+                        const currentCash = balanceMap.get(cashWalletId) ?? 0;
+                        balanceMap.set(cashWalletId, currentCash + transaction.amount + transaction.margin);
+                    }
+                }
+                
+                // Normal transaction creation logic
+                const changes = calculateWalletChanges(transaction, 'create');
+                
+                if (changes.primaryWalletId) {
+                    const currentPrimary = balanceMap.get(changes.primaryWalletId) ?? 0;
+                    balanceMap.set(changes.primaryWalletId, currentPrimary + changes.primaryWalletChange);
+                }
+                const cashWalletId = 'CASH';
+                const currentCash = balanceMap.get(cashWalletId) ?? 0;
+                balanceMap.set(cashWalletId, currentCash + changes.cashWalletChange);
+            }
+    
+            // 4. Prepare updated wallet objects
+            const updatedWallets = wallets.map(w => ({
+                ...w,
+                balance: balanceMap.get(w.id) ?? w.balance,
+            }));
+    
+            // 5. Push all updates to the server
+            const updatePromises = updatedWallets.map(w => 
+                fetch(`${API_BASE_URL}/wallets/${w.id}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ balance: w.balance })
+                })
+            );
+    
+            const responses = await Promise.all(updatePromises);
+            for (const res of responses) {
+                if (!res.ok) throw new Error('Gagal memperbarui saldo di server.');
+            }
+    
+            // 6. Update local state
+            setWallets(updatedWallets);
+            addToast('Sinkronisasi ulang saldo berhasil!', 'success');
+        } catch (err) {
+            console.error("Gagal sinkronisasi ulang:", err);
+            addToast(err instanceof Error ? err.message : 'Gagal sinkronisasi ulang.', 'error');
+        }
+    }, [wallets, transactions, addToast, API_BASE_URL]);
+
 
     /**
      * Fungsi untuk me-render halaman yang sesuai berdasarkan state `currentPage`.
@@ -1025,6 +1143,8 @@ const MainApp: React.FC = () => {
                     invoicePhone={invoicePhone}
                     invoiceFooter={invoiceFooter}
                     invoiceFont={invoiceFont}
+                    onSaveBankFee={handleBankFeeTransaction}
+                    onSaveInterest={handleSaveInterestTransaction}
                 />;
             case 'management':
                 return <ManagementPage 
@@ -1036,8 +1156,8 @@ const MainApp: React.FC = () => {
                     onDeleteCategory={handleDeleteCategory}
                     onSaveInitialBalances={handleSaveInitialBalances}
                     onSaveCapital={handleSaveCapitalTransaction}
-                    onSaveBankFee={handleBankFeeTransaction}
                     onSaveTransaction={handleSaveTransaction}
+                    onResyncBalances={handleResyncBalances}
                     formatRupiah={formatRupiah}
                 />;
             case 'customers':
@@ -1088,6 +1208,8 @@ const MainApp: React.FC = () => {
                     invoicePhone={invoicePhone}
                     invoiceFooter={invoiceFooter}
                     invoiceFont={invoiceFont}
+                    onSaveBankFee={handleBankFeeTransaction}
+                    onSaveInterest={handleSaveInterestTransaction}
                 />;
         }
     };
