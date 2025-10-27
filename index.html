@@ -108,6 +108,30 @@
           -ms-overflow-style: none;  /* IE and Edge */
           scrollbar-width: none;  /* Firefox */
       }
+      /* Ripple Effect */
+      button, [role="button"] {
+        position: relative;
+        overflow: hidden;
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+      }
+      .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(0, 0, 0, 0.1);
+        transform: scale(0);
+        animation: ripple-effect 600ms linear;
+        pointer-events: none;
+      }
+      @keyframes ripple-effect {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+      }
+      .dark .ripple {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
     </style>
   <script>
     // On page load or when changing themes, best to add inline in `head` to avoid FOUC
@@ -132,5 +156,35 @@
   <body class="bg-slate-50 dark:bg-[#191919] font-sans">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
+    <script>
+      document.addEventListener('mousedown', function (e) {
+          const target = e.target.closest('button, [role="button"]');
+          
+          if (target) {
+              const rect = target.getBoundingClientRect();
+              const circle = document.createElement("span");
+              const diameter = Math.max(target.clientWidth, target.clientHeight);
+              const radius = diameter / 2;
+
+              circle.style.width = circle.style.height = `${diameter}px`;
+              circle.style.left = `${e.clientX - rect.left - radius}px`;
+              circle.style.top = `${e.clientY - rect.top - radius}px`;
+              circle.classList.add("ripple");
+
+              const existingRipple = target.querySelector('.ripple');
+              if (existingRipple) {
+                  existingRipple.remove();
+              }
+
+              target.appendChild(circle);
+              
+              setTimeout(() => {
+                  if (circle.parentNode) {
+                      circle.remove();
+                  }
+              }, 600);
+          }
+      });
+    </script>
   </body>
 </html>
